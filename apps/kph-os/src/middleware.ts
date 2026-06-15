@@ -29,6 +29,7 @@ const MAINTENANCE_HTML = `<!DOCTYPE html>
 </body>
 </html>`;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function middleware(_request: NextRequest) {
   return new NextResponse(MAINTENANCE_HTML, {
     status: 401,

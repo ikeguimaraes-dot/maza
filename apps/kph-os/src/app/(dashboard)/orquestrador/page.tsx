@@ -464,7 +464,7 @@ function LearningMachinePanel({
           <div className="text-4xl mb-3">📊</div>
           <p className="text-sm font-medium text-foreground mb-1">Nenhuma análise gerada ainda</p>
           <p className="text-xs text-muted-foreground max-w-sm">
-            O cron roda toda sexta às 08:00 BRT. Clique em "Gerar análise agora" para criar o primeiro relatório manualmente.
+            O cron roda toda sexta às 08:00 BRT. Clique em &ldquo;Gerar análise agora&rdquo; para criar o primeiro relatório manualmente.
           </p>
         </div>
       ) : (

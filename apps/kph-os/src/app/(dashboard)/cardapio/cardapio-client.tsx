@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   AlertTriangle,
@@ -418,9 +419,9 @@ export function CardapioClient({
                 : "Nenhum resultado pros filtros atuais."}
             </p>
             {items.length === 0 && (
-              <a href="/cardapio/novo" className={buttonVariants()}>
+              <Link href="/cardapio/novo" className={buttonVariants()}>
                 Novo item
-              </a>
+              </Link>
             )}
           </div>
         ) : (

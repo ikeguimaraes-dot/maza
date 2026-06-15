@@ -15,8 +15,6 @@ const nextConfig = {
   // lockfiles fora do repo e quebra a resolução de módulos.
   turbopack: { root: path.join(import.meta.dirname, "../..") },
   transpilePackages: ["@kph/db", "@kph/ui", "@kph/auth", "@kph/core"],
-  eslint: { ignoreDuringBuilds: true },
-  typescript: { ignoreBuildErrors: true },
   async rewrites() {
     const afterFiles = zones.flatMap(({ prefix, host }) => [
       // Static assets must be proxied before the page routes so the browser
