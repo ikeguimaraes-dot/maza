@@ -476,7 +476,8 @@ export default function VagasPage() {
                 </div>
               ) : (
                 <div className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
-                  <table className="w-full text-sm">
+                  <div style={{ overflowX: "auto" }}>
+                  <table className="w-full text-sm" style={{ minWidth: 700 }}>
                     <thead className="bg-gray-50 border-b border-gray-100">
                       <tr>
                         {['Cargo','Unidade','Status','Prazo SLA','Dias aberta','Recrutador','Candidato','Ações'].map(h => (
@@ -547,6 +548,7 @@ export default function VagasPage() {
                       })}
                     </tbody>
                   </table>
+                  </div>
                   <div className="px-4 py-2 border-t border-gray-100 bg-gray-50 text-xs text-gray-400">
                     {vagas.length} vaga{vagas.length !== 1 ? 's' : ''}
                   </div>

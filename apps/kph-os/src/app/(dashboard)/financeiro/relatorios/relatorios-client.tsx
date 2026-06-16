@@ -182,7 +182,8 @@ export function RelatoriosClient({ relatorios }: { relatorios: PayrollReport[] }
         {relatorios.length === 0 ? (
           <p style={{ fontSize: 14, color: "var(--text-3)" }}>Nenhum relatório enviado ainda.</p>
         ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 520 }}>
             <thead>
               <tr style={{ borderBottom: "2px solid var(--border, #e5e7eb)" }}>
                 {["Arquivo", "Competência / Tipo", "Enviado em", ""].map((h) => (
@@ -221,6 +222,7 @@ export function RelatoriosClient({ relatorios }: { relatorios: PayrollReport[] }
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </section>
     </div>

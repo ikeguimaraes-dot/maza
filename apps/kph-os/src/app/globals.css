@@ -362,3 +362,99 @@
   .shell-backdrop { display: none !important; }
   .shell-hamburger { display: none !important; }
 }
+
+/* ── Command Palette (cmdk) ─────────────────────────────────────────────── */
+[cmdk-overlay] {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 17, 16, 0.72);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 999;
+}
+
+[cmdk-dialog] {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  width: min(520px, calc(100vw - 32px));
+}
+
+[cmdk-root] {
+  background: var(--surface);
+  border: 1px solid var(--border-strong, rgba(245,240,232,0.14));
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(245,240,232,0.04);
+}
+
+[cmdk-input] {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-soft);
+  outline: none;
+  color: var(--text);
+  font-size: 0.875rem;
+  font-family: var(--font-ui);
+  box-sizing: border-box;
+}
+
+[cmdk-input]::placeholder {
+  color: var(--text-3);
+}
+
+[cmdk-list] {
+  max-height: 360px;
+  overflow-y: auto;
+  padding: 6px 0 8px;
+  overscroll-behavior: contain;
+}
+
+[cmdk-group-heading] {
+  padding: 8px 14px 4px;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  font-family: var(--font-ui);
+}
+
+[cmdk-item] {
+  display: flex;
+  align-items: center;
+  padding: 9px 12px;
+  margin: 1px 6px;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  color: var(--text-2);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  transition: background var(--t, 150ms ease), color var(--t, 150ms ease);
+  user-select: none;
+}
+
+[cmdk-item][aria-selected="true"],
+[cmdk-item]:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+[cmdk-empty] {
+  padding: 28px 16px;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--text-3);
+  font-family: var(--font-ui);
+}
+
+[cmdk-separator] {
+  height: 1px;
+  background: var(--border-soft);
+  margin: 4px 0;
+}

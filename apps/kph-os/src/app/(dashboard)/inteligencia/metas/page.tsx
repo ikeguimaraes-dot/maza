@@ -71,7 +71,8 @@ export default async function MetasPage() {
             marginBottom: 28,
           }}
         >
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+          <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, minWidth: 560 }}>
             <thead>
               <tr style={{ borderBottom: "1px solid var(--border)", background: "var(--surface-2)" }}>
                 {["Meta", "Marca", "Realizado", "Alvo", "Progresso"].map((h) => (
@@ -119,6 +120,7 @@ export default async function MetasPage() {
               })}
             </tbody>
           </table>
+          </div>
         </div>
       ) : (
         <div style={{ textAlign: "center", padding: "60px 0", color: "var(--text-3)", fontSize: 14 }}>

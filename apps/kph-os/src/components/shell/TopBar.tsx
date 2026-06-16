@@ -1,9 +1,11 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Search, Menu } from "lucide-react";
 import { useAuth } from "@kph/auth/context";
 import { NotificationBell } from "@/components/shell/NotificationBell";
+import { CommandPalette } from "@/components/shell/CommandPalette";
 
 function firstName(email: string | null | undefined): string {
   if (!email) return "operador";
@@ -42,6 +44,18 @@ export function TopBar() {
   const { user } = useAuth();
   const title = PATH_LABELS[pathname] ?? "KPH OS";
   const name = firstName(user?.email);
+  const [cmdOpen, setCmdOpen] = useState(false);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setCmdOpen((prev) => !prev);
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
 
   return (
     <header className="shell-topbar" style={{
@@ -98,9 +112,12 @@ export function TopBar() {
         </div>
       </div>
 
+      <CommandPalette open={cmdOpen} onOpenChange={setCmdOpen} />
+
       <button
         className="shell-topbar-search"
         title="Buscar (Cmd/Ctrl+K)"
+        onClick={() => setCmdOpen(true)}
         style={{
           display: "inline-flex", alignItems: "center", gap: 8,
           padding: "8px 12px",

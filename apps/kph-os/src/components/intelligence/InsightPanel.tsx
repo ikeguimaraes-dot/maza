@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 
 type InsightData = {
   headline: string;
@@ -17,6 +17,10 @@ type Props = {
 export function InsightPanel({ module, context, title = "Insight IA" }: Props) {
   const [data, setData] = useState<InsightData | null>(null);
   const [loading, setLoading] = useState(true);
+  const payload = useMemo(
+    () => JSON.stringify({ module, context }),
+    [module, context],
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -25,7 +29,7 @@ export function InsightPanel({ module, context, title = "Insight IA" }: Props) {
       const res = await fetch("/api/intelligence/insight", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ module, context }),
+        body: payload,
       });
       if (!res.ok) { setLoading(false); return; }
       const json = (await res.json()) as InsightData | null;
@@ -35,7 +39,7 @@ export function InsightPanel({ module, context, title = "Insight IA" }: Props) {
     } finally {
       setLoading(false);
     }
-  }, [module, JSON.stringify(context)]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [payload]);
 
   useEffect(() => { load(); }, [load]);
 

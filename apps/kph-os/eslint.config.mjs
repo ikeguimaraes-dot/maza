@@ -25,10 +25,7 @@ const eslintConfig = defineConfig([
       // JSX attribute passed to <InsightPanel module="...">. Disabled.
       "@next/next/no-assign-module-variable": "off",
 
-      // Experimental React Compiler plugin rules — informational only.
-      // These fire when the compiler can't auto-memoize a component; they
-      // don't indicate runtime bugs. Downgraded from error to warn.
-      "react-compiler/react-compiler": "warn",
+      // react-hooks rules from eslint-config-next — informational only.
       "react-hooks/preserve-manual-memoization": "warn",
       "react-hooks/set-state-in-effect": "warn",
     },

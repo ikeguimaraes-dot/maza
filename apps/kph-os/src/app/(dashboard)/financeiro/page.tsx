@@ -90,7 +90,8 @@ export default async function FinanceiroPage() {
             marginBottom: 28,
           }}
         >
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+          <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, minWidth: 560 }}>
             <thead>
               <tr style={{ borderBottom: "1px solid var(--border)", background: "var(--surface-2)" }}>
                 {["Marca", "Receita Bruta", "CMV %", "EBITDA", "EBITDA %"].map((h) => (
@@ -142,6 +143,7 @@ export default async function FinanceiroPage() {
               })}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 
