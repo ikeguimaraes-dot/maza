@@ -181,12 +181,6 @@ Formato esperado:
   ],
   "cancelamentos_detalhe": [
     { "item": string, "usuario": string, "motivo": string, "qtd": number, "valor": number }
-  ],
-  "horarios": [
-    { "hora": number, "clientes": number, "gorjeta": number, "produto": number, "consumo": number }
-  ],
-  "usuarios": [
-    { "usuario": string, "qtd": number, "gorjeta": number, "produto": number, "consumo": number }
   ]
 }
 
@@ -199,9 +193,7 @@ Regras:
 - Campos não encontrados no PDF: usar null
 - Arrays vazios se a seção não existir: []
 - descontos_detalhe: extrair da seção detalhada de Desconto que lista cada produto descontado com Usuário, Motivo, Qtde e Consumo (ignorar as linhas de cabeçalho de comanda como '115 - LOREAN DESK'). valor = coluna Consumo.
-- cancelamentos_detalhe: extrair da seção detalhada de Cancelado que lista cada produto cancelado com Usuário, Motivo, Qtde e Consumo (ignorar linhas de cabeçalho de comanda como '103 - LOREAN DESK'). valor = coluna Consumo.
-- horarios: da seção 'Horário' (hora como inteiro: '20h' → 20). Arrays vazios se a seção não existir: []
-- usuarios: da seção 'Usuário'. Arrays vazios se a seção não existir: []`;
+- cancelamentos_detalhe: extrair da seção detalhada de Cancelado que lista cada produto cancelado com Usuário, Motivo, Qtde e Consumo (ignorar linhas de cabeçalho de comanda como '103 - LOREAN DESK'). valor = coluna Consumo.`;
 
 const CAIXA_PROMPT = `Extraia os dados deste relatório de fechamento de caixa Lorean e retorne APENAS JSON válido, sem texto adicional, sem markdown.
 
@@ -240,6 +232,24 @@ Regras:
 - cmv_pct: valor decimal (ex: 0.27 para 27%)
 - Ignorar linhas de subtotal das seções
 - Array vazio [] se não houver produtos`;
+
+const VENDA_PROMPT_2 = `Extraia os dados deste relatório Lorean de Venda e retorne APENAS JSON válido, sem texto adicional, sem markdown.
+
+Extraia SOMENTE estes 2 arrays: vendas por horário e vendas por garçom/usuário.
+
+Formato esperado:
+{
+  "horarios": [
+    { "hora": number, "clientes": number, "gorjeta": number, "produto": number, "consumo": number }
+  ],
+  "usuarios": [
+    { "usuario": string, "qtd": number, "gorjeta": number, "produto": number, "consumo": number }
+  ]
+}
+
+Regras:
+- horarios.hora: número inteiro da hora (12, 13, 14 ... 23)
+- Arrays vazios se a seção não existir no PDF: []`;
 
 async function parsePdfWithClaude(
   pdfBase64: string,
@@ -583,75 +593,127 @@ function extractDateFromFilename(filename: string): string | null {
   return `20${yy}-${mm}-${dd}`;
 }
 
-// ── Attachment processing ────────────────────────────────────────────────────
+// ── Parallel PDF processing per email ────────────────────────────────────────
 
-async function processAttachment(
+async function processEmailPdfs(
   accessToken: string,
   emailId: string,
-  attachment: Attachment,
-): Promise<void> {
-  const { filename, attachmentId } = attachment;
-  console.log(`[lorean] Processing attachment: ${filename}`);
+  pdfAttachments: Attachment[],
+): Promise<{ processed: number; errors: number }> {
+  const movAtt    = pdfAttachments.find(a => a.filename.includes("Movimento"));
+  const vendaAtt  = pdfAttachments.find(a => !a.filename.includes("Movimento") && !a.filename.includes("Caixa"));
+  const caixaAtts = pdfAttachments.filter(a => a.filename.includes("Caixa"));
 
-  // Accepts both "LOREAN [2031]" and "LOREAN__2031__" formats
-  const unitMatch = filename.match(/LOREAN\s*[\[\(]?(\d+)[\]\)]?/i);
+  if (!movAtt) throw new Error(`Movimento PDF não encontrado no email ${emailId}`);
+
+  // Resolve unit from Movimento filename (authoritative for the whole email)
+  const unitMatch = movAtt.filename.match(/LOREAN\s*[\[\(]?(\d+)[\]\)]?/i);
   const loreanUnitId = unitMatch?.[1];
-  const unitMap: Record<string, string> = JSON.parse(
-    Deno.env.get("LOREAN_UNIT_MAP") ?? "{}",
-  );
+  const unitMap: Record<string, string> = JSON.parse(Deno.env.get("LOREAN_UNIT_MAP") ?? "{}");
   const supabaseUnitId = loreanUnitId ? unitMap[loreanUnitId] : undefined;
   console.log(`[lorean] Unit: lorean=${loreanUnitId} → supabase=${supabaseUnitId ?? "NOT FOUND"}`);
-
   if (!supabaseUnitId) {
-    throw new Error(`Unidade Lorean desconhecida: ${loreanUnitId ?? "?"} em "${filename}". LOREAN_UNIT_MAP=${Deno.env.get("LOREAN_UNIT_MAP")}`);
+    throw new Error(`Unidade Lorean desconhecida: ${loreanUnitId ?? "?"} em "${movAtt.filename}". LOREAN_UNIT_MAP=${Deno.env.get("LOREAN_UNIT_MAP")}`);
   }
 
-  // Detect PDF type — skip "Venda" (not yet handled)
-  const tipo: "workday" | "caixa" | "venda" = filename.includes("Movimento")
-    ? "workday"
-    : filename.includes("Caixa")
-    ? "caixa"
-    : "venda";
+  console.log(`[lorean] processEmailPdfs: mov=${movAtt.filename} venda=${vendaAtt?.filename ?? "—"} caixas=${caixaAtts.length}`);
 
-  console.log(`[lorean] Downloading PDF attachment ${attachmentId}...`);
-  const pdfBase64 = await getAttachmentBase64(accessToken, emailId, attachmentId);
-  console.log(`[lorean] PDF downloaded, base64 length=${pdfBase64.length}`);
+  // Step 1: Download all PDFs in parallel
+  const [movBase64, vendaBase64Raw, ...caixaBase64s] = await Promise.all([
+    getAttachmentBase64(accessToken, emailId, movAtt.attachmentId),
+    vendaAtt ? getAttachmentBase64(accessToken, emailId, vendaAtt.attachmentId) : Promise.resolve(""),
+    ...caixaAtts.map(c => getAttachmentBase64(accessToken, emailId, c.attachmentId)),
+  ]);
+  const vendaBase64 = vendaAtt ? vendaBase64Raw : null;
+  console.log(`[lorean] Downloads: mov=${movBase64.length} venda=${vendaBase64?.length ?? 0} caixas=${caixaBase64s.length}`);
 
-  if (tipo === "venda") {
-    const parsed = await parsePdfWithClaude(pdfBase64, VENDA_PROMPT, filename, "venda");
-    console.log(`[lorean] Venda produtos: ${parsed.produtos?.length ?? 0}`);
-    await insertVenda(parsed, supabaseUnitId, emailId, filename);
+  // Step 2: Parse all in parallel
+  // Indices: [0]=workday [1]=venda-produtos [2]=venda-horarios/usuarios [3+]=caixa(s)
+  console.log("[lorean] Parsing all PDFs in parallel...");
+  const parseSettled = await Promise.allSettled([
+    parsePdfWithClaude(movBase64, WORKDAY_PROMPT, movAtt.filename, "workday"),
+    vendaBase64
+      ? parsePdfWithClaude(vendaBase64, VENDA_PROMPT, vendaAtt!.filename, "venda")
+      : Promise.resolve(null),
+    vendaBase64
+      ? parsePdfWithClaude(vendaBase64, VENDA_PROMPT_2, vendaAtt!.filename, "venda-hor")
+      : Promise.resolve(null),
+    ...caixaAtts.map((c, i) =>
+      parsePdfWithClaude(caixaBase64s[i]!, CAIXA_PROMPT, c.filename, `caixa-${i}`)
+    ),
+  ]);
+
+  // Step 3: Validate Movimento — abort if failed (Venda/Caixa depend on the workday record)
+  const movSettled = parseSettled[0]!;
+  if (movSettled.status === "rejected") throw new Error(`Parse Movimento falhou: ${movSettled.reason}`);
+  let movParsed = movSettled.value;
+
+  // Apply date + timestamp overrides to Movimento
+  const filenameDate = extractDateFromFilename(movAtt.filename);
+  if (filenameDate) {
+    console.log(`[lorean] Date override: Claude="${movParsed.data}" → filename="${filenameDate}"`);
+    movParsed.data = filenameDate;
+  }
+  const pdfBytes = Uint8Array.from(atob(movBase64), (c) => c.charCodeAt(0));
+  const pdfText  = new TextDecoder("latin1").decode(pdfBytes);
+  const { abertura_at, fechamento_at } = extractTimestamps(pdfText);
+  if (abertura_at  !== null) movParsed.abertura_at  = abertura_at;
+  if (fechamento_at !== null) movParsed.fechamento_at = fechamento_at;
+  console.log(`[lorean] timestamps: abertura=${abertura_at} fechamento=${fechamento_at}`);
+
+  // Inject horarios + usuarios from VENDA_PROMPT_2 into Movimento parsed object
+  const vendaHorSettled = parseSettled[2];
+  if (vendaHorSettled?.status === "fulfilled" && vendaHorSettled.value) {
+    movParsed.horarios = vendaHorSettled.value.horarios ?? [];
+    movParsed.usuarios = vendaHorSettled.value.usuarios ?? [];
+    console.log(`[lorean] horarios=${movParsed.horarios.length} usuarios=${movParsed.usuarios.length} (from Venda PDF)`);
   } else {
-    const parsed = await parsePdfWithClaude(
-      pdfBase64,
-      tipo === "workday" ? WORKDAY_PROMPT : CAIXA_PROMPT,
-      filename,
-      tipo,
-    );
-
-    // Override Claude's date with the filename date — filename is authoritative (DD.MM.YY format)
-    const filenameDate = extractDateFromFilename(filename);
-    if (filenameDate) {
-      console.log(`[lorean] Date override: Claude said "${parsed.data}", filename says "${filenameDate}" — using filename`);
-      parsed.data = filenameDate;
-    } else {
-      console.log(`[lorean] No date in filename, using Claude's date: "${parsed.data}"`);
-    }
-
-    if (tipo === "workday") {
-      // Extract abertura_at / fechamento_at via regex — more reliable than Claude for this field
-      const pdfBytes = Uint8Array.from(atob(pdfBase64), (c) => c.charCodeAt(0));
-      const pdfText = new TextDecoder("latin1").decode(pdfBytes);
-      const { abertura_at, fechamento_at } = extractTimestamps(pdfText);
-      if (abertura_at !== null) { parsed.abertura_at = abertura_at; }
-      if (fechamento_at !== null) { parsed.fechamento_at = fechamento_at; }
-      console.log(`[lorean] timestamps from regex: abertura=${abertura_at} fechamento=${fechamento_at}`);
-      await insertWorkday(parsed, supabaseUnitId, emailId, filename);
-    } else {
-      await insertCaixa(parsed, supabaseUnitId, emailId, filename);
+    movParsed.horarios = [];
+    movParsed.usuarios = [];
+    if (vendaHorSettled?.status === "rejected") {
+      console.log(`[lorean] VENDA_PROMPT_2 falhou — horarios/usuarios zerados: ${vendaHorSettled.reason}`);
     }
   }
-  console.log(`[lorean] Done: ${filename}`);
+
+  // Step 4: Insert Movimento first (creates workday record that Venda + Caixa depend on)
+  await insertWorkday(movParsed, supabaseUnitId, emailId, movAtt.filename);
+  let processed = 1;
+  let errors    = 0;
+
+  // Step 5: Insert Venda + Caixa(s) in parallel (workday record now exists)
+  const insertTasks: Promise<void>[] = [];
+
+  const vendaSettled = parseSettled[1];
+  if (vendaAtt && vendaSettled?.status === "fulfilled" && vendaSettled.value) {
+    insertTasks.push(
+      insertVenda(vendaSettled.value, supabaseUnitId, emailId, vendaAtt.filename)
+        .then(() => { processed++; }),
+    );
+  } else if (vendaAtt && vendaSettled?.status === "rejected") {
+    await logError(emailId, vendaAtt.filename, vendaSettled.reason);
+    errors++;
+  }
+
+  for (let i = 0; i < caixaAtts.length; i++) {
+    const caixaSettled = parseSettled[3 + i];
+    const caixaAtt     = caixaAtts[i]!;
+    if (caixaSettled?.status === "fulfilled" && caixaSettled.value) {
+      let caixaParsed = caixaSettled.value;
+      const caixaDate = extractDateFromFilename(caixaAtt.filename);
+      if (caixaDate) caixaParsed.data = caixaDate;
+      insertTasks.push(
+        insertCaixa(caixaParsed, supabaseUnitId, emailId, caixaAtt.filename)
+          .then(() => { processed++; }),
+      );
+    } else if (caixaSettled?.status === "rejected") {
+      await logError(emailId, caixaAtt.filename, caixaSettled.reason);
+      errors++;
+    }
+  }
+
+  await Promise.all(insertTasks);
+  console.log(`[lorean] processEmailPdfs done: processed=${processed} errors=${errors}`);
+  return { processed, errors };
 }
 
 // ── Entry point ──────────────────────────────────────────────────────────────
@@ -730,18 +792,19 @@ Deno.serve(async (req) => {
         continue;
       }
 
-      console.log(`[lorean] email ${emailId}: processing ${pdfAttachments.length} Lorean PDF(s)`);
+      console.log(`[lorean] email ${emailId}: processing ${pdfAttachments.length} Lorean PDF(s) in parallel`);
 
-      for (const attachment of pdfAttachments) {
-        try {
-          await processAttachment(accessToken, emailId, attachment);
-          results.processed++;
-          results.detail.push({ emailId, filename: attachment.filename, status: "success" });
-        } catch (err) {
-          await logError(emailId, attachment.filename, err);
-          results.errors++;
-          results.detail.push({ emailId, filename: attachment.filename, status: "error", error: String(err) });
+      try {
+        const { processed, errors } = await processEmailPdfs(accessToken, emailId, pdfAttachments);
+        results.processed += processed;
+        results.errors    += errors;
+        results.detail.push({ emailId, status: "success", pdfs: pdfAttachments.map(a => a.filename) });
+      } catch (err) {
+        for (const a of pdfAttachments) {
+          await logError(emailId, a.filename, err);
         }
+        results.errors += pdfAttachments.length;
+        results.detail.push({ emailId, status: "error", error: String(err), pdfs: pdfAttachments.map(a => a.filename) });
       }
     }
 
