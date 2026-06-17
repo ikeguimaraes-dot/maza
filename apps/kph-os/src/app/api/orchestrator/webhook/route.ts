@@ -1,3 +1,4 @@
+import { createHmac, timingSafeEqual } from 'crypto'
 import { createServiceClient } from '@kph/db/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { sendDiscordMessage, DISCORD_COLORS } from '@/lib/discord/notify'
@@ -9,12 +10,33 @@ const ALLOWED_PROJECTS = (process.env.ORCHESTRATOR_ALLOWED_PROJECTS || 'kph-os')
   .filter(Boolean)
 
 export async function POST(req: NextRequest) {
+  // Fail-closed: ausência da env var → 401 antes de processar o body
+  const webhookSecret = process.env.VERCEL_WEBHOOK_SECRET
+  if (!webhookSecret) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const rawBody = await req.text()
+
+  // Vercel Webhooks v1: x-vercel-signature = HMAC-SHA1 do raw body (sem prefixo)
+  const sig = req.headers.get('x-vercel-signature') ?? ''
+  const expected = createHmac('sha1', webhookSecret).update(rawBody).digest('hex')
+  let sigValid = false
+  try {
+    sigValid = timingSafeEqual(Buffer.from(sig), Buffer.from(expected))
+  } catch {
+    // buffers de tamanhos diferentes lançam — assinatura inválida
+  }
+  if (!sigValid) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const supabase = createServiceClient()
   if (!supabase) {
     return NextResponse.json({ error: 'Supabase indisponível' }, { status: 500 })
   }
 
-  const body = await req.json()
+  const body = JSON.parse(rawBody)
   const { type, payload } = body
 
   const projectName = body?.payload?.name || body?.payload?.project?.name

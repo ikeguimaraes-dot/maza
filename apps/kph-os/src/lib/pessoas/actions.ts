@@ -1265,9 +1265,6 @@ export async function getSessionTokens(): Promise<{
 }
 
 /** Lookup employee pelo user_id da sessão (rota /ponto). */
-// AUTH DESATIVADO: user_id do bypass (Mariana Costa — conta de teste)
-const BYPASS_USER_ID = "ac559fa1-f10b-4ec4-9f4b-fafbc881a884";
-
 export async function getMyEmployee(userId?: string): Promise<Employee | null> {
   try {
     // TEMP (mock period): usa getCurrentUser() em vez de supabase.auth.getUser()

@@ -61,9 +61,9 @@ export async function registrarPunch(
     return { ok: false, error: "Supabase indisponível" };
   }
   const { data: { user } } = await cookieClient.auth.getUser();
-  // AUTH DESATIVADO: sem sessão real → usa id fixo de teste (Mariana Costa)
-  const BYPASS_USER_ID = "ac559fa1-f10b-4ec4-9f4b-fafbc881a884";
-  const effectiveUserId = user?.id ?? BYPASS_USER_ID;
+  if (!user) {
+    return { ok: false, error: "Sessão expirada — faça login novamente" };
+  }
 
   // ── 2) Authz: caller é dono do employee OU tem role na unit ──
   const service = createServiceClient();
@@ -83,13 +83,13 @@ export async function registrarPunch(
     return { ok: false, error: "Colaborador não encontrado" };
   }
 
-  const isSelf = employee.user_id === effectiveUserId;
+  const isSelf = employee.user_id === user.id;
   let canPunchForOthers = false;
   if (!isSelf) {
     const { data: roles, error: rolesErr } = await service
       .from("user_roles")
       .select("unit_id")
-      .eq("user_id", effectiveUserId)
+      .eq("user_id", user.id)
       .eq("unit_id", employee.unit_id);
     if (rolesErr) {
       return { ok: false, error: `Lookup roles falhou: ${rolesErr.message}` };

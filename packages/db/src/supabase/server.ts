@@ -20,18 +20,6 @@ export async function createSupabaseServerClient(
 
   const cookieStore = resolvedCookieStore ?? (await cookies());
 
-  // AUTH DESATIVADO: sem sessão → service role para bypassar RLS
-  const hasSession = cookieStore.getAll().some((c) => c.name.includes("auth-token"));
-  if (!hasSession) {
-    const serviceClient = createServiceClient();
-    if (serviceClient) return serviceClient;
-    // Sem SUPABASE_SERVICE_ROLE_KEY (dev/CI sem .env completo) → anon client
-    // Dados serão filtrados por RLS (pode vir vazio), mas página renderiza sem erro
-    return createServerClient<Database>(url, anonKey, {
-      cookies: { getAll: () => [], setAll: () => {} },
-    });
-  }
-
   // Aplica o Set-Cookie do middleware se a request foi um Server Action
   // (Next.js 14+ tem bug que dropa Set-Cookie de middleware em Server Actions)
   const headerStore = await headers();

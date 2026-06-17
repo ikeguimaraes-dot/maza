@@ -95,16 +95,10 @@ function isNextInternal(e: unknown): boolean {
   return typeof message === "string" && message.includes("Dynamic server usage");
 }
 
-/** AUTH DESATIVADO — retorna user bypass quando não há sessão. */
 export async function requireUser(): Promise<CurrentUser> {
   const user = await getCurrentUser();
   if (user) return user;
-  // UUID fixo seedado em 039_seed_bypass_user.sql — satisfaz FK auth.users(id).
-  return {
-    id: "00000000-0000-0000-0000-000000000001",
-    email: "bypass@kph.os",
-    roles: [{ role: "founder" as RoleName, unitId: null, brandId: null, groupId: null }],
-  };
+  redirect("/login");
 }
 
 /** Falha se o user não tiver pelo menos uma das roles especificadas. */
