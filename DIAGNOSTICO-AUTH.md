@@ -1,37 +1,46 @@
 # Diagnóstico Auth — KPH-OS
 
-> Documento produzido em 2026-06-15 como requisito do Sprint 1 de Segurança.
-> Base: auditoria de código (commits, diffs, arquivos de configuração) e análise
-> estrutural. Não há logs de servidor disponíveis neste repositório.
+> Atualizado em 2026-06-17 (Sprint 3). Versão original: 2026-06-15 (Sprint 1).
+> Base: auditoria de código, commits, diffs, verificação funcional (hotfix lockdown).
 
 ---
 
-## 1. Por que o middleware foi movido para a raiz — e por que nunca funcionou
+## 1. Por que o middleware foi parar na raiz — e por que nunca funcionou
 
 ### Linha do tempo precisa
 
 | Data | Commit | O que aconteceu |
 |---|---|---|
-| 2026-04-26 | `777501c` | Auth implementado corretamente: `src/proxy.ts` com função `proxy()`, `updateSession()` de `@supabase/ssr`. Build emitia `ƒ Proxy (Middleware)` no log. **Sistema funcionava.** |
-| 2026-04-28 | `397fdc8` | Bypass temporário para testes do módulo Ponto: `src/proxy.ts` esvaziado para `NextResponse.next()`. Comentário: "restaurar antes de produção real". |
-| 2026-04-29 | `ac63f35` | `src/proxy.ts` restaurado com a implementação completa. `/api/auth-debug` adicionado ao `PUBLIC_PREFIXES` (a rota de diagnóstico precisava ser pública para ser útil). |
-| 2026-04-29 | `4bb77af` | Fix: `await cookies()` explicitado em `getCurrentUser()` e `cookieStore` passado como argumento para `createSupabaseServerClient()`. Motivo documentado: Next.js 14+ exige que `cookies()` seja chamado diretamente e o resultado passado adiante, não inferido novamente pelo callee. |
-| **2026-04-30** | **`0976701`** | **"chore: desativa autenticação — acesso livre sem login."** Três mudanças simultâneas: (1) `middleware.ts` na raiz simplificado para `NextResponse.next()`, (2) `requireUser()` passa a retornar usuário bypass, (3) `createSupabaseServerClient()` usa `service_role` sem sessão. |
-| 2026-05-22 | `0052892` | Migração para monorepo Turborepo. `src/proxy.ts` **não foi migrado** para `apps/kph-os/src/proxy.ts`. Arquivo perdido na reestruturação. |
-| 2026-05-24 | `daf1d20` | `ignoreBuildErrors: true` e `ignoreDuringBuilds: true` adicionados a todos os `next.config.ts` para destravar deploys durante a migração multi-zona. |
-| 2026-06-12 | `bc69d38` | Hotfix lockdown: `apps/kph-os/src/middleware.ts` com 401 total. |
+| 2026-04-26 | `777501c` | Auth implementado: lógica de sessão em `src/proxy.ts` (arquivo de nível raiz do monolito). Build mostrava `ƒ Proxy (Middleware)` em alguma configuração — os detalhes exatos desse commit não estão disponíveis neste repositório pós-migração. |
+| 2026-04-28 | `397fdc8` | Bypass temporário para testes do módulo Ponto: arquivo de middleware esvaziado para `NextResponse.next()`. Comentário: "restaurar antes de produção real". |
+| 2026-04-29 | `ac63f35` | Middleware restaurado com lógica de auth. `/api/auth-debug` adicionado à lista pública para diagnóstico. |
+| 2026-04-29 | `4bb77af` | Fix: `await cookies()` explicitado em `getCurrentUser()`, `cookieStore` passado como argumento. Motivo: Next.js 14+ exige `cookies()` chamado diretamente — não pode ser inferido novamente pelo callee. |
+| **2026-04-30** | **`0976701`** | **"chore: desativa autenticação — acesso livre sem login."** Três mudanças simultâneas: (1) middleware simplificado para `NextResponse.next()`, (2) `requireUser()` retorna usuário bypass, (3) `createSupabaseServerClient()` usa `service_role` sem sessão. |
+| 2026-05-22 | `0052892` | Migração para monorepo Turborepo. Arquivos de `src/` copiados para `apps/kph-os/src/`, mas o middleware (fosse `middleware.ts` ou `proxy.ts` na raiz do monolito) **não estava num padrão glob standard e não foi migrado**. |
+| 2026-05-24 | `daf1d20` | `ignoreBuildErrors: true` e `ignoreDuringBuilds: true` adicionados a todos os `next.config.ts` para destravar deploys durante migração multi-zona. |
+| 2026-06-12 | `bc69d38` | Hotfix lockdown: `apps/kph-os/src/middleware.ts` com 401 total criado. |
+| 2026-06-12 | `fedc4ee` | Revert: `src/middleware.ts` deletado, sistema restaurado ao estado livre. **Sprint 3 precisa criar este arquivo com auth real.** |
+
+### Confirmação experimental: `src/middleware.ts` funciona no Next 16
+
+O hotfix `bc69d38` criou `apps/kph-os/src/middleware.ts` com `export function middleware()` e retornou 401 em toda rota — **confirmado via curl em produção**. Portanto:
+
+- ✅ `apps/kph-os/src/middleware.ts` + `export function middleware()` → Next 16 reconhece e executa
+- ❌ `middleware.ts` na raiz do monorepo → ignorado (o diretório raiz não é o rootDir do projeto Vercel)
+
+> **Correção à versão Sprint 1 deste documento:** A análise anterior mencionava `src/proxy.ts` com função `proxy()` como o arquivo correto para Next 16. Isso era uma inferência não confirmada. O hotfix provou que o padrão correto é `src/middleware.ts` / `middleware()` — exatamente a convenção padrão do Next.js desde a v13.
 
 ### O erro fundamental do commit `0976701`
 
-O commit modificou `middleware.ts` (raiz do monolito na época), mas o arquivo que o Next 16 procura é `src/proxy.ts` com função `proxy()`. Na data do commit, `src/proxy.ts` ainda existia e ainda continha a lógica de auth real — o middleware desativado na raiz era ignorado pelo build desde o início.
+O commit desativou o auth via **três mudanças de camada de aplicação** (não apenas middleware). Mesmo se o middleware estivesse correto, as camadas 2 e 3 já garantiam acesso total:
 
-**Consequência**: a desativação real não veio do middleware, mas das outras duas mudanças do mesmo commit: `requireUser()` retornando bypass e `createSupabaseServerClient()` escalando para service_role. Essas mudanças operavam na camada de aplicação, independentemente do middleware.
+| Camada | Arquivo | Bypass |
+|---|---|---|
+| 1 — Middleware | `apps/kph-os/src/middleware.ts` (inexistente hoje) | `NextResponse.next()` — qualquer rota passa |
+| 2 — Auth DAL | `packages/auth/src/server.ts:99-108` | `requireUser()` retorna founder fake sem sessão |
+| 3 — DB Client | `packages/db/src/supabase/server.ts:23-33` | `createSupabaseServerClient()` usa `service_role` sem cookie de sessão |
 
-### Por que `src/proxy.ts` sumiu na migração de monorepo
-
-O `git show 0052892` confirma que ~400 imports foram atualizados, mas `src/proxy.ts` não aparece no diff do commit — foi omitido. A migração copiou `src/lib/`, `src/app/`, `src/components/`, mas `src/proxy.ts` (arquivo de nível raiz do antigo monolito) não estava num padrão glob `src/**/*`. Ficou de fora.
-
-O arquivo `packages/db/src/supabase/proxy.ts` (a função `updateSession()`) **sobreviveu** — está presente no repo hoje. O entry point do Next.js (`apps/kph-os/src/proxy.ts`) é o que está faltando.
+A reativação precisa reverter as **três camadas**.
 
 ---
 
@@ -41,11 +50,11 @@ O arquivo `packages/db/src/supabase/proxy.ts` (a função `updateSession()`) **s
 
 Não há issue tracker ou mensagem explícita documentando o bug. O que os diffs mostram:
 
-1. O fix do `await cookies()` em `4bb77af` (Apr 29) sugere que `getCurrentUser()` retornava `null` mesmo com sessão ativa, porque `cookies()` não estava sendo aguardado corretamente antes de ser passado para `createSupabaseServerClient()`.
+1. O fix do `await cookies()` em `4bb77af` (Apr 29) sugere que `getCurrentUser()` retornava `null` mesmo com sessão ativa — `cookies()` não estava sendo aguardado antes de ser passado para `createSupabaseServerClient()`.
 
-2. Mesmo após o fix, o dev abriu `/api/auth-debug` no mesmo commit (`ac63f35`) — a rota foi adicionada ao `PUBLIC_PREFIXES` exatamente para poder ser usada sem estar logado, para diagnosticar o problema de sessão.
+2. Mesmo após o fix, `/api/auth-debug` foi criado no mesmo commit (`ac63f35`) para diagnosticar o problema — a rota foi adicionada ao `PUBLIC_PREFIXES` para ser usada sem login.
 
-3. No dia seguinte (`0976701`), o auth foi desativado com a mensagem "remove redirect para /login" — o app continuava redirecionando para `/login` mesmo após o fix.
+3. No dia seguinte (`0976701`), o auth foi desativado — o app continuava redirecionando para `/login` mesmo após o fix.
 
 ### Hipótese técnica (baseada no código)
 
@@ -54,29 +63,25 @@ O ciclo de falha era:
 ```
 usuário acessa /dashboard
     ↓
-src/proxy.ts chama updateSession(request)
+middleware chama updateSession(request)
     ↓
 updateSession() chama supabase.auth.getUser() — valida JWT contra servidor Auth
     ↓
 getUser() retorna null  ← ponto de falha
     ↓
-proxy.ts redireciona para /login?next=/dashboard
+middleware redireciona para /login?next=/dashboard
     ↓
 usuário loga, obtém cookie sb-iqgrvptrtphvbmvrqntm-auth-token
     ↓
-retorna para /dashboard
-    ↓
-proxy.ts chama updateSession() novamente com os novos cookies
-    ↓
-getUser() retorna null novamente  ← ciclo infinito
+retorna para /dashboard — mesmo ciclo
 ```
 
 **Por que `getUser()` retornava null mesmo com cookie válido?**
 
-A causa mais provável é uma incompatibilidade entre Next 16 e `@supabase/ssr` no padrão de renovação de cookies. Em Next 16 (app router com React 19), a função `setAll()` do cookie handler é chamada pelo supabase-ssr durante `getUser()` para atualizar o token de acesso expirado. Se `setAll()` lançava uma exceção (o código a envolve em `try/catch` silencioso), o token renovado não era escrito de volta na resposta, e na próxima request o access token estava expirado novamente.
+Causa mais provável: incompatibilidade entre Next 16 + React 19 e `@supabase/ssr` no padrão de renovação de cookies. O `setAll()` do `server.ts` envolve a escrita em `try/catch` silencioso:
 
-Confirmação no código atual em `packages/db/src/supabase/server.ts:56-63`:
 ```ts
+// packages/db/src/supabase/server.ts:55-63
 setAll(cookiesToSet) {
   try {
     for (const { name, value, options } of cookiesToSet) {
@@ -89,143 +94,205 @@ setAll(cookiesToSet) {
 }
 ```
 
-O comentário "proxy.ts cuida do refresh" implica que o desenvolvedor sabia que o refresh de token dependia do proxy — mas o proxy foi perdido na migração.
+O comentário `"proxy.ts cuida do refresh"` implica que o desenvolvedor sabia que **o token refresh só pode acontecer no middleware** — Server Components não podem escrever cookies. Quando o middleware foi perdido na migração de monorepo, o refresh parou de funcionar, e `getUser()` passou a retornar null depois que o access token (1h de validade) expirava.
 
-### Conclusão sobre o bug original
+### Conclusão
 
-O auth nunca falhou por um problema no Supabase ou na lógica de sessão em si. A sequência foi:
-1. Bug real: possível incompatibilidade de cookie refresh em Next 16 + `@supabase/ssr` (a investigar na reativação)
-2. Workaround: bypass em `requireUser()` + `createSupabaseServerClient()`
-3. Efeito colateral: `src/proxy.ts` com lógica de auth real ficou no repo, mas irrelevante
-4. Migração para monorepo: `src/proxy.ts` perdido, bypass perpetuado
+O bug original não era em si do Supabase. Era: o middleware precisa existir e chamar `updateSession()` para escrever tokens renovados na response. Sem middleware → tokens expiram → `getUser()` retorna null → ciclo de redirect infinito.
+
+**Isso significa que o mesmo bug vai acontecer novamente se o middleware for criado sem chamar `updateSession()`** — como uma versão só com `redirect("/login")` sem refresh de token.
 
 ---
 
-## 3. Como o sistema funcionou em produção sem middleware
+## 3. Como implementar auth corretamente em `src/middleware.ts`
 
-### Caminho completo de uma request (pré-lockdown)
+### Princípio fundamental
 
-```
-Browser → kph-os.vercel.app/dashboard
-    ↓
-[Vercel Edge] — nenhum middleware/proxy ativo (arquivo estava em lugar errado)
-    ↓
-[Next.js] Router — renderiza (dashboard)/page.tsx
-    ↓
-page.tsx: import requireUser() de @kph/auth/server
-    ↓
-requireUser():
-  1. chama getCurrentUser()
-  2. getCurrentUser() chama createSupabaseServerClient(cookieStore)
-  3. createSupabaseServerClient(): verifica se existe cookie "auth-token"
-     ↓ SEM cookie de sessão (usuário anônimo):
-     ├── retorna createServiceClient() ← SUPABASE_SERVICE_ROLE_KEY
-     └── getCurrentUser() recebe cliente service_role
-         ↓
-         supabase.auth.getSession() retorna null (sem sessão)
-         getCurrentUser() retorna null
-         ↓
-  requireUser() recebe null → retorna bypass user:
-  { id: "00000000-0000-0000-0000-000000000001", role: "founder" }
-    ↓
-[página renderizada como "founder"] com client service_role nas queries
-    ↓
-RLS completamente ignorado (service_role bypassa)
-    ↓
-Todos os dados de todas as marcas retornados
-```
+Em Next.js App Router, **apenas o middleware pode escrever cookies na response**. Server Components e Server Actions tentam escrever mas falham silenciosamente (por design — o `try/catch` em `server.ts` já trata isso). Portanto:
 
-### Três camadas de bypass simultâneas
+1. O middleware **deve** chamar `updateSession()` para renovar o token antes que o Server Component leia a sessão
+2. O Server Component (`getCurrentUser()`) pode chamar `getSession()` com confiança — o token já foi renovado pelo middleware
+3. `requireUser()` pode confiar no resultado de `getCurrentUser()`
 
-| Camada | Arquivo | Efeito |
-|---|---|---|
-| Middleware | `apps/kph-os/src/middleware.ts` | Passava tudo (`NextResponse.next()`) — o bloqueio foi nosso primeiro commit de segurança |
-| Auth DAL | `packages/auth/src/server.ts:99-108` | `requireUser()` retorna founder fake quando sem sessão |
-| DB Client | `packages/db/src/supabase/server.ts:23-25` | `createSupabaseServerClient()` usa service_role sem sessão, anulando RLS |
+### `updateSession()` já está pronta — não recriar
 
-As três camadas precisam ser revertidas na reativação. O middleware (camada 1) foi substituído pelo lockdown atual.
-
----
-
-## 4. O que `/api/auth-debug` expunha e se há indício de acesso
-
-### Conteúdo exposto pela rota
+`packages/db/src/supabase/proxy.ts` tem a implementação correta:
 
 ```ts
-// apps/kph-os/src/app/api/auth-debug/route.ts (GET, sem auth)
-{
-  envCheck: {
-    hasUrl: true,
-    urlPreview: "https://iqgrvptrtphvbmvrqntm.supabase.c",  // 40 chars da URL pública
-    hasAnonKey: true,
-    anonKeyPreview: "eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp...",  // 30 chars da anon key
-  },
-  supabaseCookies: [
-    // Para cada cookie com nome contendo "supabase" ou começando com "sb-":
-    { name: "sb-iqgrvptrtphvbmvrqntm-auth-token", len: 2847, preview: "<60 chars do JWT>" }
-  ],
-  allCookieNames: ["sb-...", ...],  // todos os nomes de cookie da request
-  user: { status: "null" }  // sem sessão → null
+export async function updateSession(request: NextRequest) {
+  let response = NextResponse.next({ request });
+  // ... cria serverClient com cookies.setAll() que escreve na response ...
+  const { data: { user } } = await supabase.auth.getUser();
+  return { response, user };  // ← retorna response COM os Set-Cookie headers
 }
 ```
 
-### Avaliação de risco
+`getUser()` valida o JWT contra o servidor Supabase Auth (não só o cookie local). Se o access token expirou, `@supabase/ssr` chama `setAll()` com os novos tokens antes de retornar — e esses tokens vão para a response via `response.cookies.set()`.
 
-**URL e anon key (primeiros 30-40 chars):** Baixo risco — ambas são variáveis `NEXT_PUBLIC_*`, expostas no bundle do cliente de qualquer forma. Um atacante que inspecione o JavaScript já as tem completas.
+### `apps/kph-os/src/middleware.ts` — implementação correta
 
-**Preview de 60 chars de cookies `sb-*`:** Risco moderado em teoria. Na prática: com auth desativado desde 30/04, nenhum usuário real gerou um cookie de sessão válido após essa data. Qualquer cookie de período anterior já estaria expirado (tokens Supabase expiram em 1 hora; refresh tokens em 60 dias — o bypass foi habilitado há 46 dias da data desta auditoria, portanto mesmo cookies antigos já teriam expirado). Os 60 chars de um JWT base64 não são suficientes para reconstituir ou reutilizar o token.
+```typescript
+import { type NextRequest, NextResponse } from "next/server";
+import { updateSession } from "@kph/db/supabase/proxy";
 
-**Status de sessão (`user.status`):** Expunha se havia um usuário logado na request. Com auth desativado, a resposta seria sempre `{ status: "null" }`.
+// Rotas que não exigem sessão
+const PUBLIC_PREFIXES = [
+  "/login",
+  "/api/ponto/punch",       // colaboradores batem ponto sem sessão browser
+  "/api/orchestrator/",     // webhooks externos com autenticação própria (HMAC/CRON_SECRET)
+];
 
-### Indício de acesso externo
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
 
-**Não é possível confirmar ou refutar** a partir do código-fonte. Esta análise dependeria dos Vercel Request Logs (disponíveis no dashboard) ou dos Supabase Edge Function Logs. O que podemos afirmar:
+  if (PUBLIC_PREFIXES.some((p) => pathname.startsWith(p))) {
+    return NextResponse.next();
+  }
 
-- A rota existiu publicamente de **2026-04-29 a 2026-06-12** (44 dias)
-- Não estava referenciada em nenhuma documentação pública ou sitemap
-- O padrão de URL (`/api/auth-debug`) não é óbvio, mas é adivinável
-- O conteúdo retornado era de baixo valor real (sem tokens válidos, sem dados de usuário)
+  // updateSession() faz: refresh do token + validação + retorna response com Set-Cookie
+  const { response, user } = await updateSession(request);
 
-**Ação recomendada antes da reativação do auth:** deletar ou gate a rota por variável de ambiente (`ADMIN_DEBUG_ENABLED=true`). Está no escopo do Sprint 1, pós-OK #2.
+  if (!user) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/login";
+    loginUrl.searchParams.set("next", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  return response;
+}
+
+export const config = {
+  matcher: [
+    // Exclui _next/* (assets), arquivos estáticos, e imagens
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
+};
+```
+
+### Por que `updateSession()` e não `getUser()` diretamente
+
+| Abordagem | Problema |
+|---|---|
+| `const user = await supabase.auth.getUser()` direto | Não tem como escrever cookies de refresh — `NextResponse.next()` não tem os Set-Cookie headers |
+| `updateSession(request)` via `@kph/db/supabase/proxy` | ✅ Cria response com set-cookie correto, retorna user validado |
+
+### Fluxo após ativação
+
+```
+Browser → /dashboard
+    ↓
+middleware: updateSession(request)
+    ↓
+  access token válido? → getUser() retorna user → NextResponse com token renovado
+  access token expirado? → setAll() escreve novo token na response → getUser() retorna user
+  refresh token expirado/inválido? → getUser() retorna null → redirect /login
+    ↓
+Server Component (dashboard/page.tsx)
+    ↓
+requireUser() → getCurrentUser() → getSession() (lê cookie já renovado pelo middleware)
+    ↓
+Renderiza com user real
+```
+
+### O que muda nos Server Components após ativação
+
+Nada. `getCurrentUser()` já chama `getSession()` (leitura local do JWT, sem rede) e retorna o user. Mas o user agora será real — não o bypass `00000000-0000-0000-0000-000000000001`.
+
+A única mudança comportamental: `requireUser()` vai chamar `redirect("/login")` quando não houver sessão, e o Next.js trata isso via exceção `NEXT_REDIRECT` (já tratada pelo `isNextInternal()` existente em `getCurrentUser()`).
 
 ---
 
-## 5. Estado atual e pré-requisitos para reativação (pós OK #2)
+## 4. Lista completa de tudo que precisa mudar
 
-### O que está feito (commits 78f12ff, bc69d38, pós-OK #1)
+### Arquivos — criação
 
-- [x] Lockdown 401 no ar em kph-os.vercel.app (src/middleware.ts)
-- [x] ESLint e TypeScript gates religados (eslint.config.mjs + next.config.ts sem bypasses)
-- [x] Migration 080_security_hardening.sql gerada (aguardando aplicação manual)
+| Arquivo | Ação |
+|---|---|
+| `apps/kph-os/src/middleware.ts` | CRIAR — implementação da seção 3 acima |
 
-### O que precisa acontecer antes da reativação (Sprint 1, pós-OK #2)
+### Arquivos — edição
 
-1. **Criar `apps/kph-os/src/proxy.ts`** com a função `proxy()` usando `updateSession()` de `@kph/db/supabase/proxy` — esse é o arquivo que Next 16 procura. O arquivo não existe no monorepo atual.
+| Arquivo | Linhas | O que mudar |
+|---|---|---|
+| `packages/auth/src/server.ts` | 98-108 | Remover bloco bypass: substituir `return { id: "00000000...", email: "bypass@kph.os", ... }` por `redirect("/login")` |
+| `packages/db/src/supabase/server.ts` | 23-33 | Remover bloco `hasSession` / fallback service_role: sem sessão, retornar anon client (RLS filtra dados — não crasha) |
+| `apps/kph-os/src/lib/pessoas/ponto-actions.ts` | 65-66 | Remover `BYPASS_USER_ID = "ac559fa1..."`. A rota `/api/ponto/punch` é pública no middleware, mas o `userId` deve vir do token HMAC ou da sessão do colaborador — definir antes de codar |
+| `apps/kph-os/src/lib/pessoas/actions.ts` | 1269 | Remover `const BYPASS_USER_ID = "ac559fa1..."` e seus usos no escopo |
+| `apps/kph-os/src/app/api/intelligence/insight/route.ts` | POST handler | Adicionar `requireUser()` antes de chamar Anthropic — hoje é 100% público, consome API paga sem auth |
+| `apps/kph-os/src/app/api/auth-debug/route.ts` | inteiro | DELETAR o arquivo — a rota não tem valor em produção |
 
-2. **Reverter `requireUser()`** de bypass para `redirect("/login")` quando sem sessão.
+> **Nota sobre `ponto-actions.ts`:** O UUID `ac559fa1-f10b-4ec4-9f4b-fafbc881a884` é diferente do bypass UUID da DAL (`00000000...`). É possivelmente o ID real de um usuário de testes no Supabase. Confirmar antes de remover — pode afetar registros históricos de ponto.
 
-3. **Reverter `createSupabaseServerClient()`** — remover o fallback para service_role sem sessão.
+### Migrations SQL (somente geração — aplicar via `supabase db query --linked --file`)
 
-4. **Revogar conta `bypass@kph.os`** via migration aditiva (desativar, não deletar — para não quebrar FK em registros históricos).
+| Arquivo | Status | Conteúdo |
+|---|---|---|
+| `supabase/migrations/080_security_hardening.sql` | ⏳ Gerada, aguarda aplicação | RLS hardening, audit_log, índices de segurança |
+| `supabase/migrations/081_disable_bypass_user.sql` | ❌ A gerar | `UPDATE auth.users SET banned_until = 'infinity' WHERE email = 'bypass@kph.os'` — aditivo, não DELETE (preserve FK em registros históricos) |
 
-5. **Remover UUIDs de bypass hardcoded** em `src/lib/pessoas/ponto-actions.ts:65-66` e `src/lib/pessoas/actions.ts:1268-1269`.
+### Variáveis de ambiente
 
-6. **Deletar `/api/auth-debug`** ou gate por env var.
+Nenhuma nova env var é necessária para a reativação. O middleware usa:
+- `NEXT_PUBLIC_SUPABASE_URL` — já configurada no Vercel
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` — já configurada no Vercel
 
-7. **Adicionar auth em `/api/intelligence/insight`** — POST público consome Anthropic API.
+`SUPABASE_SERVICE_ROLE_KEY` continua necessária para `createServiceClient()` usado em server actions legítimas (audit_log, jobs internos). Não remover.
 
-8. **Verificar a hipótese do bug de cookie refresh** antes de colocar em produção: testar localmente com `NEXT_PUBLIC_SUPABASE_*` reais, confirmar que o ciclo login→getUser→null foi resolvido.
+### Rotas com autenticação própria (não alterar no Sprint 3)
 
-9. **Aplicar migration `080_security_hardening.sql`** via `supabase db query --linked`.
+| Rota | Auth atual | Ação |
+|---|---|---|
+| `/api/orchestrator/escalate` | Bearer `CRON_SECRET` (linha 38) | OK — manter fora dos PUBLIC_PREFIXES, mas confirmar fail-closed se env var ausente |
+| `/api/orchestrator/webhook` | A verificar se tem HMAC | Verificar antes de expor |
+| `/api/ponto/punch` | Sem auth browser (colaboradores) | Manter como rota pública no middleware |
+| `/api/cron/*` | Vercel cron (IP filtering) | Verificar `CRON_SECRET` em cada handler |
 
-10. **Trocar a credencial compartilhada** (mencionada nos bloqueios conhecidos) após o login estar funcional.
+### Sequência de execução recomendada para o Sprint 3
 
-### O que a reativação NÃO precisa
-
-- Nenhuma mudança de schema de banco
-- Nenhuma alteração de RLS nas tabelas de negócio (já correto)
-- Nenhuma mudança nas zonas externas (cada zona tem seu próprio auth — escopo separado)
+1. **Pré-teste local** — antes de qualquer commit: criar `src/middleware.ts`, rodar localmente com Supabase real, verificar que login → dashboard funciona sem loop de redirect.
+2. **Commit 1** — `src/middleware.ts` + revert `requireUser()` + revert `server.ts` (as três camadas juntas — implantar parcialmente deixa o sistema inconsistente).
+3. **Commit 2** — remover bypass UUIDs de `ponto-actions.ts` e `actions.ts` (após confirmar comportamento correto do ponto).
+4. **Commit 3** — deletar `auth-debug`, adicionar auth em `insight`, migration 081.
+5. **Pós-deploy** — aplicar migrations 080 e 081 via `supabase db query --linked --file`.
+6. **Trocar credencial compartilhada** — após auth funcional.
 
 ---
 
-*Documento mantido na raiz do repo. Atualizar conforme progresso do Sprint 1.*
+## Apêndice A — Como o sistema funcionou sem middleware (contexto)
+
+Caminho completo de uma request pré-lockdown, com as três camadas de bypass:
+
+```
+Browser → /dashboard (anônimo)
+    ↓
+Nenhum middleware ativo
+    ↓
+page.tsx → requireUser()
+    ↓
+getCurrentUser() → createSupabaseServerClient()
+    ↓
+createSupabaseServerClient(): cookie "auth-token" ausente → service_role
+    ↓
+supabase.auth.getSession() → null (sem sessão)
+getCurrentUser() → null
+    ↓
+requireUser(): null → retorna bypass { id: "00000000...", role: "founder" }
+    ↓
+Queries com client service_role → RLS ignorado → todos os dados retornados
+```
+
+---
+
+## Apêndice B — `/api/auth-debug` e o que expunha
+
+A rota existiu publicamente de **2026-04-29 a 2026-06-12** (44 dias). Expunha:
+- Preview da URL Supabase e anon key (ambas `NEXT_PUBLIC_*` — já expostas no bundle do cliente)
+- Preview de 60 chars de cookies `sb-*` (insuficiente para reconstituir token)
+- Status de sessão (sempre `{ status: "null" }` com auth desativado)
+
+Risco avaliado como baixo em função do conteúdo, mas a rota não tem valor em produção. **Deletar antes do Sprint 3 ir ao ar.**
+
+---
+
+*Documento na raiz do repo. Próxima atualização: pós-validação local (pré-condição do Sprint 3).*
