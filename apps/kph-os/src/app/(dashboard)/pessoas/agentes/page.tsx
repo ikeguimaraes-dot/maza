@@ -1,5 +1,6 @@
 import { requireUser } from "@kph/auth/server";
 import { createServiceClient } from "@kph/db/supabase/server";
+import { applyScoreCap, scoreColorClass, type ProposalRisk } from "@kph/core";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -9,6 +10,8 @@ type PessoasScore = {
   id: string;
   modulo: string;
   score: number | null;
+  score_oficial: number | null;
+  cap_razao: string | null;
   breakdown: Record<string, number | null> | null;
   semana: string | null;
   created_at: string;
@@ -25,14 +28,34 @@ async function getLatestPessoasScore(): Promise<PessoasScore | null> {
   try {
     const supabase = createServiceClient();
     if (!supabase) return null;
-    const { data } = await (supabase as any)
-      .from("kph_intelligence_scores")
-      .select("id, modulo, score, breakdown, semana, created_at")
-      .eq("modulo", "pessoas")
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    return (data as PessoasScore) ?? null;
+
+    const [scoreRes, proposalsRes] = await Promise.all([
+      (supabase as any)
+        .from("kph_intelligence_scores")
+        .select("id, modulo, score, breakdown, semana, created_at")
+        .eq("modulo", "pessoas")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      (supabase as any)
+        .from("kph_learning_proposals")
+        .select("id, severidade, titulo, status")
+        .eq("modulo", "pessoas")
+        .in("status", ["pending", "open"])
+        .not("severidade", "is", null),
+    ]);
+
+    if (!scoreRes.data) return null;
+
+    const rawScore: number = scoreRes.data.score ?? 0;
+    const proposals: ProposalRisk[] = proposalsRes.data ?? [];
+    const capResult = applyScoreCap(rawScore, proposals);
+
+    return {
+      ...(scoreRes.data as Omit<PessoasScore, "score_oficial" | "cap_razao">),
+      score_oficial: capResult.score_oficial,
+      cap_razao: capResult.cap_razao,
+    };
   } catch {
     return null;
   }
@@ -73,11 +96,7 @@ async function getHistorico(): Promise<PessoasScore[]> {
 
 function ScoreBadge({ score }: { score: number | null }) {
   if (score == null) return <span className="text-muted-foreground">—</span>;
-  const color =
-    score >= 80 ? "text-green-600 dark:text-green-400" :
-    score >= 60 ? "text-yellow-600 dark:text-yellow-400" :
-    "text-red-600 dark:text-red-400";
-  return <span className={`font-bold tabular-nums ${color}`}>{score}</span>;
+  return <span className={`font-bold tabular-nums ${scoreColorClass(score)}`}>{score}</span>;
 }
 
 const BREAKDOWN_LABELS: Record<string, string> = {
@@ -120,9 +139,14 @@ export default async function PessoasAgentesPage() {
           </div>
           <div className="text-right">
             <div className="text-5xl font-bold tabular-nums">
-              <ScoreBadge score={latestScore?.score ?? null} />
+              <ScoreBadge score={latestScore?.score_oficial ?? null} />
             </div>
             <div className="text-xs text-muted-foreground mt-1">/100</div>
+            {latestScore?.cap_razao && (
+              <div className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-red-500/10 text-red-600 dark:text-red-400 mt-1">
+                TETO
+              </div>
+            )}
           </div>
         </div>
 
@@ -181,7 +205,7 @@ export default async function PessoasAgentesPage() {
                         ? new Date(row.semana + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "2-digit" })
                         : "—"}
                     </td>
-                    <td className="px-4 py-3 font-bold"><ScoreBadge score={row.score} /></td>
+                    <td className="px-4 py-3 font-bold"><ScoreBadge score={row.score_oficial ?? row.score} /></td>
                     <td className="px-4 py-3"><ScoreBadge score={row.breakdown?.headcount ?? null} /></td>
                     <td className="px-4 py-3"><ScoreBadge score={row.breakdown?.turnover ?? null} /></td>
                     <td className="px-4 py-3"><ScoreBadge score={row.breakdown?.folha ?? null} /></td>

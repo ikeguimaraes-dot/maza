@@ -3,7 +3,7 @@ import { loadLMReports, generateLearningMachineReport } from "@kph/core/learning
 import { notifyLearningMachineDiscord } from "@/lib/orquestrador/lm-notify";
 import { handleApproval } from "@/lib/orquestrador/approve-handler";
 import { createServiceClient } from "@kph/db/supabase/server";
-import { applyScoreCap, type ProposalRisk } from "@kph/core";
+import { applyScoreCap, scoreColorClass, type ProposalRisk } from "@kph/core";
 import type { LMReport } from "@kph/core/learning-machine";
 
 // Label map — cobre todos os módulos planejados; fallback capitaliza o slug
@@ -32,18 +32,19 @@ type ModuleScore = {
 type ScoreRow = { modulo: string; score: number | null; semana: string | null };
 type InsightRow = { modulo: string; insight_text: string | null };
 
+type ModuleScoresResult =
+  | { ok: true; data: ModuleScore[] }
+  | { ok: false; error: string };
+
 /**
  * Carrega scores por módulo aplicando a política de teto do kernel.
- *
- * Fonte de verdade: kph_intelligence_scores (score bruto) + kph_learning_proposals (riscos).
- * A política applyScoreCap() é determinística: ambos os painéis produzem o mesmo número.
- * score_oficial e cap_razao são gravados de volta no banco para auditabilidade.
+ * Sempre retorna todos os módulos planejados — sem dados → score_oficial null.
  */
-async function loadModuleScores(): Promise<ModuleScore[]> {
-  try {
-    const supabase = createServiceClient();
-    if (!supabase) return [];
+async function loadModuleScores(): Promise<ModuleScoresResult> {
+  const supabase = createServiceClient();
+  if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
+  try {
     const [scoresRes, insightsRes, proposalsRes] = await Promise.all([
       (supabase as any)
         .from("kph_intelligence_scores")
@@ -56,13 +57,14 @@ async function loadModuleScores(): Promise<ModuleScore[]> {
         .select("modulo, insight_text, created_at")
         .order("created_at", { ascending: false })
         .limit(100),
-      // Riscos pendentes com severidade — usados para aplicar tetos
       (supabase as any)
         .from("kph_learning_proposals")
         .select("id, modulo, severidade, titulo, status")
         .in("status", ["pending", "open"])
         .not("severidade", "is", null),
     ]);
+
+    if (scoresRes.error) return { ok: false, error: scoresRes.error.message };
 
     // Agrupa proposals por modulo
     const proposalsByModule = new Map<string, ProposalRisk[]>();
@@ -90,7 +92,7 @@ async function loadModuleScores(): Promise<ModuleScore[]> {
       insightMap.set(row.modulo, row.insight_text);
     }
 
-    // Aplica política de teto e escreve score_oficial de volta no banco
+    // Módulos com dados: aplica teto e grava score_oficial
     const results: ModuleScore[] = [];
     const updatePromises: Promise<unknown>[] = [];
 
@@ -107,7 +109,6 @@ async function loadModuleScores(): Promise<ModuleScore[]> {
         insight_text:  insightMap.get(mod) ?? null,
       });
 
-      // Grava score_oficial + cap_razao para auditabilidade (best-effort)
       if (sr.semana) {
         updatePromises.push(
           (supabase as any)
@@ -119,13 +120,26 @@ async function loadModuleScores(): Promise<ModuleScore[]> {
       }
     }
 
-    // Fire-and-forget: não bloqueia a resposta
     Promise.all(updatePromises).catch(() => {});
 
-    // Ordena por score_oficial desc
-    return results.sort((a, b) => (b.score_oficial ?? -1) - (a.score_oficial ?? -1));
-  } catch {
-    return [];
+    // Módulos planejados sem dados ainda → card "sem dados"
+    for (const mod of Object.keys(MODULE_LABELS)) {
+      if (!scoreMap.has(mod)) {
+        results.push({ modulo: mod, score: null, score_oficial: null, cap_razao: null, semana: null, insight_text: null });
+      }
+    }
+
+    // Módulos com score primeiro (desc), sem dados no final
+    results.sort((a, b) => {
+      if (a.score_oficial == null && b.score_oficial == null) return 0;
+      if (a.score_oficial == null) return 1;
+      if (b.score_oficial == null) return -1;
+      return b.score_oficial - a.score_oficial;
+    });
+
+    return { ok: true, data: results };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Erro desconhecido" };
   }
 }
 import { ApproveJobButton } from "./ApproveJobButton";
@@ -134,6 +148,7 @@ import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { revalidatePath } from "next/cache";
+import { Brain, Clock, Play, RefreshCw, AlertCircle } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -181,7 +196,7 @@ async function loadPendingJobs(): Promise<OrquestradorJob[]> {
 // ── Page ──────────────────────────────────────────────────────────────
 
 export default async function OrchestratorPage() {
-  const [runs, lmReports, pendingJobs, moduleScores] = await Promise.all([
+  const [runs, lmReports, pendingJobs, moduleScoresResult] = await Promise.all([
     listOrchestratorRuns(),
     loadLMReports(1),
     loadPendingJobs(),
@@ -190,6 +205,8 @@ export default async function OrchestratorPage() {
 
   const latestLM = lmReports?.[0] ?? null;
   const ultimoScore: number | null = latestLM?.insights?.score_operacional ?? null;
+  const moduleScores = moduleScoresResult.ok ? moduleScoresResult.data : [];
+  const moduleScoresError = moduleScoresResult.ok ? null : moduleScoresResult.error;
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
@@ -205,82 +222,11 @@ export default async function OrchestratorPage() {
         </div>
       </div>
 
-      {/* Learning Machine Panel — always visible */}
-      <LearningMachinePanel report={latestLM} triggerAction={triggerLearningMachine} />
-
-      {/* Scores por Módulo — agentes dedicados */}
-      {moduleScores.length > 0 && (
-        <div className="rounded-md border bg-card text-card-foreground shadow-sm p-6">
-          <div className="pb-3 mb-4 border-b">
-            <h3 className="text-base font-semibold leading-none tracking-tight">Scores por Módulo</h3>
-            <p className="text-xs text-muted-foreground mt-1">Calculados pelos agentes IA dedicados — atualização diária 06h BRT</p>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            {moduleScores.map((m) => {
-              const displayScore = m.score_oficial;
-              const isCapped = m.cap_razao != null;
-              const scoreColor =
-                displayScore == null ? "text-muted-foreground" :
-                displayScore >= 80 ? "text-yellow-600 dark:text-yellow-400" :
-                displayScore >= 60 ? "text-amber-600 dark:text-amber-400" :
-                "text-red-600 dark:text-red-400";
-              return (
-                <div
-                  key={m.modulo}
-                  className={`rounded-md bg-muted/40 p-3 border ${isCapped ? "border-red-500/40 dark:border-red-400/30" : "border-border/60"}`}
-                >
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      {moduleLabel(m.modulo)}
-                    </span>
-                    {isCapped && (
-                      <span className="text-[10px] font-semibold px-1 py-0.5 rounded bg-red-500/10 text-red-600 dark:text-red-400 leading-none">
-                        TETO
-                      </span>
-                    )}
-                  </div>
-                  <div className={`text-3xl font-bold tabular-nums ${scoreColor}`}>
-                    {displayScore ?? "—"}
-                    <span className="text-sm font-normal text-muted-foreground ml-0.5">/100</span>
-                  </div>
-                  {m.semana && (
-                    <div className="text-xs text-muted-foreground mt-1">
-                      semana de {new Date(m.semana + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
-                    </div>
-                  )}
-                  {m.cap_razao && (
-                    <p className="text-[11px] text-red-600 dark:text-red-400 mt-1.5 leading-snug border-t border-red-500/20 pt-1.5">
-                      {m.cap_razao}
-                    </p>
-                  )}
-                  {!m.cap_razao && m.insight_text && (
-                    <p className="text-xs text-muted-foreground mt-2 line-clamp-2 leading-relaxed">
-                      {m.insight_text}
-                    </p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Contextual AI Insight Panel */}
-      <InsightPanel
-        module="orquestrador"
-        context={{
-          jobs_pendentes: pendingJobs.length,
-          ultimo_score_operacional: ultimoScore,
-          total_runs: runs.length,
-        }}
-        title="Insight Operacional"
-      />
-
-      {/* Pending Jobs — awaiting approval */}
+      {/* Pending Jobs — NO TOPO quando há aprovações pendentes */}
       {pendingJobs.length > 0 && (
         <div className="rounded-md border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 text-card-foreground shadow-sm p-6">
           <div className="flex items-center gap-2 pb-4">
-            <span className="text-base">⏳</span>
+            <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
             <h3 className="text-lg font-semibold leading-none tracking-tight">
               Aguardando aprovação
             </h3>
@@ -330,6 +276,89 @@ export default async function OrchestratorPage() {
           </div>
         </div>
       )}
+
+      {/* Learning Machine Panel */}
+      <LearningMachinePanel report={latestLM} triggerAction={triggerLearningMachine} />
+
+      {/* Scores por Módulo */}
+      <div className="rounded-md border bg-card text-card-foreground shadow-sm p-6">
+        <div className="pb-3 mb-4 border-b">
+          <h3 className="text-base font-semibold leading-none tracking-tight">Scores por Módulo</h3>
+          <p className="text-xs text-muted-foreground mt-1">Calculados pelos agentes IA dedicados — atualização diária 06h BRT</p>
+        </div>
+
+        {moduleScoresError ? (
+          <div className="flex items-center gap-2 py-4 text-sm text-red-600 dark:text-red-400">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            <span>Erro ao carregar scores: {moduleScoresError}</span>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {moduleScores.map((m) => {
+              const displayScore = m.score_oficial;
+              const isCapped = m.cap_razao != null;
+              const hasData = displayScore != null;
+              return (
+                <div
+                  key={m.modulo}
+                  className={`rounded-md p-3 border ${
+                    !hasData ? "bg-muted/20 border-dashed border-border/40" :
+                    isCapped ? "bg-muted/40 border-red-500/40 dark:border-red-400/30" :
+                    "bg-muted/40 border-border/60"
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      {moduleLabel(m.modulo)}
+                    </span>
+                    {isCapped && (
+                      <span className="text-[10px] font-semibold px-1 py-0.5 rounded bg-red-500/10 text-red-600 dark:text-red-400 leading-none">
+                        TETO
+                      </span>
+                    )}
+                  </div>
+                  {hasData ? (
+                    <>
+                      <div className={`text-3xl font-bold tabular-nums ${scoreColorClass(displayScore)}`}>
+                        {displayScore}
+                        <span className="text-sm font-normal text-muted-foreground ml-0.5">/100</span>
+                      </div>
+                      {m.semana && (
+                        <div className="text-xs text-muted-foreground mt-1">
+                          semana de {new Date(m.semana + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
+                        </div>
+                      )}
+                      {m.cap_razao && (
+                        <p className="text-[11px] text-red-600 dark:text-red-400 mt-1.5 leading-snug border-t border-red-500/20 pt-1.5">
+                          {m.cap_razao}
+                        </p>
+                      )}
+                      {!m.cap_razao && m.insight_text && (
+                        <p className="text-xs text-muted-foreground mt-2 line-clamp-2 leading-relaxed">
+                          {m.insight_text}
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <div className="text-xs text-muted-foreground/60 italic mt-1">Sem dados</div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Contextual AI Insight Panel */}
+      <InsightPanel
+        module="orquestrador"
+        context={{
+          jobs_pendentes: pendingJobs.length,
+          ultimo_score_operacional: ultimoScore,
+          total_runs: runs.length,
+        }}
+        title="Insight Operacional"
+      />
 
       <div className="grid gap-4">
         <div className="rounded-md border bg-card text-card-foreground shadow-sm p-6">
@@ -416,18 +445,13 @@ function LearningMachinePanel({
   triggerAction: () => Promise<void>;
 }) {
   const score = report?.insights?.score_operacional ?? null;
-  const scoreColor =
-    score === null ? "text-muted-foreground" :
-    score >= 80 ? "text-green-600 dark:text-green-400" :
-    score >= 60 ? "text-yellow-600 dark:text-yellow-400" :
-    "text-red-600 dark:text-red-400";
 
   return (
     <div className="rounded-md border bg-card text-card-foreground shadow-sm p-6">
       <div className="flex items-start justify-between pb-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-lg">🧠</span>
+            <Brain className="h-5 w-5 text-muted-foreground" />
             <h3 className="text-2xl font-semibold leading-none tracking-tight">
               Learning Machine
             </h3>
@@ -444,16 +468,18 @@ function LearningMachinePanel({
         <div className="flex items-center gap-3">
           {score !== null && (
             <div className="text-right">
-              <div className={`text-4xl font-bold tabular-nums ${scoreColor}`}>{score}</div>
+              <div className={`text-4xl font-bold tabular-nums ${scoreColorClass(score)}`}>{score}</div>
               <div className="text-xs text-muted-foreground">score operacional</div>
             </div>
           )}
           <form action={triggerAction}>
             <button
               type="submit"
-              className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 whitespace-nowrap"
+              className="inline-flex items-center gap-1.5 justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 whitespace-nowrap"
             >
-              {report ? "↻ Atualizar" : "▶ Gerar análise agora"}
+              {report
+                ? <><RefreshCw className="h-3.5 w-3.5" /> Atualizar</>
+                : <><Play className="h-3.5 w-3.5" /> Gerar análise agora</>}
             </button>
           </form>
         </div>

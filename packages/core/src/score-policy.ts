@@ -39,6 +39,18 @@ export type ScoreCapResult = {
 };
 
 /**
+ * Tailwind color class para exibição de score.
+ * Único ponto de verdade — todos os painéis devem usar esta função.
+ * Verde ≥ 80 · Amarelo 60-79 · Vermelho < 60
+ */
+export function scoreColorClass(score: number | null): string {
+  if (score == null) return "text-muted-foreground";
+  if (score >= 80) return "text-green-600 dark:text-green-400";
+  if (score >= 60) return "text-yellow-600 dark:text-yellow-400";
+  return "text-red-600 dark:text-red-400";
+}
+
+/**
  * Aplica a política de teto ao score bruto com base nos riscos pendentes do módulo.
  *
  * @param rawScore  Score calculado pelo agente (0–100).

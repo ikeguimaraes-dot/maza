@@ -38,6 +38,7 @@ import {
 import { calcIntelligenceScore } from "@/lib/inteligencia/intelligence-score";
 import type { WbrInsight } from "./actions";
 import { SEV_FG, SEV_BG } from "@/lib/tokens";
+import { scoreColorClass } from "@kph/core";
 
 function formatDateBR(iso: string): string {
   const [y, m, d] = iso.split("-");
@@ -754,13 +755,6 @@ function IntelligenceScoreCard({
 }) {
   const [open, setOpen] = useState(false);
 
-  const scoreColor =
-    score.score >= 70
-      ? "#B8975A" // Ouro
-      : score.score >= 40
-      ? "#D97706" // âmbar
-      : "#C4622D"; // Brasa
-
   return (
     <div
       style={{
@@ -781,11 +775,11 @@ function IntelligenceScoreCard({
           style={{
             fontSize: 48,
             fontWeight: 700,
-            color: scoreColor,
             fontFamily: "var(--font-fraunces, serif)",
             lineHeight: 1,
             fontVariantNumeric: "tabular-nums",
           }}
+          className={scoreColorClass(score.score)}
         >
           {score.score}
         </span>

@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import type { HosJob, JobStatus, JobType } from "@/lib/inteligencia/orquestrador";
 import type { LMReport } from "@kph/core/learning-machine";
+import { scoreColorClass } from "@kph/core";
 import { SEV_FG, COLORS } from "@/lib/tokens";
 
 // ── Job type config ────────────────────────────────────────────────
@@ -374,14 +375,6 @@ function LearningMachinePanel({ reports }: { reports: LMReport[] | null }) {
   }
 
   const score = latest?.insights?.score_operacional ?? null;
-  const scoreColor =
-    score == null
-      ? "var(--text-3)"
-      : score >= 70
-      ? "#B8975A"
-      : score >= 40
-      ? "#D97706"
-      : "#C4622D";
 
   return (
     <div
@@ -461,7 +454,7 @@ function LearningMachinePanel({ reports }: { reports: LMReport[] | null }) {
           {/* Score + headline */}
           <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 14, flexWrap: "wrap" }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-              <span style={{ fontSize: 40, fontWeight: 700, color: scoreColor, fontFamily: "var(--font-fraunces, serif)", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>
+              <span style={{ fontSize: 40, fontWeight: 700, fontFamily: "var(--font-fraunces, serif)", lineHeight: 1, fontVariantNumeric: "tabular-nums" }} className={scoreColorClass(score)}>
                 {score ?? "—"}
               </span>
               <span style={{ fontSize: 16, color: "var(--text-3)" }}>/100</span>

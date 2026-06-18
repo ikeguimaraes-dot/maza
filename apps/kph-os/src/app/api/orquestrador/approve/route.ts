@@ -24,30 +24,29 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Supabase indisponível' }, { status: 500 })
   }
 
-  // Fetch and validate current status
-  const { data: job, error: fetchError } = await (supabase as any)
+  // Atomic lock: UPDATE WHERE status='pending' — se outra requisição já atualizou, 0 rows afetadas
+  const { data: locked } = await (supabase as any)
     .from('orquestrador_jobs')
-    .select('id, type, status')
+    .update({ status: 'running', updated_at: new Date().toISOString() })
     .eq('id', jobId)
+    .eq('status', 'pending')
+    .select('id, type')
     .single()
 
-  if (fetchError || !job) {
-    return NextResponse.json({ error: 'Job não encontrado' }, { status: 404 })
-  }
-
-  const currentStatus = (job as any).status
-  if (currentStatus !== 'pending') {
+  if (!locked) {
+    const { data: existing } = await (supabase as any)
+      .from('orquestrador_jobs')
+      .select('status')
+      .eq('id', jobId)
+      .maybeSingle()
+    if (!existing) return NextResponse.json({ error: 'Job não encontrado' }, { status: 404 })
     return NextResponse.json(
-      { error: `Job já processado (status atual: ${currentStatus})` },
+      { error: `Job já processado (status atual: ${existing.status})` },
       { status: 409 }
     )
   }
 
-  // Mark as running before executing
-  await (supabase as any)
-    .from('orquestrador_jobs')
-    .update({ status: 'running', updated_at: new Date().toISOString() })
-    .eq('id', jobId)
+  const job = locked
 
   // Execute post-approval action
   const result = await handleApproval(jobId)

@@ -1,7 +1,7 @@
 import { requireUser } from "@kph/auth/server";
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
 import { InsightPanel } from "@/components/intelligence/InsightPanel";
-import { applyScoreCap, type ProposalRisk } from "@kph/core";
+import { applyScoreCap, scoreColorClass, type ProposalRisk } from "@kph/core";
 
 type PessoasInsight = {
   id: string;
@@ -50,7 +50,6 @@ async function getOfficialPessoasScore(): Promise<OfficialScore | null> {
     const proposals: ProposalRisk[] = proposalsRes.data ?? [];
     const capResult = applyScoreCap(rawScore, proposals);
 
-    // Grava score_oficial no banco (best-effort, sem bloquear)
     if (scoreRes.data.semana) {
       (supabase as any)
         .from("kph_intelligence_scores")
@@ -125,17 +124,15 @@ export default async function HeadcountPage() {
   const turnover = totalAtivo > 0 ? ((totalDemissoes / totalAtivo) * 100).toFixed(1) : null;
 
   return (
-    <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-      <header style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: 28, fontWeight: 700, color: "var(--text)", letterSpacing: -0.6, margin: 0 }}>
-          Pessoas
-        </h1>
-        <p style={{ fontSize: 13, color: "var(--text-3)", marginTop: 6 }}>
+    <div className="max-w-[1100px] mx-auto flex-1 space-y-7 p-8 pt-6">
+      <header>
+        <h1 className="text-3xl font-bold tracking-tight">Pessoas</h1>
+        <p className="text-sm text-muted-foreground mt-1.5">
           Headcount e movimentação de colaboradores CLT
         </p>
       </header>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, marginBottom: 28 }}>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <KpiCard label="Headcount ativo" value={String(totalAtivo)} />
         <KpiCard label="Folha bruta (mês)" value={BRL.format(totalFolha)} />
         <KpiCard label="Admissões (mês)" value={String(totalAdmissoes)} ok={totalAdmissoes > 0} />
@@ -147,63 +144,47 @@ export default async function HeadcountPage() {
       </div>
 
       {rows.length > 0 ? (
-        <div
-          style={{
-            background: "var(--surface)",
-            border: "1px solid var(--border)",
-            borderRadius: 10,
-            overflow: "hidden",
-            marginBottom: 28,
-          }}
-        >
-          <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, minWidth: 560 }}>
-            <thead>
-              <tr style={{ borderBottom: "1px solid var(--border)", background: "var(--surface-2)" }}>
-                {["Marca", "Headcount Ativo", "Folha Bruta", "Admissões", "Demissões"].map((h) => (
-                  <th
-                    key={h}
-                    style={{
-                      padding: "10px 16px",
-                      textAlign: h === "Marca" ? "left" : "right",
-                      fontSize: 11,
-                      fontWeight: 700,
-                      letterSpacing: 0.8,
-                      textTransform: "uppercase",
-                      color: "var(--text-3)",
-                    }}
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r, i) => (
-                <tr key={r.brand_id ?? i} style={{ borderBottom: "1px solid var(--border)" }}>
-                  <td style={{ padding: "12px 16px", fontWeight: 600, color: "var(--text)" }}>
-                    {r.brand_name ?? "—"}
-                  </td>
-                  <td style={{ padding: "12px 16px", textAlign: "right", color: "var(--text-2)" }}>
-                    {r.headcount_ativo ?? 0}
-                  </td>
-                  <td style={{ padding: "12px 16px", textAlign: "right", color: "var(--text-2)" }}>
-                    {BRL.format(r.folha_bruta ?? 0)}
-                  </td>
-                  <td style={{ padding: "12px 16px", textAlign: "right", color: (r.admissoes_mes ?? 0) > 0 ? "#22C55E" : "var(--text-3)" }}>
-                    {r.admissoes_mes ?? 0}
-                  </td>
-                  <td style={{ padding: "12px 16px", textAlign: "right", color: (r.demissoes_mes ?? 0) > 0 ? "#EF4444" : "var(--text-3)" }}>
-                    {r.demissoes_mes ?? 0}
-                  </td>
+        <div className="rounded-md border bg-card text-card-foreground shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left" style={{ minWidth: 560 }}>
+              <thead className="text-xs text-muted-foreground uppercase bg-muted/30 border-b">
+                <tr>
+                  {["Marca", "Headcount Ativo", "Folha Bruta", "Admissões", "Demissões"].map((h) => (
+                    <th
+                      key={h}
+                      className={`px-4 py-3 font-semibold tracking-wide ${h === "Marca" ? "text-left" : "text-right"}`}
+                    >
+                      {h}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {rows.map((r, i) => (
+                  <tr key={r.brand_id ?? i} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
+                    <td className="px-4 py-3 font-semibold text-foreground">
+                      {r.brand_name ?? "—"}
+                    </td>
+                    <td className="px-4 py-3 text-right text-muted-foreground">
+                      {r.headcount_ativo ?? 0}
+                    </td>
+                    <td className="px-4 py-3 text-right text-muted-foreground">
+                      {BRL.format(r.folha_bruta ?? 0)}
+                    </td>
+                    <td className={`px-4 py-3 text-right font-medium ${(r.admissoes_mes ?? 0) > 0 ? "text-green-600 dark:text-green-400" : "text-muted-foreground"}`}>
+                      {r.admissoes_mes ?? 0}
+                    </td>
+                    <td className={`px-4 py-3 text-right font-medium ${(r.demissoes_mes ?? 0) > 0 ? "text-red-600 dark:text-red-400" : "text-muted-foreground"}`}>
+                      {r.demissoes_mes ?? 0}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       ) : (
-        <div style={{ textAlign: "center", padding: "60px 0", color: "var(--text-3)", fontSize: 14 }}>
+        <div className="text-center py-16 text-sm text-muted-foreground">
           Sem dados de headcount disponíveis. Verifique a integração com o módulo de RH.
         </div>
       )}
@@ -240,97 +221,69 @@ function AgentInsightBanner({
   insight: PessoasInsight;
   officialScore: OfficialScore | null;
 }) {
-  // Score oficial (com teto) tem prioridade; fallback para score bruto do insight
   const displayScore = officialScore?.score_oficial ?? insight.dados_referencia?.score ?? null;
   const capRazao = officialScore?.cap_razao ?? null;
   const isCapped = capRazao != null;
-
-  const accentColor = isCapped ? "#C4622D" : "#B8975A";
-  const scoreColor =
-    displayScore == null ? "var(--text-3)" :
-    displayScore >= 80 ? "#B8975A" :
-    displayScore >= 60 ? "#A16207" :
-    "#C4622D";
 
   const semanaFormatted = insight.semana
     ? new Date(insight.semana + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })
     : null;
 
   return (
-    <div
-      style={{
-        background: "var(--surface)",
-        border: "1px solid var(--border)",
-        borderLeft: `3px solid ${accentColor}`,
-        borderRadius: 10,
-        padding: "18px 22px",
-        marginTop: 4,
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", color: "var(--text-3)" }}>
+    <div className={`rounded-md border bg-card text-card-foreground shadow-sm p-5 border-l-4 ${isCapped ? "border-l-red-500 dark:border-l-red-400" : "border-l-yellow-500 dark:border-l-yellow-400"}`}>
+      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs font-bold tracking-widest uppercase text-muted-foreground">
             Insight de Pessoas
           </span>
-          <span style={{ fontSize: 10, padding: "2px 7px", borderRadius: 99, background: "rgba(184,151,90,0.14)", color: "#B8975A", fontWeight: 700 }}>
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300 font-bold">
             Agente IA
           </span>
           {isCapped && (
-            <span style={{ fontSize: 10, padding: "2px 7px", borderRadius: 99, background: "rgba(196,98,45,0.14)", color: "#C4622D", fontWeight: 700 }}>
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300 font-bold">
               TETO APLICADO
             </span>
           )}
           {semanaFormatted && (
-            <span style={{ fontSize: 10, color: "var(--text-3)" }}>semana de {semanaFormatted}</span>
+            <span className="text-[10px] text-muted-foreground">semana de {semanaFormatted}</span>
           )}
         </div>
         {displayScore != null && (
-          <div style={{ textAlign: "right", flexShrink: 0 }}>
-            <span style={{ fontSize: 22, fontWeight: 700, color: scoreColor, letterSpacing: -0.4 }}>{displayScore}</span>
-            <span style={{ fontSize: 11, color: "var(--text-3)", marginLeft: 3 }}>/100</span>
+          <div className="text-right shrink-0">
+            <span className={`text-2xl font-bold tabular-nums ${scoreColorClass(displayScore)}`}>
+              {displayScore}
+            </span>
+            <span className="text-xs text-muted-foreground ml-1">/100</span>
           </div>
         )}
       </div>
 
       {capRazao && (
-        <div
-          style={{
-            fontSize: 11,
-            color: "#C4622D",
-            background: "rgba(196,98,45,0.08)",
-            border: "1px solid rgba(196,98,45,0.2)",
-            borderRadius: 6,
-            padding: "6px 10px",
-            marginBottom: 10,
-            lineHeight: 1.5,
-          }}
-        >
+        <div className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-md px-3 py-2 mb-3 leading-relaxed">
           {capRazao}
         </div>
       )}
 
-      <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.6, margin: 0 }}>
-        {insight.insight_text}
-      </p>
+      <p className="text-sm text-muted-foreground leading-relaxed">{insight.insight_text}</p>
     </div>
   );
 }
 
 function KpiCard({ label, value, ok, alert }: { label: string; value: string; ok?: boolean; alert?: boolean }) {
-  const color = alert ? "#C4622D" : ok ? "#B8975A" : "var(--text)";
   return (
-    <div
-      style={{
-        background: "var(--surface)",
-        border: `1px solid ${alert ? "rgba(239,68,68,0.3)" : ok ? "rgba(34,197,94,0.3)" : "var(--border)"}`,
-        borderRadius: 8,
-        padding: "18px 20px",
-      }}
-    >
-      <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: 1, color: "var(--text-3)", marginBottom: 8 }}>
-        {label}
+    <div className={`rounded-md border bg-card p-5 ${
+      alert ? "border-red-300 dark:border-red-800" :
+      ok    ? "border-green-300 dark:border-green-800" :
+      "border-border"
+    }`}>
+      <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{label}</div>
+      <div className={`text-2xl font-bold tabular-nums tracking-tight ${
+        alert ? "text-red-600 dark:text-red-400" :
+        ok    ? "text-green-600 dark:text-green-400" :
+        "text-foreground"
+      }`}>
+        {value}
       </div>
-      <div style={{ fontSize: 22, fontWeight: 700, color, letterSpacing: -0.4 }}>{value}</div>
     </div>
   );
 }
