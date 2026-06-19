@@ -13,6 +13,8 @@ import type { Database } from "../types/database";
 export function getBrowserClient(): SupabaseClient<Database> | null {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  // DIAG: confirma env vars em runtime (remover após diagnóstico)
+  console.log("[getBrowserClient] url:", !!url, "| key:", !!anonKey, "| url_val:", url?.slice(0, 30));
   if (!url || !anonKey) return null;
   return createBrowserClient<Database>(url, anonKey);
 }
