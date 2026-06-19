@@ -67,27 +67,9 @@ function LoginInner() {
     setError(null);
     setMessage(null);
     const { error: err } = await supabase.auth.signInWithPassword({ email, password });
-    if (err) {
-      setLoading(false);
-      setError(err.message);
-      return;
-    }
-
-    // Aguarda o cookie de sessão ser escrito por createBrowserClient antes de
-    // navegar. window.location.href imediato cancela a escrita async do cookie.
-    const cookieWritten = await new Promise<boolean>((resolve) => {
-      let tries = 0;
-      const check = () => {
-        if (document.cookie.includes("sb-iqgrvptrtphvbmvrqntm-auth-token")) return resolve(true);
-        if (++tries > 20) return resolve(false); // ~2s máx
-        setTimeout(check, 100);
-      };
-      check();
-    });
-
     setLoading(false);
-    if (!cookieWritten) {
-      setError("Sessão não persistiu. Tente de novo.");
+    if (err) {
+      setError(err.message);
       return;
     }
     window.location.href = next;

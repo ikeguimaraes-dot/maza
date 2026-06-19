@@ -4,17 +4,30 @@ import { createBrowserClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../types/database";
 
-/**
- * Cliente Supabase para Client Components — usa cookies do browser
- * compatíveis com a sessão SSR (lida pelo proxy.ts e Server Components).
- *
- * Sem env vars: retorna null. Hooks devem degradar com graça.
- */
 export function getBrowserClient(): SupabaseClient<Database> | null {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  // DIAG: confirma env vars em runtime (remover após diagnóstico)
-  console.log("[getBrowserClient] url:", !!url, "| key:", !!anonKey, "| url_val:", url?.slice(0, 30));
   if (!url || !anonKey) return null;
-  return createBrowserClient<Database>(url, anonKey);
+  return createBrowserClient<Database>(url, anonKey, {
+    cookies: {
+      getAll() {
+        return document.cookie.split(";").map((c) => {
+          const eq = c.indexOf("=");
+          const name = eq === -1 ? c.trim() : c.slice(0, eq).trim();
+          const value = eq === -1 ? "" : c.slice(eq + 1);
+          return { name, value };
+        });
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          let str = `${name}=${value}`;
+          if (options?.path) str += `; Path=${options.path}`;
+          if (options?.maxAge != null) str += `; Max-Age=${options.maxAge}`;
+          if (options?.sameSite) str += `; SameSite=${options.sameSite}`;
+          if (options?.secure) str += "; Secure";
+          document.cookie = str;
+        });
+      },
+    },
+  });
 }
