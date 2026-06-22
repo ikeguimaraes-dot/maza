@@ -1,4 +1,3 @@
-import { requireUser } from "@kph/auth/server";
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
 import { InsightPanel } from "@/components/intelligence/InsightPanel";
 
@@ -37,7 +36,6 @@ const BRL = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL",
 const PCT = (v?: number) => v != null ? `${v.toFixed(1)}%` : "—";
 
 export default async function FinanceiroPage() {
-  await requireUser();
   const rows = await getDreResumo();
 
   const totalReceita = rows.reduce((s, r) => s + (r.receita_bruta ?? 0), 0);

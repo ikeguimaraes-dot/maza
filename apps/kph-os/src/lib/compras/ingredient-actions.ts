@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient, createServiceClient } from "@kph/db/supabase/server";
-import { requireUser } from "@kph/auth/server";
+import { SHELL_USER } from "@/lib/shell-auth";
 import type { ActionResult } from "@/lib/result";
 import type {
   Ingredient,
@@ -20,7 +20,7 @@ function revalidate() {
 
 // ── Helpers ───────────────────────────────────────────────────
 
-async function resolveGroupId(user: Awaited<ReturnType<typeof requireUser>>): Promise<string | null> {
+async function resolveGroupId(user: typeof SHELL_USER): Promise<string | null> {
   const fromRoles = user.roles.find((r) => r.groupId)?.groupId ?? null;
   if (fromRoles) return fromRoles;
 
@@ -125,7 +125,7 @@ export async function createIngredient(
   input: Omit<IngredientInsert, "group_id">,
 ): Promise<ActionResult<Ingredient>> {
   try {
-    const user = await requireUser();
+    const user = SHELL_USER;
     const groupId = await resolveGroupId(user);
     if (!groupId) return { ok: false, error: "group_id não encontrado para o usuário" };
 
@@ -168,7 +168,6 @@ export async function updateIngredient(
   patch: IngredientUpdate,
 ): Promise<ActionResult<Ingredient>> {
   try {
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
@@ -191,7 +190,6 @@ export async function toggleIngredientAtivo(
   id: string,
 ): Promise<ActionResult<Ingredient>> {
   try {
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 

@@ -1,5 +1,24 @@
 # Orkestri — Monorepo KPH
 
+## 🚨 AUTH SIMPLIFICADO TEMPORÁRIO — LEIA ANTES DE QUALQUER COISA
+
+O shell (`apps/kph-os`) usa um **gate de senha única** (`SHELL_PASSWORD` env var) com cookie
+`shell_session` assinado via HMAC-SHA256. **Isto NÃO é seguro para dado real.**
+
+- As zonas (financeiro, pessoas, inteligencia etc.) continuam **ABERTAS** — cada uma terá
+  seu próprio gate quando virar repo separado.
+- Supabase session / RLS / identidade de usuário **não estão ativos** no shell neste momento.
+- Queries Supabase dentro do shell usam a anon key (RLS com role anon).
+- Auth real (Supabase + RLS + proteção cross-zona + audit trail) é **pré-requisito BLOQUEANTE**
+  antes de qualquer dado sensível entrar em produção.
+
+**Substituição futura:** trocar o middleware do shell por `updateSession()` do `@kph/db/supabase/proxy`
+e substituir `requireShellSession()` por `requireUser()` do `@kph/auth/server`.
+Remover `SHELL_PASSWORD` da Vercel e arquivos `lib/shell-token.ts` e `lib/shell-auth.ts`.
+
+---
+
+
 Sistema operacional de inteligência para hospitalidade do Grupo KPH.
 Repo: `github.com/ikeguimaraes-dot/orkestri` (ex kph-os, fundido com kph-os-inteligencia em jun/2026).
 

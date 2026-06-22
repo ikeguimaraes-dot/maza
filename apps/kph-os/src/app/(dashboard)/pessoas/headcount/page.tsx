@@ -1,4 +1,3 @@
-import { requireUser } from "@kph/auth/server";
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
 import { InsightPanel } from "@/components/intelligence/InsightPanel";
 import { applyScoreCap, scoreColorClass, type ProposalRisk } from "@kph/core";
@@ -110,7 +109,6 @@ async function getHeadcount(): Promise<HeadcountRow[]> {
 const BRL = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
 
 export default async function HeadcountPage() {
-  await requireUser();
   const [rows, agentInsight, officialScore] = await Promise.all([
     getHeadcount(),
     getLatestPessoasInsight(),

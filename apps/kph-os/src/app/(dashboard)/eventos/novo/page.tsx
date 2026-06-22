@@ -1,13 +1,11 @@
 import Link from "next/link";
 
-import { requireUser } from "@kph/auth/server";
 import { createEvent, listAccessibleBrands } from "../actions";
 import { EventForm } from "@/components/eventos/EventForm";
 
 export const dynamic = "force-dynamic";
 
 export default async function NovoEventoPage() {
-  await requireUser();
   const brands = await listAccessibleBrands();
 
   if (brands.length === 0) {

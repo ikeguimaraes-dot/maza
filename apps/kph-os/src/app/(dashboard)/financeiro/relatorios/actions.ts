@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createServiceClient } from "@kph/db/supabase/server";
-import { requireUser } from "@kph/auth/server";
+import { SHELL_USER } from "@/lib/shell-auth";
 import type { ActionResult } from "@/lib/result";
 
 export type TipoRelatorio = "folha_mensal" | "adiantamento" | "relatorio_bancario";
@@ -26,7 +26,6 @@ export interface PayrollReport {
 export async function uploadPayrollReport(
   formData: FormData
 ): Promise<ActionResult<{ id: string }>> {
-  await requireUser();
 
   const file = formData.get("file") as File | null;
   const competencia = formData.get("competencia") as string | null;
@@ -91,7 +90,6 @@ export async function uploadPayrollReport(
 }
 
 export async function listPayrollReports(unitId?: string): Promise<PayrollReport[]> {
-  await requireUser();
 
   const supabase = createServiceClient();
   if (!supabase) return [];
@@ -115,7 +113,6 @@ export async function listPayrollReports(unitId?: string): Promise<PayrollReport
 export async function getPayrollReportUrl(
   storagePath: string
 ): Promise<ActionResult<{ url: string }>> {
-  await requireUser();
 
   const supabase = createServiceClient();
   if (!supabase) {

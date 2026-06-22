@@ -5,7 +5,7 @@
 import { revalidatePath } from "next/cache";
 
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
-import { requireUser } from "@kph/auth/server";
+import { SHELL_USER } from "@/lib/shell-auth";
 import type { ActionResult } from "@/lib/result";
 import {
   clientSchema,
@@ -92,7 +92,7 @@ export async function createClient(
     if (!parsed.success) {
       return { ok: false, error: parsed.error.issues[0]?.message ?? "Inválido" };
     }
-    const user = await requireUser();
+    const user = SHELL_USER;
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
@@ -131,7 +131,6 @@ export async function updateClient(
     if (!parsed.success) {
       return { ok: false, error: parsed.error.issues[0]?.message ?? "Inválido" };
     }
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
@@ -156,7 +155,6 @@ export async function toggleClientAtivo(
   id: string,
 ): Promise<ActionResult<Client>> {
   try {
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
     const { data: cur, error: rErr } = await supabase
@@ -211,7 +209,7 @@ export async function createInteraction(
     if (!parsed.success) {
       return { ok: false, error: parsed.error.issues[0]?.message ?? "Inválido" };
     }
-    const user = await requireUser();
+    const user = SHELL_USER;
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 

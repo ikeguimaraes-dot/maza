@@ -7,7 +7,6 @@ import {
   listCandidatesForJob,
   listInterviewQuestions,
 } from "@/app/(dashboard)/recrutamento/actions";
-import { requireUser } from "@kph/auth/server";
 import { VagaDetailClient } from "./vaga-client";
 
 export const dynamic = "force-dynamic";
@@ -17,7 +16,6 @@ type Props = {
 };
 
 export default async function VagaDetailPage({ params }: Props) {
-  await requireUser();
   const { id } = await params;
   const vaga = await getJobOpening(id);
   if (!vaga) notFound();

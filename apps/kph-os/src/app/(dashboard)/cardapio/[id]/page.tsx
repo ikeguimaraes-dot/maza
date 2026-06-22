@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { requireUser } from "@kph/auth/server";
 import {
   getMenuItem,
   listRecipeItems,
@@ -14,7 +13,6 @@ type Props = {
 };
 
 export default async function FichaTecnicaPage({ params }: Props) {
-  await requireUser();
   const { id } = await params;
   const [item, recipeItems, notes] = await Promise.all([
     getMenuItem(id),

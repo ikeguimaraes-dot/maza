@@ -1,4 +1,3 @@
-import { requireUser } from "@kph/auth/server";
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
 import { InsightPanel } from "@/components/intelligence/InsightPanel";
 
@@ -33,7 +32,6 @@ async function getMetas(): Promise<MetaRow[]> {
 }
 
 export default async function MetasPage() {
-  await requireUser();
   const metas = await getMetas();
 
   const total = metas.length;

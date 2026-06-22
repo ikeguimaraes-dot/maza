@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
 
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
-import { getCurrentUser } from "@kph/auth/server";
+import { SHELL_USER } from "@/lib/shell-auth";
 import { PayslipPdf } from "@/components/pessoas/PayslipPdf";
 import type { Employee, Payslip } from "@kph/db/types/pessoas";
 
@@ -17,10 +17,7 @@ type Params = Promise<{ id: string }>;
 export async function GET(_req: Request, { params }: { params: Params }) {
   const { id } = await params;
 
-  const user = await getCurrentUser();
-  if (!user) {
-    return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
-  }
+  const user = SHELL_USER;
 
   const supabase = await createSupabaseServerClient();
   if (!supabase) {

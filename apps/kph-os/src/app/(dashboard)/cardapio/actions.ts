@@ -7,7 +7,7 @@
 import { revalidatePath } from "next/cache";
 
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
-import { requireUser } from "@kph/auth/server";
+import { SHELL_USER } from "@/lib/shell-auth";
 import type { ActionResult } from "@/lib/result";
 import {
   cmvItemSchema,
@@ -97,7 +97,6 @@ export async function createMenuItem(
     if (!parsed.success) {
       return { ok: false, error: parsed.error.issues[0]?.message ?? "Inválido" };
     }
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
@@ -136,7 +135,6 @@ export async function updateMenuItem(
     if (!parsed.success) {
       return { ok: false, error: parsed.error.issues[0]?.message ?? "Inválido" };
     }
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
@@ -160,7 +158,6 @@ export async function toggleMenuItemAtivo(
   id: string,
 ): Promise<ActionResult<MenuItem>> {
   try {
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
@@ -191,7 +188,6 @@ export async function deleteMenuItem(
   id: string,
 ): Promise<ActionResult<{ id: string }>> {
   try {
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
@@ -228,7 +224,6 @@ export async function upsertRecipeItem(
   payload: RecipeItemInsert & { id?: string },
 ): Promise<ActionResult<RecipeItem>> {
   try {
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
@@ -284,7 +279,6 @@ export async function deleteRecipeItem(
   menuItemId: string,
 ): Promise<ActionResult<{ id: string }>> {
   try {
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
@@ -322,7 +316,7 @@ export async function createRecipeNote(
 ): Promise<ActionResult<RecipeNote>> {
   try {
     if (!nota?.trim()) return { ok: false, error: "Nota não pode estar vazia" };
-    const user = await requireUser();
+    const user = SHELL_USER;
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 

@@ -1,7 +1,7 @@
 "use server"
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient, createServiceClient } from "@kph/db/supabase/server";
-import { requireUser } from "@kph/auth/server";
+import { SHELL_USER } from "@/lib/shell-auth";
 import type { ActionResult } from "@/lib/result";
 
 // ── Types ──────────────────────────────────────────────────────────
@@ -97,7 +97,7 @@ export async function submitRunDecision(
   feedback?: string
 ): Promise<ActionResult<HosApproval>> {
   try {
-    const user = await requireUser();
+    const user = SHELL_USER;
     if (!user) return { ok: false, error: "Não autorizado" };
 
     const supabase = await createSupabaseServerClient();
@@ -300,7 +300,7 @@ export type HosInsight = {
 
 export async function generateWeeklyInsight(): Promise<ActionResult<HosInsight>> {
   try {
-    const user = await requireUser();
+    const user = SHELL_USER;
     if (!user) return { ok: false, error: "Não autorizado" };
 
     const supabase = await createSupabaseServerClient();

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCurrentUser } from '@kph/auth/server'
 
 const SYSTEM_PROMPTS: Record<string, string> = {
   dashboard: `Você é o analista executivo do KPH OS, um ERP de gestão de bares e restaurantes do grupo KPH (Meet & Eat, Madonna Cucina, Match Point, Pipokaê). Analise os dados do painel geral e gere um insight executivo conciso. Responda APENAS com JSON válido no formato: {"headline": "string (máx 120 chars, assertivo e direto)", "insights": ["string", "string", "string"], "proximo_passo": "string (máx 120 chars, ação concreta)"}. Não use markdown, não use blocos de código, retorne apenas o JSON cru.`,
@@ -23,11 +22,6 @@ function extractJson(text: string): string {
 }
 
 export async function POST(req: NextRequest) {
-  const user = await getCurrentUser()
-  if (!user) {
-    return NextResponse.json(null, { status: 401 })
-  }
-
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) {
     return NextResponse.json(null, { status: 503 })

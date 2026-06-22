@@ -19,7 +19,6 @@
 //   3) só então service_role insere
 
 import { createSupabaseServerClient, createServiceClient } from "@kph/db/supabase/server";
-import { getCurrentUser } from "@kph/auth/server";
 import type { PunchTipo, TimeClockPunch } from "@kph/db/types/pessoas";
 import { nextPunchTipo, PUNCH_LABEL } from "@/lib/pessoas/punch";
 

@@ -4,13 +4,11 @@ import { Plus } from "lucide-react";
 import { buttonVariants } from "@kph/ui/button";
 import { listClients } from "@/app/(dashboard)/cliente/actions";
 import { getCurrentUnit } from "@kph/auth/unit";
-import { requireUser } from "@kph/auth/server";
 import { ClienteClient } from "./cliente-client";
 
 export const dynamic = "force-dynamic";
 
 export default async function ClientePage() {
-  await requireUser();
   const unit = await getCurrentUnit();
   const clients = await listClients(unit?.id ?? null);
 

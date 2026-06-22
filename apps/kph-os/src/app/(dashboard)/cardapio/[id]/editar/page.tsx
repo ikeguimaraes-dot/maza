@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { getMenuItem } from "@/app/(dashboard)/cardapio/actions";
 import { listAccessibleBrands } from "@/app/(dashboard)/eventos/actions";
-import { requireUser } from "@kph/auth/server";
 import { CardapioFormClient } from "../../cardapio-form-client";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +10,6 @@ type Props = {
 };
 
 export default async function EditarCardapioItemPage({ params }: Props) {
-  await requireUser();
   const { id } = await params;
   const [item, brands] = await Promise.all([
     getMenuItem(id),

@@ -1,7 +1,7 @@
 import { Sidebar } from "@/components/shell/Sidebar";
 import { TopBar } from "@/components/shell/TopBar";
 import { AuthProvider } from "@kph/auth/context";
-import { requireUser } from "@kph/auth/server";
+import { SHELL_USER } from "@/lib/shell-auth";
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
 import type { Unit } from "@kph/db/types/database";
 
@@ -13,7 +13,7 @@ export default async function DashboardLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   // proxy.ts já redireciona — defesa em profundidade.
-  const user = await requireUser();
+  const user = SHELL_USER;
 
   const units = await loadAccessibleUnits();
 

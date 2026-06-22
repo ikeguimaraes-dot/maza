@@ -8,7 +8,7 @@
 import { revalidatePath } from "next/cache";
 
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
-import { requireUser } from "@kph/auth/server";
+import { SHELL_USER } from "@/lib/shell-auth";
 import type { ActionResult } from "@/lib/result";
 import { campaignSchema, type CampaignFormValues } from "@/lib/campanhas/schema";
 import type {
@@ -82,7 +82,7 @@ export async function createCampaign(
     if (!parsed.success) {
       return { ok: false, error: parsed.error.issues[0]?.message ?? "Inválido" };
     }
-    const user = await requireUser();
+    const user = SHELL_USER;
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
@@ -120,7 +120,6 @@ export async function updateCampaign(
   patch: CampaignUpdate,
 ): Promise<ActionResult<Campaign>> {
   try {
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
     const { data, error } = await supabase
@@ -141,7 +140,6 @@ export async function toggleCampaignActive(
   id: string,
 ): Promise<ActionResult<Campaign>> {
   try {
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
     const { data: current } = await supabase
@@ -158,7 +156,6 @@ export async function toggleCampaignActive(
 
 export async function deleteCampaign(id: string): Promise<ActionResult<null>> {
   try {
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
     const { error } = await supabase.from(TABLE).delete().eq("id", id);
@@ -179,7 +176,6 @@ export async function uploadCampaignImage(
   file: File,
 ): Promise<ActionResult<{ path: string }>> {
   try {
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 

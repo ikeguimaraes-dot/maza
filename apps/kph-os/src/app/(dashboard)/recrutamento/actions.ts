@@ -9,7 +9,7 @@
 import { revalidatePath } from "next/cache";
 
 import { createSupabaseServerClient, createServiceClient } from "@kph/db/supabase/server";
-import { requireUser } from "@kph/auth/server";
+import { SHELL_USER } from "@/lib/shell-auth";
 import type { ActionResult } from "@/lib/result";
 import {
   candidateSchema,
@@ -140,7 +140,7 @@ export async function createJobOpening(
     if (!parsed.success) {
       return { ok: false, error: parsed.error.issues[0]?.message ?? "Inválido" };
     }
-    const user = await requireUser();
+    const user = SHELL_USER;
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
@@ -164,7 +164,6 @@ export async function updateJobOpening(
   patch: JobOpeningUpdate,
 ): Promise<ActionResult<JobOpening>> {
   try {
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
     const { data, error } = await supabase
@@ -186,7 +185,6 @@ export async function toggleJobOpeningActive(
   id: string,
 ): Promise<ActionResult<JobOpening>> {
   try {
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
     const { data: current } = await supabase
@@ -245,7 +243,6 @@ export async function createCandidate(
     if (!parsed.success) {
       return { ok: false, error: parsed.error.issues[0]?.message ?? "Inválido" };
     }
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
@@ -287,7 +284,6 @@ export async function updateCandidate(
   patch: CandidateUpdate,
 ): Promise<ActionResult<Candidate>> {
   try {
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
     const { data, error } = await supabase
@@ -356,7 +352,6 @@ export async function createInterviewQuestion(
     if (!parsed.success) {
       return { ok: false, error: parsed.error.issues[0]?.message ?? "Inválido" };
     }
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
@@ -397,7 +392,6 @@ export async function updateInterviewQuestion(
     if (!parsed.success) {
       return { ok: false, error: parsed.error.issues[0]?.message ?? "Inválido" };
     }
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
     const { data, error } = await supabase
@@ -422,7 +416,6 @@ export async function deleteInterviewQuestion(
   id: string,
 ): Promise<ActionResult<null>> {
   try {
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
     const { error } = await supabase.from(QUESTIONS).delete().eq("id", id);

@@ -1,7 +1,7 @@
 "use server";
 
 import { createSupabaseServerClient, createServiceClient } from "@kph/db/supabase/server";
-import { requireUser } from "@kph/auth/server";
+import { SHELL_USER } from "@/lib/shell-auth";
 import type { ActionResult } from "@/lib/result";
 import type {
   EmployeeDocument,
@@ -144,7 +144,7 @@ export async function uploadDocument(
   formData: FormData,
 ): Promise<ActionResult<EmployeeDocument>> {
   try {
-    const user = await requireUser();
+    const user = SHELL_USER;
     const supabase = await createSupabaseServerClient();
     const service = createServiceClient();
     if (!supabase || !service) return { ok: false, error: "Serviço indisponível" };

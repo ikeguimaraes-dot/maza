@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 
-import { requireUser } from "@kph/auth/server";
+import { SHELL_USER } from "@/lib/shell-auth";
 import { InsightPanel } from "@/components/intelligence/InsightPanel";
 import {
   getAlertas,
@@ -28,7 +28,7 @@ import type { HeadcountMarcaRow } from "@kph/db/types/database";
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const user = await requireUser();
+  const user = SHELL_USER;
   const nome = nomeDoUsuario(user.email) ?? "Operador";
   const greet = saudacao();
   const dia = dataExtenso();

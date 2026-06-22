@@ -4,7 +4,6 @@ import {
   listEventsForClient,
   listInteractions,
 } from "@/app/(dashboard)/cliente/actions";
-import { requireUser } from "@kph/auth/server";
 import { ClienteDetalheClient } from "./detalhe-client";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +13,6 @@ type Props = {
 };
 
 export default async function ClienteDetalhePage({ params }: Props) {
-  await requireUser();
   const { id } = await params;
   const [client, interactions, events] = await Promise.all([
     getClient(id),

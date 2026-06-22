@@ -1,12 +1,10 @@
 import { listAccessibleBrands } from "@/app/(dashboard)/eventos/actions";
 import { listCampaigns } from "@/app/(dashboard)/campanhas/actions";
-import { requireUser } from "@kph/auth/server";
 import { CampanhasClient } from "./campanhas-client";
 
 export const dynamic = "force-dynamic";
 
 export default async function CampanhasPage() {
-  await requireUser();
 
   const [campaigns, brands] = await Promise.all([
     listCampaigns(),

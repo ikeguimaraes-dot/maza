@@ -1,12 +1,10 @@
 import Link from "next/link";
-import { requireUser } from "@kph/auth/server";
 import { listPayrollReports } from "./actions";
 import { RelatoriosClient } from "./relatorios-client";
 
 export const dynamic = "force-dynamic";
 
 export default async function RelatoriosFolhaPage() {
-  await requireUser();
 
   const relatorios = await listPayrollReports();
 

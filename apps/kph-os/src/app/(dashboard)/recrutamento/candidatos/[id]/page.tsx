@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import { getCandidateWithResponses } from "@/app/(dashboard)/recrutamento/actions";
-import { requireUser } from "@kph/auth/server";
 import { CandidatoClient } from "./candidato-client";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +12,6 @@ type Props = {
 };
 
 export default async function CandidatoPage({ params }: Props) {
-  await requireUser();
   const { id } = await params;
   const bundle = await getCandidateWithResponses(id);
   if (!bundle) notFound();

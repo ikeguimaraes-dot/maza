@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient, createServiceClient } from "@kph/db/supabase/server";
-import { requireUser } from "@kph/auth/server";
+import { SHELL_USER } from "@/lib/shell-auth";
 import type { ActionResult } from "@/lib/result";
 import type {
   RecipeItemExtended,
@@ -92,7 +92,6 @@ export async function addRecipeItemWithIngredient(input: {
   perda_pct?: number | null;
 }): Promise<ActionResult<RecipeItemExtended>> {
   try {
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
@@ -152,7 +151,6 @@ export async function updateRecipeItemExtended(
   },
 ): Promise<ActionResult<RecipeItemExtended>> {
   try {
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
@@ -176,7 +174,6 @@ export async function removeRecipeItemExtended(
   menuItemId: string,
 ): Promise<ActionResult<{ id: string }>> {
   try {
-    await requireUser();
     // ri_delete RLS still references the old cmv_item_id column; use service
     // role to bypass the stale policy until a migration fixes it.
     const supabase = createServiceClient() ?? await createSupabaseServerClient();
@@ -198,7 +195,6 @@ export async function linkRecipeItemToIngredient(
   ingredientId: string | null,
 ): Promise<ActionResult<RecipeItemExtended>> {
   try {
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
@@ -233,7 +229,6 @@ export async function duplicateRecipe(
   targetMenuItemId: string,
 ): Promise<ActionResult<{ count: number }>> {
   try {
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
@@ -264,7 +259,7 @@ export async function addRecipeNote(
 ): Promise<ActionResult<{ id: string; nota: string; created_at: string }>> {
   try {
     if (!nota.trim()) return { ok: false, error: "Nota não pode estar vazia" };
-    const user = await requireUser();
+    const user = SHELL_USER;
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
@@ -291,7 +286,6 @@ export async function removeRecipeNote(
   menuItemId: string,
 ): Promise<ActionResult<{ id: string }>> {
   try {
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 

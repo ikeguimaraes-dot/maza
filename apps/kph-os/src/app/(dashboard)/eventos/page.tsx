@@ -1,6 +1,5 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { requireUser } from "@kph/auth/server";
 import { InsightPanel } from "@/components/intelligence/InsightPanel";
 import { Plus } from "lucide-react";
 
@@ -26,7 +25,6 @@ export default async function EventosPage({
 }: {
   searchParams: SearchParams;
 }) {
-  await requireUser();
   const sp = await searchParams;
 
   let brands, stats, events

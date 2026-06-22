@@ -9,7 +9,7 @@
 import { revalidatePath } from "next/cache";
 
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
-import { requireUser } from "@kph/auth/server";
+import { SHELL_USER } from "@/lib/shell-auth";
 import type { ActionResult } from "@/lib/result";
 import {
   csvRowToOvertimeRecord,
@@ -41,7 +41,7 @@ export async function processPontoImport(
     if (!rows || rows.length === 0) {
       return { ok: false, error: "Nenhuma linha pra importar" };
     }
-    const user = await requireUser();
+    const user = SHELL_USER;
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 

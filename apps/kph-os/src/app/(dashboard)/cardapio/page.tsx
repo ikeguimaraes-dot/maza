@@ -4,13 +4,11 @@ import { Plus } from "lucide-react";
 import { buttonVariants } from "@kph/ui/button";
 import { listMenuItems } from "@/app/(dashboard)/cardapio/actions";
 import { listAccessibleBrands } from "@/app/(dashboard)/eventos/actions";
-import { requireUser } from "@kph/auth/server";
 import { CardapioClient } from "./cardapio-client";
 
 export const dynamic = "force-dynamic";
 
 export default async function CardapioPage() {
-  await requireUser();
 
   const [items, brands] = await Promise.all([
     listMenuItems(),

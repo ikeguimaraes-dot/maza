@@ -1,4 +1,3 @@
-import { requireUser } from "@kph/auth/server";
 import { createServiceClient } from "@kph/db/supabase/server";
 import { applyScoreCap, scoreColorClass, type ProposalRisk } from "@kph/core";
 import { formatDistanceToNow } from "date-fns";
@@ -107,7 +106,6 @@ const BREAKDOWN_LABELS: Record<string, string> = {
 };
 
 export default async function PessoasAgentesPage() {
-  await requireUser();
   const [latestScore, latestInsight, historico] = await Promise.all([
     getLatestPessoasScore(),
     getLatestPessoasInsight(),

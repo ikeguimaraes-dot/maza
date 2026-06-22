@@ -5,13 +5,12 @@
 import { NextResponse } from "next/server";
 
 import { generatePayslipsForUnit } from "@/lib/pessoas/actions";
-import { requireUser } from "@kph/auth/server";
+import { SHELL_USER } from "@/lib/shell-auth";
 import { getCurrentUnit } from "@kph/auth/unit";
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
-  await requireUser();
 
   const unit = await getCurrentUnit();
   if (!unit) {

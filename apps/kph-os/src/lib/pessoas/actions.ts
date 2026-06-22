@@ -1,7 +1,7 @@
 "use server"
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient, createServiceClient } from "@kph/db/supabase/server";
-import { requireUser, getCurrentUser } from "@kph/auth/server";
+import { SHELL_USER } from "@/lib/shell-auth";
 import { getCurrentUnit } from "@kph/auth/unit";import { createNotification } from "@/lib/notifications/actions";
 import type { ActionResult } from "@/lib/result";
 import { gerarHolerite } from "@/lib/pessoas/clt";
@@ -707,7 +707,6 @@ export async function generatePayslipsCurrentUnit(
   mes: number,
   ano: number,
 ): Promise<ActionResult<{ count: number; failures: string[] }>> {
-  await requireUser();
   const unit = await getCurrentUnit();
   if (!unit) return { ok: false, error: "Sem unidade selecionada" };
   return generatePayslipsForUnit(unit.id, mes, ano);
@@ -961,7 +960,6 @@ export async function addScoreBonus(
     const trimmed = descricao.trim();
     if (!trimmed) return { ok: false, error: "Descrição obrigatória" };
 
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
@@ -1271,7 +1269,7 @@ export async function getMyEmployee(userId?: string): Promise<Employee | null> {
     // para ser compatível com o mock em src/lib/auth/server.ts.
     // Usa service_role pois a sessão Supabase pode estar ausente (iOS/mock).
     // Seguro: query filtrada por user_id verificado pelo auth layer.
-    const authUser = await getCurrentUser();
+    const authUser = SHELL_USER;
     if (!authUser) return null;
     const service = createServiceClient();
     if (!service) return null;
@@ -1965,7 +1963,7 @@ export async function vincularColaborador(
   email: string
 ): Promise<ActionResult<void>> {
   try {
-    const user = await requireUser()
+    const user = SHELL_USER
     const service = createServiceClient()
     if (!service) return { ok: false, error: 'Supabase indisponível' }
 
