@@ -1,11 +1,9 @@
-import { requireUser } from "@kph/auth/server";
 import { loadAdocaoData } from "./actions";
 import { AdocaoClient } from "./adocao-client";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdocaoPage() {
-  await requireUser();
   const data = await loadAdocaoData();
 
   return (
