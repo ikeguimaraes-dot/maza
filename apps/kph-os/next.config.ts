@@ -8,6 +8,7 @@ const zones = [
   { prefix: "/comercial",    host: "kph-os-ruptura.vercel.app" },
   { prefix: "/marca",        host: "kph-os-marca.vercel.app" },
   { prefix: "/inteligencia", host: "kph-os-inteligencia.vercel.app" },
+  { prefix: "/orquestrador", host: "kph-os-inteligencia.vercel.app" },
 ];
 
 const nextConfig = {
