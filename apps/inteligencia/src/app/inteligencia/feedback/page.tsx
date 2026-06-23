@@ -1,11 +1,9 @@
-import { requireUser, isFounder } from "@kph/auth/server";
 import { loadFeedback } from "./actions";
 import { FeedbackClient } from "./feedback-client";
 
 export const dynamic = "force-dynamic";
 
 export default async function FeedbackPage() {
-  const user = await requireUser();
   const items = await loadFeedback();
 
   return (
@@ -39,7 +37,7 @@ export default async function FeedbackPage() {
         </p>
       </header>
 
-      <FeedbackClient initialItems={items} isFounder={isFounder(user)} />
+      <FeedbackClient initialItems={items} isFounder={true} />
     </div>
   );
 }

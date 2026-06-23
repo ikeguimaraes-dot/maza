@@ -6,7 +6,6 @@ import { revalidatePath } from "next/cache";
 
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
 import { createOperationsClient } from "@kph/db/supabase/operations-client";
-import { requireUser } from "@kph/auth/server";
 import type { ActionResult } from "@/lib/result";
 import {
   brandTargetSchema,
@@ -281,7 +280,6 @@ export async function upsertTarget(
     if (!parsed.success) {
       return { ok: false, error: parsed.error.issues[0]?.message ?? "Inválido" };
     }
-    const user = await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
@@ -296,7 +294,7 @@ export async function upsertTarget(
       nps_meta: parsed.data.nps_meta,
       headcount_meta: parsed.data.headcount_meta,
       eventos_meta: parsed.data.eventos_meta,
-      created_by: user.id,
+      created_by: null,
     };
     const { data, error } = await supabase
       .from(T_TARGETS)
@@ -321,7 +319,6 @@ export async function updateTarget(
     if (!parsed.success) {
       return { ok: false, error: parsed.error.issues[0]?.message ?? "Inválido" };
     }
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
@@ -371,14 +368,13 @@ export async function createTargetNote(
     if (!parsed.success) {
       return { ok: false, error: parsed.error.issues[0]?.message ?? "Inválido" };
     }
-    const user = await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
     const payload = {
       target_id: parsed.data.target_id,
       nota: parsed.data.nota,
-      created_by: user.id,
+      created_by: null,
     };
     const { data, error } = await supabase
       .from(T_NOTES)

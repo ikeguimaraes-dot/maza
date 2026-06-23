@@ -1,12 +1,10 @@
 import Link from "next/link";
 import { BarChart3, ChevronRight, LineChart } from "lucide-react";
 
-import { requireUser } from "@kph/auth/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function InteligenciaHubPage() {
-  await requireUser();
   return (
     <div style={{ maxWidth: 1080, margin: "0 auto" }}>
       <header style={{ marginBottom: 18 }}>

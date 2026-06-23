@@ -28,7 +28,6 @@
 
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
-import { requireUser, isFounder } from "@kph/auth/server";
 import { insertJob } from "@/lib/inteligencia/orquestrador";
 
 export type FeedbackType = "bug" | "suggestion" | "other";
@@ -68,14 +67,13 @@ export async function submitFeedback(
     throw new Error("Prioridade inválida");
   }
 
-  const user = await requireUser();
   const supabase = await createSupabaseServerClient();
   if (!supabase) throw new Error("Supabase indisponível");
 
   const { data, error } = await supabase
     .from("feedback" as never)
     .insert({
-      user_id: user.id,
+      user_id: null,
       type: input.type,
       module: input.module,
       description: input.description,
@@ -100,7 +98,6 @@ export async function submitFeedback(
 /** Carrega todos os feedbacks visíveis ao user (RLS filtra). */
 export async function loadFeedback(): Promise<FeedbackItem[] | null> {
   try {
-    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return null;
 
@@ -120,9 +117,6 @@ export async function loadFeedback(): Promise<FeedbackItem[] | null> {
 
 /** Avança o status de um item: open → triaged → resolved (apenas founder). */
 export async function cycleStatus(id: string): Promise<void> {
-  const user = await requireUser();
-  if (!isFounder(user)) throw new Error("Sem permissão");
-
   const supabase = await createSupabaseServerClient();
   if (!supabase) throw new Error("Supabase indisponível");
 

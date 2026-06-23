@@ -1,17 +1,23 @@
 import { AuthProvider } from "@kph/auth/context";
-import { requireUser } from "@kph/auth/server";
+import type { CurrentUser } from "@kph/auth/server";
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
 import type { Unit } from "@kph/db/types/database";
 import { Sidebar } from "@/components/shell/KphSidebar";
 import { PageViewTracker } from "@/components/shell/PageViewTracker";
 import { SkipLink } from "@/components/shell/SkipLink";
 
+const STUB_USER: CurrentUser = {
+  id: "ike",
+  email: "ike@kph.os",
+  roles: [{ role: "founder", unitId: null, brandId: null, groupId: null }],
+};
+
 export const dynamic = "force-dynamic";
 
 export default async function InteligenciaLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const user = await requireUser();
+  const user = STUB_USER;
   const units = await loadAccessibleUnits();
 
   return (
