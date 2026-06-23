@@ -5,6 +5,7 @@ import {
   listTargetsByBrand,
 } from "../actions";
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
+import { requireUser } from "@kph/auth/server";
 import {
   currentPeriodo,
   lastNPeriodos,
@@ -20,6 +21,7 @@ type Props = {
 };
 
 export default async function MarcaMetasPage({ params, searchParams }: Props) {
+  await requireUser();
   const { brand_slug } = await params;
   const sp = await searchParams;
   const periodo =

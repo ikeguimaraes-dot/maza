@@ -1,3 +1,4 @@
+import { requireUser } from "@kph/auth/server";
 import { currentPeriodo, lastNPeriodos } from "@/lib/metas/types";
 import { loadCross } from "@/lib/inteligencia/cross";
 import { CrossClient } from "./cross-client";
@@ -9,6 +10,7 @@ type Props = {
 };
 
 export default async function CrossPage({ searchParams }: Props) {
+  await requireUser();
   const sp = await searchParams;
   const periodo =
     sp.periodo && /^\d{4}-\d{2}$/.test(sp.periodo)

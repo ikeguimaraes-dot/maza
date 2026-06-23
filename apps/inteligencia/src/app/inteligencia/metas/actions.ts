@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
 import { createOperationsClient } from "@kph/db/supabase/operations-client";
-import { SHELL_USER } from "@/lib/shell-auth";
+import { requireUser } from "@kph/auth/server";
 import type { ActionResult } from "@/lib/result";
 import {
   brandTargetSchema,
@@ -281,7 +281,7 @@ export async function upsertTarget(
     if (!parsed.success) {
       return { ok: false, error: parsed.error.issues[0]?.message ?? "Inválido" };
     }
-    const user = SHELL_USER;
+    const user = await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
@@ -321,6 +321,7 @@ export async function updateTarget(
     if (!parsed.success) {
       return { ok: false, error: parsed.error.issues[0]?.message ?? "Inválido" };
     }
+    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
@@ -370,7 +371,7 @@ export async function createTargetNote(
     if (!parsed.success) {
       return { ok: false, error: parsed.error.issues[0]?.message ?? "Inválido" };
     }
-    const user = SHELL_USER;
+    const user = await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 

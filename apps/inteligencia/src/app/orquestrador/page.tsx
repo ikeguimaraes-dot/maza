@@ -1,3 +1,4 @@
+import { requireUser } from "@kph/auth/server";
 import { loadJobs } from "@/lib/inteligencia/orquestrador";
 import { loadLMReports } from "@kph/core/learning-machine";
 import { OrquestradorClient } from "./orquestrador-client";
@@ -5,6 +6,7 @@ import { OrquestradorClient } from "./orquestrador-client";
 export const dynamic = "force-dynamic";
 
 export default async function OrquestradorPage() {
+  await requireUser();
 
   const [jobs, lmReports] = await Promise.all([
     loadJobs(),

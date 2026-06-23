@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { requireUser } from "@kph/auth/server";
 import { currentWeekIso, loadWbr } from "@/lib/inteligencia/wbr";
 import { generateWbrInsight } from "./actions";
 import { WbrClient } from "./wbr-client";
@@ -9,6 +10,7 @@ export const dynamic = "force-dynamic";
 type Props = { searchParams: Promise<{ ref?: string }> };
 
 export default async function WbrPage({ searchParams }: Props) {
+  await requireUser();
   const sp = await searchParams;
   const ref = sp?.ref ?? currentWeekIso();
 

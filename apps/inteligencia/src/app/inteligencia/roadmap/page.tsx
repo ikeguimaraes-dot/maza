@@ -1,9 +1,11 @@
+import { requireUser } from "@kph/auth/server";
 import { loadRoadmap } from "./actions";
 import { RoadmapClient } from "./roadmap-client";
 
 export const dynamic = "force-dynamic";
 
 export default async function RoadmapPage() {
+  await requireUser();
   const items = await loadRoadmap();
 
   return (

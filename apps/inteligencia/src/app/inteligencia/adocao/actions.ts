@@ -20,14 +20,14 @@
 //   WITH CHECK (user_id = auth.uid());
 
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
-import { SHELL_USER } from "@/lib/shell-auth";
+import { requireUser } from "@kph/auth/server";
 import { startOfWeek, subWeeks, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 /** Fire-and-forget: regista uma page_view. Nunca lança exceção pro caller. */
 export async function trackPageView(path: string): Promise<void> {
   try {
-    const user = SHELL_USER;
+    const user = await requireUser().catch(() => null);
     const supabase = await createSupabaseServerClient();
     if (!supabase) return;
     // insert sem await no caller — mas a server action É async, então o insert é feito aqui.
@@ -65,6 +65,7 @@ export type AdocaoData = {
 /** Carrega os dados de adoção para a página /adocao. */
 export async function loadAdocaoData(): Promise<AdocaoData | null> {
   try {
+    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return null;
 

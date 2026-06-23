@@ -1,5 +1,5 @@
 import { AuthProvider } from "@kph/auth/context";
-import { SHELL_USER } from "@/lib/shell-auth";
+import { requireUser } from "@kph/auth/server";
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
 import type { Unit } from "@kph/db/types/database";
 import { Sidebar } from "@/components/shell/KphSidebar";
@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export default async function OrquestradorLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const user = SHELL_USER;
+  const user = await requireUser();
   const units = await loadAccessibleUnits();
 
   return (

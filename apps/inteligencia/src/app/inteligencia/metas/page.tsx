@@ -1,4 +1,5 @@
 import { listMetasForPeriodo } from "./actions";
+import { requireUser } from "@kph/auth/server";
 import { currentPeriodo, lastNPeriodos } from "@/lib/metas/types";
 import { MetasClient } from "./metas-client";
 
@@ -9,6 +10,7 @@ type Props = {
 };
 
 export default async function MetasPage({ searchParams }: Props) {
+  await requireUser();
   const sp = await searchParams;
   const periodo =
     sp.periodo && /^\d{4}-\d{2}$/.test(sp.periodo) ? sp.periodo : currentPeriodo();

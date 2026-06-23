@@ -60,6 +60,7 @@
 //    3, 'in_progress', 'Orquestrador');
 
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
+import { requireUser } from "@kph/auth/server";
 
 export type RoadmapStatus = "backlog" | "in_progress" | "done";
 
@@ -75,6 +76,7 @@ export type RoadmapItem = {
 
 export async function loadRoadmap(): Promise<RoadmapItem[] | null> {
   try {
+    await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return null;
 

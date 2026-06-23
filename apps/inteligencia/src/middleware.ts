@@ -1,8 +1,14 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { verifyShellToken } from "@/lib/shell-token";
+import { updateSession } from "@kph/db/supabase/proxy";
 
-// /api/ usa CRON_SECRET próprio (learning-machine cron) — não precisa de shell_session.
-const PUBLIC_PREFIXES = ["/login", "/api/"];
+// Rotas que bypassam a validação de sessão.
+// /api/ usa CRON_SECRET próprio (learning-machine cron).
+// /login é safety valve — a zona não tem página de login, mas evita loop
+// caso o middleware receba um redirect de volta pra cá.
+const PUBLIC_PREFIXES = [
+  "/login",
+  "/api/",
+];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -11,23 +17,21 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = request.cookies.get("shell_session")?.value ?? "";
-  const valid = await verifyShellToken(token);
+  const { response, user } = await updateSession(request);
 
-  if (!valid) {
-    // Quando acessado via proxy do shell o origin já é o do shell —
-    // redireciona para /login no mesmo origin para não sair do domínio.
+  if (!user) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
     loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
   matcher: [
+    // Exclui internals do Next.js, assets estáticos e imagens.
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
