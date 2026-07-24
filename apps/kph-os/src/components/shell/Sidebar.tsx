@@ -101,6 +101,9 @@ export function Sidebar() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  // Confirmação de logout — modal simples evita clicar o botão Sair
+  // sem querer ao navegar em sidebar estreita (1920×1080).
+  const [signOutConfirm, setSignOutConfirm] = useState(false);
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -292,29 +295,146 @@ export function Sidebar() {
               {role}
             </div>
           </div>
-          <Link
-            href="/auth/sign-out"
+          <button
+            type="button"
             title="Sair"
+            onClick={() => setSignOutConfirm(true)}
             style={{
               display: "inline-flex", alignItems: "center", justifyContent: "center",
               width: 44, height: 44, borderRadius: "var(--r-md, 6px)",
-              color: "var(--text-3)", textDecoration: "none",
+              color: "var(--text-3)", border: "none", cursor: "pointer",
+              background: "transparent",
               transition: "color var(--t, 180ms ease), background var(--t, 180ms ease)",
             }}
             onMouseEnter={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-danger, #FCA5A5)";
-              (e.currentTarget as HTMLAnchorElement).style.background = "rgba(252,165,165,0.06)";
+              e.currentTarget.style.color = "var(--color-danger, #FCA5A5)";
+              e.currentTarget.style.background = "rgba(252,165,165,0.06)";
             }}
             onMouseLeave={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.color = "var(--text-3)";
-              (e.currentTarget as HTMLAnchorElement).style.background = "transparent";
+              e.currentTarget.style.color = "var(--text-3)";
+              e.currentTarget.style.background = "transparent";
             }}
           >
             <LogOut size={14} />
-          </Link>
+          </button>
         </div>
       </aside>
+
+      {/* ── Confirm de logout (evita clique acidental) ── */}
+      {signOutConfirm && (
+        <SignOutConfirm onCancel={() => setSignOutConfirm(false)} />
+      )}
     </>
+  );
+}
+
+/**
+ * Modal de confirmação de logout.
+ * Evita o problema clássico em sidebar estreita: clicar no item de menu
+ * acerta o botão Sair por engano (em 1920×1080 o gap é mínimo).
+ *
+ * Renderizado fora da <aside> via portal pra não herdar overflow:hidden.
+ */
+function SignOutConfirm({ onCancel }: { onCancel: () => void }) {
+  // ESC cancela.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onCancel();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onCancel]);
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="signout-title"
+      onClick={onCancel}
+      style={{
+        position: "fixed", inset: 0, zIndex: 100,
+        background: "rgba(0,0,0,0.6)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: 16,
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: "var(--surface, #1A1A18)",
+          border: "1px solid var(--border-strong, rgba(245,240,232,0.16))",
+          borderRadius: 12,
+          padding: 24,
+          maxWidth: 360, width: "100%",
+          display: "flex", flexDirection: "column", gap: 16,
+          boxShadow: "0 20px 50px rgba(0,0,0,0.5)",
+        }}
+      >
+        <div>
+          <h3
+            id="signout-title"
+            className="font-heading"
+            style={{
+              fontFamily: "var(--font-display, Georgia, serif)",
+              fontSize: 18, fontWeight: 600, color: "var(--text, #F5F0E8)",
+              margin: 0, marginBottom: 6,
+            }}
+          >
+            Sair da conta?
+          </h3>
+          <p
+            style={{
+              fontSize: 13, color: "var(--text-3, #A09890)",
+              margin: 0, lineHeight: 1.5,
+            }}
+          >
+            Você precisará fazer login novamente para acessar o sistema.
+          </p>
+        </div>
+
+        <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+          <button
+            type="button"
+            onClick={onCancel}
+            autoFocus
+            style={{
+              padding: "8px 16px", borderRadius: 8, fontSize: 13, fontWeight: 500,
+              background: "transparent",
+              border: "1px solid var(--border-strong, rgba(245,240,232,0.16))",
+              color: "var(--text, #F5F0E8)", cursor: "pointer",
+              transition: "background 180ms ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "var(--surface-2, #222220)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "transparent";
+            }}
+          >
+            Cancelar
+          </button>
+          <Link
+            href="/auth/sign-out"
+            style={{
+              padding: "8px 16px", borderRadius: 8, fontSize: 13, fontWeight: 500,
+              background: "var(--color-danger, #DC2626)",
+              border: "none", textDecoration: "none",
+              color: "#FFFFFF", cursor: "pointer",
+              display: "inline-flex", alignItems: "center",
+              transition: "background 180ms ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "#B91C1C";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "var(--color-danger, #DC2626)";
+            }}
+          >
+            Sair
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }
 

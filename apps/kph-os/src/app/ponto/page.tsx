@@ -3,12 +3,12 @@ import { LogOut, UserX } from "lucide-react";
 
 import { PontoApp } from "@/components/ponto/PontoApp";
 import { getMyEmployee, getTodayPunches } from "@/lib/pessoas/actions";
-import { SHELL_USER } from "@/lib/shell-auth";
+import { requireUser } from "@kph/auth/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function PontoPage() {
-  const user = SHELL_USER;
+  const user = await requireUser();
   const employee = await getMyEmployee(user.id);
 
   if (!employee) {
