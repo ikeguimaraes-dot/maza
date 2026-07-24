@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
-import { SHELL_USER } from "@/lib/shell-auth";
+import { requireUser } from "@kph/auth/server";
 import type { ActionResult } from "@/lib/result";
 
 export type PontoMensalInput = {

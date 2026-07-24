@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
 
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
-import { SHELL_USER } from "@/lib/shell-auth";
+import { requireUser } from "@kph/auth/server";
 import { PayslipPdf } from "@/components/pessoas/PayslipPdf";
 import type { Employee, Payslip } from "@kph/db/types/pessoas";
 
@@ -17,7 +17,8 @@ type Params = Promise<{ id: string }>;
 export async function GET(_req: Request, { params }: { params: Params }) {
   const { id } = await params;
 
-  const user = SHELL_USER;
+  // middleware já validou sessão; defense in depth.
+  const user = await requireUser();
 
   const supabase = await createSupabaseServerClient();
   if (!supabase) {

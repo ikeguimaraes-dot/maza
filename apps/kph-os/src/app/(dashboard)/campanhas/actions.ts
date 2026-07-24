@@ -8,7 +8,7 @@
 import { revalidatePath } from "next/cache";
 
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
-import { SHELL_USER } from "@/lib/shell-auth";
+import { requireUser } from "@kph/auth/server";
 import type { ActionResult } from "@/lib/result";
 import { campaignSchema, type CampaignFormValues } from "@/lib/campanhas/schema";
 import type {
@@ -82,7 +82,7 @@ export async function createCampaign(
     if (!parsed.success) {
       return { ok: false, error: parsed.error.issues[0]?.message ?? "Inválido" };
     }
-    const user = SHELL_USER;
+    const user = await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 

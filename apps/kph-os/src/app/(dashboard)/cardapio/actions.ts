@@ -7,7 +7,7 @@
 import { revalidatePath } from "next/cache";
 
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
-import { SHELL_USER } from "@/lib/shell-auth";
+import { requireUser } from "@kph/auth/server";
 import type { ActionResult } from "@/lib/result";
 import {
   cmvItemSchema,
@@ -316,7 +316,7 @@ export async function createRecipeNote(
 ): Promise<ActionResult<RecipeNote>> {
   try {
     if (!nota?.trim()) return { ok: false, error: "Nota não pode estar vazia" };
-    const user = SHELL_USER;
+    const user = await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
