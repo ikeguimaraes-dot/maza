@@ -21,7 +21,9 @@
     "lightningcss-linux-x64-musl": "1.32.0"
   },
   "dependencies": {
-    "@base-ui/react": "^1.5.0"
+    "@base-ui/react": "^1.5.0",
+    "@tailwindcss/postcss": "^4.3.3",
+    "lightningcss": "^1.33.0"
   },
   "packageManager": "npm@11.13.0"
 }
