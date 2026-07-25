@@ -14,6 +14,20 @@ function firstName(email: string | null | undefined): string {
   return first ? first.charAt(0).toUpperCase() + first.slice(1) : "operador";
 }
 
+/**
+ * Nome a exibir no greeting. Prioriza o display_name vindo do
+ * user_metadata (definido no Auth → Users do Supabase). Se ausente,
+ * deriva um nome legível a partir do e-mail.
+ */
+function greetName(user: { displayName?: string | null; email?: string | null } | null | undefined): string {
+  const fromMeta = user?.displayName?.trim();
+  if (fromMeta) {
+    // Pega só o primeiro nome ("Karine Azevedo Corrêa" → "Karine")
+    return fromMeta.split(/\s+/)[0]!;
+  }
+  return firstName(user?.email);
+}
+
 function greeting(): string {
   const h = new Date().getHours();
   if (h < 5) return "Boa madrugada";
@@ -43,7 +57,7 @@ export function TopBar() {
   const pathname = usePathname();
   const { user } = useAuth();
   const title = PATH_LABELS[pathname] ?? "KPH OS";
-  const name = firstName(user?.email);
+  const name = greetName(user);
   const [cmdOpen, setCmdOpen] = useState(false);
 
   useEffect(() => {

@@ -123,12 +123,29 @@ export function Sidebar() {
     setMobileOpen(false);
   }, [pathname]);
 
-  const initials =
-    user?.email?.slice(0, 2).toUpperCase() ?? "?";
-  const emailShort = user?.email
-    ? user.email.length > 22
-      ? user.email.slice(0, 19) + "…"
-      : user.email
+  // Nome de exibição: prioriza display_name (user_metadata.display_name,
+  // configurado em Auth → Users no painel Supabase). Fallback: e-mail.
+  const displayName = user?.displayName?.trim() || null;
+  const showName = displayName ?? user?.email ?? null;
+
+  // Iniciais a partir do nome (ex: "Karine Azevedo" → "KA"). Fallback:
+  // 2 primeiros caracteres do e-mail (status quo).
+  const initials = showName
+    ? (displayName
+        ? displayName
+            .split(/\s+/)
+            .filter(Boolean)
+            .slice(0, 2)
+            .map((part) => part[0]!.toUpperCase())
+            .join("")
+        : user!.email!.slice(0, 2).toUpperCase())
+    : "?";
+
+  // Linha única exibida no footer do sidebar. Trunca com ellipsis.
+  const label = showName
+    ? showName.length > 22
+      ? showName.slice(0, 19) + "…"
+      : showName
     : "—";
   const role = user?.roles[0]?.role ?? "—";
 
@@ -289,7 +306,7 @@ export function Sidebar() {
                 overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
               }}
             >
-              {emailShort}
+              {label}
             </div>
             <div style={{ fontSize: 10, color: "var(--text-3)" }}>
               {role}

@@ -159,7 +159,7 @@ export function LoginForm({
           }}
         />
         <span className="text-xs" style={{ color: "var(--text-2, #C4BDB4)" }}>
-          Manter conectado por 30 dias
+          lembrar minha sessão
         </span>
       </label>
 
