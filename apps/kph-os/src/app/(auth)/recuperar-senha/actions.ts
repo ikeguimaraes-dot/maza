@@ -64,7 +64,21 @@ export async function requestPasswordReset(
 
   if (error) {
     // Loga internamente mas NÃO revela pro usuário. Anti-enumeração.
-    console.error("[resetPasswordForEmail]", error.message);
+    console.error("[resetPasswordForEmail]", {
+      message: error.message,
+      status: error.status,
+      code: error.code,
+    });
+    if (error.status === 429) {
+      return {
+        ok: false,
+        error: "Muitas tentativas de envio. Aguarde alguns minutos e tente novamente.",
+      };
+    }
+    return {
+      ok: false,
+      error: "Não foi possível enviar o e-mail agora. Contate o administrador do sistema.",
+    };
   }
 
   // Sempre sucesso — não vaza se o e-mail existe.
