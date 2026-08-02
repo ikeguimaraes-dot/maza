@@ -27,7 +27,8 @@ export async function GET(request: NextRequest) {
   }
 
   // Cria a response de redirect primeiro — cookies serão escritos nela.
-  const redirectUrl = new URL(next.startsWith("/") ? next : "/", origin);
+  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/";
+  const redirectUrl = new URL(safeNext, origin);
   const response = NextResponse.redirect(redirectUrl);
 
   const supabase = createServerClient<Database>(url, anonKey, {

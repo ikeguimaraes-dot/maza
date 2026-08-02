@@ -48,10 +48,14 @@ export async function requestPasswordReset(
 
   // Origem do request → link no e-mail aponta pra cá.
   const headerStore = await headers();
+  const forwardedHost = headerStore.get("x-forwarded-host")?.split(",")[0]?.trim();
+  const forwardedProto = headerStore.get("x-forwarded-proto")?.split(",")[0]?.trim() ?? "https";
   const origin =
     headerStore.get("origin") ??
+    (forwardedHost ? `${forwardedProto}://${forwardedHost}` : null) ??
+    process.env.NEXT_PUBLIC_SHELL_URL ??
     process.env.NEXT_PUBLIC_APP_URL ??
-    "https://kph.os";
+    "https://kph-os.vercel.app";
   const redirectTo = `${origin}/auth/callback?type=recovery&next=/redefinir-senha`;
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
