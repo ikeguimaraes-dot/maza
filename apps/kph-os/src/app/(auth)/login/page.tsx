@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string; redirect?: string; error?: string }>;
+  searchParams: Promise<{ next?: string; redirect?: string; error?: string; message?: string }>;
 }) {
   // ── Se já tem sessão, pula direto pro destino ──
   const user = await getCurrentUser();
@@ -105,6 +105,20 @@ export default async function LoginPage({
             next={getSafeNext(params.next ?? params.redirect)}
             initialError={mapInitialError(initialError)}
           />
+
+          {params.message === "password_updated" && (
+            <div
+              role="status"
+              className="rounded-lg px-3 py-2 text-xs"
+              style={{
+                color: "var(--color-success, #4ADE80)",
+                border: "1px solid var(--color-success, #4ADE80)",
+                background: "var(--color-success-bg, rgba(74,222,128,0.08))",
+              }}
+            >
+              Senha atualizada. Entre novamente com a nova senha.
+            </div>
+          )}
 
           {/* ── Link para recuperar senha ── */}
           <div className="text-center">

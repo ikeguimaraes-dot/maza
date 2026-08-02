@@ -8,6 +8,9 @@ async function handle(request: NextRequest) {
     await supabase.auth.signOut();
   }
   const url = new URL("/login", request.url);
+  if (request.nextUrl.searchParams.get("password") === "updated") {
+    url.searchParams.set("message", "password_updated");
+  }
   const response = NextResponse.redirect(url);
   const cookieStore = await cookies();
   for (const cookie of cookieStore.getAll()) {
