@@ -62,7 +62,7 @@ export async function signIn(input: SignInInput): Promise<SignInResult> {
 
   // ── signInWithPassword ──────────────────────────────────────
   // signInWithPassword sempre devolve session — sucesso ou erro de credencial.
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email: input.email,
     password: input.password,
   });
@@ -85,13 +85,25 @@ export async function signIn(input: SignInInput): Promise<SignInResult> {
   // Sucesso. redirect() lança NEXT_REDIRECT — não precisa retornar nada.
   // Validação do `next` para evitar open redirect: precisa ser path relativo.
   const cookieStore = await cookies();
-  const authCookie = cookieStore.getAll().find((cookie) =>
-    cookie.name.startsWith("sb-") && cookie.name.includes("auth-token"),
-  );
-  if (authCookie) {
-    cookieStore.set("kph_auth_session_backup", authCookie.value, {
+  if (data.session) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const projectRef = supabaseUrl ? new URL(supabaseUrl).hostname.split(".")[0] : null;
+    const authCookieName = projectRef ? `sb-${projectRef}-auth-token` : null;
+    const encodedSession = `base64-${Buffer.from(JSON.stringify(data.session)).toString("base64url")}`;
+    const secure = process.env.NODE_ENV === "production";
+    const options = {
       path: "/", httpOnly: true, sameSite: "lax", secure: false,
       maxAge: 60 * 60 * 24 * 30,
+    } as const;
+    if (authCookieName) {
+      // Grava explicitamente a sessão canônica; não depende da mutação interna
+      // do @supabase/ssr ser refletida pelo Server Action da versão atual do Next.
+      cookieStore.set(authCookieName, encodedSession, {
+        ...options, httpOnly: false, secure,
+      });
+    }
+    cookieStore.set("kph_auth_session_backup", encodedSession, {
+      ...options, secure,
     });
   }
 
