@@ -23,11 +23,34 @@ export async function updateSession(request: NextRequest) {
   const authCookieName = `sb-${projectRef}-auth-token`;
   const backupCookieName = "kph_auth_session_backup";
   const backup = request.cookies.get(backupCookieName)?.value;
-  if (!request.cookies.get(authCookieName)?.value && backup) {
-    request.cookies.set(authCookieName, backup);
+  const accessToken = request.cookies.get("kph_access_token")?.value;
+  const refreshToken = request.cookies.get("kph_refresh_token")?.value;
+  let recoverableSession = backup;
+  if (!recoverableSession && accessToken && refreshToken) {
+    const jwtPayload = accessToken.split(".")[1];
+    let expiresAt = Math.floor(Date.now() / 1000) + 3600;
+    try {
+      if (jwtPayload) {
+        const payload = JSON.parse(Buffer.from(jwtPayload, "base64url").toString("utf8"));
+        if (typeof payload.exp === "number") expiresAt = payload.exp;
+      }
+    } catch {
+      // O Supabase validará o token abaixo; o fallback serve só para montar
+      // o formato de storage esperado pelo cliente SSR.
+    }
+    recoverableSession = `base64-${Buffer.from(JSON.stringify({
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      token_type: "bearer",
+      expires_at: expiresAt,
+      expires_in: Math.max(0, expiresAt - Math.floor(Date.now() / 1000)),
+    })).toString("base64url")}`;
+  }
+  if (!request.cookies.get(authCookieName)?.value && recoverableSession) {
+    request.cookies.set(authCookieName, recoverableSession);
     response = NextResponse.next({ request });
-    response.cookies.set(authCookieName, backup, {
-      path: "/", httpOnly: true, sameSite: "lax", secure: false,
+    response.cookies.set(authCookieName, recoverableSession, {
+      path: "/", httpOnly: false, sameSite: "lax", secure: process.env.NODE_ENV === "production",
       maxAge: 60 * 60 * 24 * 30,
     });
   }

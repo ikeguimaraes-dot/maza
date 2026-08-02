@@ -105,6 +105,16 @@ export async function signIn(input: SignInInput): Promise<SignInResult> {
     cookieStore.set("kph_auth_session_backup", encodedSession, {
       ...options, secure,
     });
+    // Cópia compacta e independente. Os sub-apps conhecem o nome do cookie
+    // Supabase e podem sobrescrevê-lo durante uma navegação RSC, mas não
+    // conhecem estes cookies. O middleware do shell os usa para reconstruir a
+    // sessão antes de encaminhar a request para uma zona.
+    cookieStore.set("kph_access_token", data.session.access_token, {
+      ...options, secure,
+    });
+    cookieStore.set("kph_refresh_token", data.session.refresh_token, {
+      ...options, secure,
+    });
   }
 
   const safeNext =
