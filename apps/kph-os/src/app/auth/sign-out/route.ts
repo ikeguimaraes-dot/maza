@@ -12,7 +12,9 @@ async function handle(request: NextRequest) {
   const cookieStore = await cookies();
   for (const cookie of cookieStore.getAll()) {
     if ((cookie.name.startsWith("sb-") && cookie.name.includes("auth-token")) ||
-        cookie.name === "kph_auth_session_backup") {
+        cookie.name === "kph_auth_session_backup" ||
+        cookie.name === "kph_access_token" ||
+        cookie.name === "kph_refresh_token") {
       response.cookies.set(cookie.name, "", { path: "/", maxAge: 0 });
     }
   }
