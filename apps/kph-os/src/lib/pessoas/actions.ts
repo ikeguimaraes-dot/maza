@@ -1836,14 +1836,22 @@ export async function getVacationAlerts(unitId: string): Promise<VacationAlerts>
     today.setHours(0, 0, 0, 0);
     const MS_YEAR = 365.25 * 24 * 60 * 60 * 1000;
 
-    const { data: emps } = await supabase
+    const { data: empsData } = await supabase
       .from(TABLE)
       .select("id, nome, sobrenome, funcao, data_admissao")
       .eq("unit_id", unitId)
       .eq("ativo", true)
       .not("data_admissao", "is", null);
 
-    if (!emps?.length) return empty;
+    type VacationEmployee = {
+      id: string;
+      nome: string;
+      sobrenome: string | null;
+      funcao: string | null;
+      data_admissao: string;
+    };
+    const emps = (empsData ?? []) as VacationEmployee[];
+    if (emps.length === 0) return empty;
 
     const { data: vacs } = await supabase
       .from(VAC_TABLE)

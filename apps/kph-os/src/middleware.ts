@@ -45,7 +45,16 @@ export async function middleware(request: NextRequest) {
   //      novos tokens via setAll() — propagados para a response
   //   3) valida o JWT contra o servidor Auth (não confia só no cookie)
   // Retorna response com Set-Cookie correto + user validado.
-  const { response, user } = await updateSession(request);
+  const { response, user, authError } = await updateSession(request);
+
+  if (process.env.NEXT_PUBLIC_SHELL_URL?.includes("localhost")) {
+    console.info("[shell-auth-boundary]", {
+      pathname,
+      cookieNames: request.cookies.getAll().map((cookie) => cookie.name),
+      authenticated: Boolean(user),
+      authError: authError?.message ?? null,
+    });
+  }
 
   if (!user) {
     const loginUrl = request.nextUrl.clone();

@@ -40,6 +40,8 @@ export function getBrowserClient(): SupabaseClient<Database> | null {
       setAll(cookiesToSet) {
         if (typeof document === "undefined") return;
         cookiesToSet.forEach(({ name, value, options }) => {
+          if (name.includes("auth-token") &&
+              (value.length === 0 || (options?.maxAge != null && options.maxAge <= 0))) return;
           let str = `${name}=${value}`;
           if (options?.path) str += `; Path=${options.path}`;
           if (options?.maxAge != null) str += `; Max-Age=${options.maxAge}`;

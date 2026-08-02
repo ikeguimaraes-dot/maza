@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
 
 /**
@@ -84,6 +84,17 @@ export async function signIn(input: SignInInput): Promise<SignInResult> {
 
   // Sucesso. redirect() lança NEXT_REDIRECT — não precisa retornar nada.
   // Validação do `next` para evitar open redirect: precisa ser path relativo.
+  const cookieStore = await cookies();
+  const authCookie = cookieStore.getAll().find((cookie) =>
+    cookie.name.startsWith("sb-") && cookie.name.includes("auth-token"),
+  );
+  if (authCookie) {
+    cookieStore.set("kph_auth_session_backup", authCookie.value, {
+      path: "/", httpOnly: true, sameSite: "lax", secure: false,
+      maxAge: 60 * 60 * 24 * 30,
+    });
+  }
+
   const safeNext =
     input.next && input.next.startsWith("/") && !input.next.startsWith("//")
       ? input.next

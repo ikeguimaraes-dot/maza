@@ -15,10 +15,6 @@ export function ZoneLink({
     <a
       href={href}
       style={style}
-      onClick={(e) => {
-        e.preventDefault();
-        window.location.href = href;
-      }}
     >
       {children}
     </a>

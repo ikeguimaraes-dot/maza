@@ -19,6 +19,19 @@ export async function updateSession(request: NextRequest) {
     return { response, user: null };
   }
 
+  const projectRef = new URL(url).hostname.split(".")[0] ?? "";
+  const authCookieName = `sb-${projectRef}-auth-token`;
+  const backupCookieName = "kph_auth_session_backup";
+  const backup = request.cookies.get(backupCookieName)?.value;
+  if (!request.cookies.get(authCookieName)?.value && backup) {
+    request.cookies.set(authCookieName, backup);
+    response = NextResponse.next({ request });
+    response.cookies.set(authCookieName, backup, {
+      path: "/", httpOnly: true, sameSite: "lax", secure: false,
+      maxAge: 60 * 60 * 24 * 30,
+    });
+  }
+
   const supabase = createServerClient<Database>(url, anonKey, {
     cookies: {
       getAll() {
@@ -28,19 +41,36 @@ export async function updateSession(request: NextRequest) {
         // Padrão oficial @supabase/ssr: atualiza request + cria nova response com
         // cookies persistidos. Server Components vêem o cookie atualizado via
         // request; browser recebe o cookie via Set-Cookie na response.
-        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+        const safeCookies = cookiesToSet.filter(
+          ({ name, value, options }) =>
+            !name.includes("auth-token") ||
+            (value.length > 0 && (options?.maxAge == null || options.maxAge > 0)),
+        );
+        safeCookies.forEach(({ name, value }) => request.cookies.set(name, value));
         response = NextResponse.next({ request });
-        cookiesToSet.forEach(({ name, value, options }) =>
+        safeCookies.forEach(({ name, value, options }) =>
           response.cookies.set(name, value, options),
         );
+        const renewed = safeCookies.find(({ name }) => name === authCookieName);
+        if (renewed) {
+          response.cookies.set(backupCookieName, renewed.value, {
+            path: "/", httpOnly: true, sameSite: "lax", secure: false,
+            maxAge: 60 * 60 * 24 * 30,
+          });
+        }
       },
     },
   });
 
-  // getUser() valida o JWT contra o Auth server (não confia só no cookie).
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims() valida a assinatura do JWT e usa o JWKS em cache quando
+  // disponível. Isso evita uma chamada remota ao Auth a cada troca de zona,
+  // que fazia falhas transitórias serem interpretadas como logout.
+  const { data, error } = await supabase.auth.getClaims();
+  const subject = data?.claims?.sub;
 
-  return { response, user };
+  return {
+    response,
+    user: subject ? { id: subject } : null,
+    authError: error,
+  };
 }

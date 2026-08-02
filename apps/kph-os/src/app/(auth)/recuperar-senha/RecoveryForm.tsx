@@ -168,6 +168,6 @@ function maskEmail(email: string): string {
   const localMasked = local[0] + "***";
   const domainParts = domain.split(".");
   const domainMasked =
-    domainParts[0][0] + "***." + (domainParts[1] ?? "");
+    (domainParts[0]?.[0] ?? "*") + "***." + (domainParts[1] ?? "");
   return `${localMasked}@${domainMasked}`;
 }

@@ -3,14 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ZoneLink } from "./ZoneLink";
-
-const ZONE_PREFIXES = [
-  "/financeiro", "/pessoas", "/operacao", "/compras",
-  "/comercial", "/marca", "/inteligencia",
-];
-function isZoneHref(href: string) {
-  return ZONE_PREFIXES.some((p) => href === p || href.startsWith(p + "/"));
-}
 import { useEffect, useMemo, useRef, useState } from "react";
 import { NAV_CONFIG, type NavGroupConfig, type NavItemConfig } from "@/lib/nav-config";
 import {
@@ -104,6 +96,26 @@ export function Sidebar() {
   // Confirmação de logout — modal simples evita clicar o botão Sair
   // sem querer ao navegar em sidebar estreita (1920×1080).
   const [signOutConfirm, setSignOutConfirm] = useState(false);
+
+  useEffect(() => {
+    const syncSessionCookie = () => {
+      const cookies = document.cookie.split(";").map((item) => item.trim());
+      const auth = cookies.find((item) =>
+        item.startsWith("sb-") && item.slice(0, item.indexOf("=")).includes("auth-token"),
+      );
+      if (auth) {
+        window.localStorage.setItem("kph_auth_browser_backup", auth);
+        return;
+      }
+      const backup = window.localStorage.getItem("kph_auth_browser_backup");
+      if (backup?.startsWith("sb-") && backup.includes("auth-token=")) {
+        document.cookie = `${backup}; Path=/; Max-Age=2592000; SameSite=Lax`;
+      }
+    };
+    syncSessionCookie();
+    const timer = window.setInterval(syncSessionCookie, 250);
+    return () => window.clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -670,7 +682,7 @@ function SidebarNav({ pathname, groups }: { pathname: string; groups: NavGroup[]
                           if (!child.href) return null;
                           const ChildIcon = child.icon;
                           const childIsActive = child.href === activeHref;
-                          const ChildNavEl = isZoneHref(child.href) ? ZoneLink : Link;
+                          const ChildNavEl = ZoneLink;
                           return (
                             <ChildNavEl
                               key={child.href}
@@ -717,7 +729,7 @@ function SidebarNav({ pathname, groups }: { pathname: string; groups: NavGroup[]
                 }
 
                 const active = it.href === activeHref;
-                const NavEl = isZoneHref(it.href!) ? ZoneLink : Link;
+                const NavEl = ZoneLink;
                 return (
                   <NavEl
                     key={it.href}

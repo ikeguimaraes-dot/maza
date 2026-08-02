@@ -24,13 +24,13 @@ export const metadata: Metadata = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string; error?: string }>;
+  searchParams: Promise<{ next?: string; redirect?: string; error?: string }>;
 }) {
   // ── Se já tem sessão, pula direto pro destino ──
   const user = await getCurrentUser();
   if (user) {
     const params = await searchParams;
-    const next = params.next && params.next.startsWith("/") ? params.next : "/";
+    const next = getSafeNext(params.next ?? params.redirect);
     redirect(next);
   }
 
@@ -102,7 +102,7 @@ export default async function LoginPage({
           </div>
 
           <LoginForm
-            next={params.next ?? "/"}
+            next={getSafeNext(params.next ?? params.redirect)}
             initialError={mapInitialError(initialError)}
           />
 
@@ -145,4 +145,8 @@ function mapInitialError(code?: string): string | null {
     "Email not confirmed": "Confirme seu e-mail antes de entrar.",
   };
   return map[code] ?? "Não foi possível entrar. Tente novamente.";
+}
+
+function getSafeNext(value?: string): string {
+  return value?.startsWith("/") && !value.startsWith("//") ? value : "/";
 }

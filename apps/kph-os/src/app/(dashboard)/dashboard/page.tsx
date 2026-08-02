@@ -29,7 +29,7 @@ export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   const user = await requireUser();
-  const nome = nomeDoUsuario(user.email) ?? "Operador";
+  const nome = user.displayName?.trim() || nomeDoUsuario(user.email) || "Operador";
   const greet = saudacao();
   const dia = dataExtenso();
 
