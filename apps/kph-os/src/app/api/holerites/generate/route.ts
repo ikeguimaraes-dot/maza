@@ -5,12 +5,14 @@
 import { NextResponse } from "next/server";
 
 import { generatePayslipsForUnit } from "@/lib/pessoas/actions";
-import { SHELL_USER } from "@/lib/shell-auth";
+import { requireUser } from "@kph/auth/server";
 import { getCurrentUnit } from "@kph/auth/unit";
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
+  // middleware já validou sessão; defense in depth.
+  await requireUser();
 
   const unit = await getCurrentUnit();
   if (!unit) {

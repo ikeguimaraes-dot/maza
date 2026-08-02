@@ -14,7 +14,7 @@
 import { revalidatePath } from "next/cache";
 
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
-import { SHELL_USER } from "@/lib/shell-auth";
+import { requireUser } from "@kph/auth/server";
 import type { ActionResult } from "@/lib/result";
 import { SCORE_BONUS, SCORE_BASE, SCORE_FLOOR, SCORE_CEIL } from "@/lib/pessoas/score";
 
@@ -89,7 +89,7 @@ export async function calcMonthlyBonuses(
   periodo: string,
 ): Promise<ActionResult<MonthlyBonusResult>> {
   try {
-    const user = SHELL_USER;
+    const user = await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 

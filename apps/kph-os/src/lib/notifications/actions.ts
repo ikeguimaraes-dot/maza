@@ -8,7 +8,7 @@ import {
   createServiceClient,
   createSupabaseServerClient,
 } from "@kph/db/supabase/server";
-import { SHELL_USER } from "@/lib/shell-auth";
+import { requireUser } from "@kph/auth/server";
 import type { ActionResult } from "@/lib/result";
 import type { Notification } from "@/lib/notifications/types";
 
@@ -73,7 +73,7 @@ export async function markAsRead(id: string): Promise<ActionResult<null>> {
 
 export async function markAllAsRead(): Promise<ActionResult<{ count: number }>> {
   try {
-    const user = SHELL_USER;
+    const user = await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
     const { error, count } = await supabase

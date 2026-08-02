@@ -8,6 +8,20 @@ import type { RoleName } from "@kph/db/types/database";
 export type CurrentUser = {
   id: string;
   email: string | null;
+  /**
+   * Nome amigável exibido no shell (TopBar / Sidebar).
+   *
+   * Ordem de preferência ao resolver (em `getCurrentUser`):
+   *   1) user_metadata.display_name
+   *   2) user_metadata.full_name
+   *   3) user_metadata.name
+   *   4) null (UI faz fallback para o e-mail)
+   *
+   * Vem do painel Auth → Users (campo "Display name") ou do payload de
+   * signUp com options.data. Não confundir com profiles.nome (que é
+   * dado de RH).
+   */
+  displayName: string | null;
   roles: Array<{
     role: RoleName;
     unitId: string | null;
@@ -71,9 +85,21 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
       };
     });
 
+    // Resolve display_name do user_metadata (campo "Display name" no
+    // painel Supabase Auth → Users). Ordem de preferência: display_name,
+    // full_name, name. Suporta valores não-string defensivamente.
+    const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
+    const pickString = (v: unknown): string | null =>
+      typeof v === "string" && v.trim().length > 0 ? v.trim() : null;
+    const displayName =
+      pickString(meta.display_name) ??
+      pickString(meta.full_name) ??
+      pickString(meta.name);
+
     return {
       id: user.id,
       email: user.email ?? null,
+      displayName,
       roles,
     };
   } catch (e) {

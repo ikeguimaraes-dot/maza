@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient, createServiceClient } from "@kph/db/supabase/server";
-import { SHELL_USER } from "@/lib/shell-auth";
+import { requireUser } from "@kph/auth/server";
 import type { ActionResult } from "@/lib/result";
 import type {
   RecipeItemExtended,
@@ -259,7 +259,7 @@ export async function addRecipeNote(
 ): Promise<ActionResult<{ id: string; nota: string; created_at: string }>> {
   try {
     if (!nota.trim()) return { ok: false, error: "Nota não pode estar vazia" };
-    const user = SHELL_USER;
+    const user = await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
@@ -268,7 +268,7 @@ export async function addRecipeNote(
       .insert({
         menu_item_id: menuItemId,
         nota: nota.trim(),
-        created_by: user.id === "bypass" ? null : user.id,
+        created_by: user.id,
       } as never)
       .select()
       .single();

@@ -9,7 +9,7 @@
 import { revalidatePath } from "next/cache";
 
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
-import { SHELL_USER } from "@/lib/shell-auth";
+import { requireUser } from "@kph/auth/server";
 import type { ActionResult } from "@/lib/result";
 import { eventFormSchema, type EventFormValues } from "@/lib/eventos/schema";
 import type {
@@ -237,7 +237,7 @@ export async function createEvent(
         error: parsed.error.issues[0]?.message ?? "Dados inválidos",
       };
     }
-    const user = SHELL_USER;
+    const user = await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 
@@ -340,7 +340,7 @@ export async function updateEventStatus(
   motivo?: string | null,
 ): Promise<ActionResult<EventFull>> {
   try {
-    const user = SHELL_USER;
+    const user = await requireUser();
     const supabase = await createSupabaseServerClient();
     if (!supabase) return { ok: false, error: "Supabase indisponível" };
 

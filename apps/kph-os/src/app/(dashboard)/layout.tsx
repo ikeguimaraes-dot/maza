@@ -1,7 +1,7 @@
 import { Sidebar } from "@/components/shell/Sidebar";
 import { TopBar } from "@/components/shell/TopBar";
 import { AuthProvider } from "@kph/auth/context";
-import { SHELL_USER } from "@/lib/shell-auth";
+import { requireUser } from "@kph/auth/server";
 import { createSupabaseServerClient } from "@kph/db/supabase/server";
 import type { Unit } from "@kph/db/types/database";
 
@@ -12,8 +12,9 @@ export const dynamic = "force-dynamic";
 export default async function DashboardLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  // proxy.ts já redireciona — defesa em profundidade.
-  const user = SHELL_USER;
+  // middleware já redirecionou anônimos — defense in depth: se chegou aqui,
+  // exige user válido. Falha → redirect /login (exceção NEXT_REDIRECT).
+  const user = await requireUser();
 
   const units = await loadAccessibleUnits();
 

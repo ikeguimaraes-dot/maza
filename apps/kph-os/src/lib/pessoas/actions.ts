@@ -1,7 +1,7 @@
 "use server"
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient, createServiceClient } from "@kph/db/supabase/server";
-import { SHELL_USER } from "@/lib/shell-auth";
+import { requireUser, getCurrentUser } from "@kph/auth/server";
 import { getCurrentUnit } from "@kph/auth/unit";import { createNotification } from "@/lib/notifications/actions";
 import type { ActionResult } from "@/lib/result";
 import { gerarHolerite } from "@/lib/pessoas/clt";
@@ -1269,7 +1269,7 @@ export async function getMyEmployee(userId?: string): Promise<Employee | null> {
     // para ser compatível com o mock em src/lib/auth/server.ts.
     // Usa service_role pois a sessão Supabase pode estar ausente (iOS/mock).
     // Seguro: query filtrada por user_id verificado pelo auth layer.
-    const authUser = SHELL_USER;
+    const authUser = await getCurrentUser();
     if (!authUser) return null;
     const service = createServiceClient();
     if (!service) return null;
@@ -1836,14 +1836,22 @@ export async function getVacationAlerts(unitId: string): Promise<VacationAlerts>
     today.setHours(0, 0, 0, 0);
     const MS_YEAR = 365.25 * 24 * 60 * 60 * 1000;
 
-    const { data: emps } = await supabase
+    const { data: empsData } = await supabase
       .from(TABLE)
       .select("id, nome, sobrenome, funcao, data_admissao")
       .eq("unit_id", unitId)
       .eq("ativo", true)
       .not("data_admissao", "is", null);
 
-    if (!emps?.length) return empty;
+    type VacationEmployee = {
+      id: string;
+      nome: string;
+      sobrenome: string | null;
+      funcao: string | null;
+      data_admissao: string;
+    };
+    const emps = (empsData ?? []) as VacationEmployee[];
+    if (emps.length === 0) return empty;
 
     const { data: vacs } = await supabase
       .from(VAC_TABLE)
@@ -1963,7 +1971,7 @@ export async function vincularColaborador(
   email: string
 ): Promise<ActionResult<void>> {
   try {
-    const user = SHELL_USER
+    const user = await requireUser()
     const service = createServiceClient()
     if (!service) return { ok: false, error: 'Supabase indisponível' }
 
