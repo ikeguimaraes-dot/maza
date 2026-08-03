@@ -98,7 +98,7 @@ export async function runFeriasMonitor(): Promise<{ created: number }> {
   }
 
   if (created > 0) {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://kph-os.vercel.app'
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
     await sendDiscordMessage('orquestrador', {
       title: 'Férias Monitor',
       description: `${created} colaborador(es) sem férias agendadas detectado(s).\nAcesse o painel para revisar: ${baseUrl}/orquestrador`,

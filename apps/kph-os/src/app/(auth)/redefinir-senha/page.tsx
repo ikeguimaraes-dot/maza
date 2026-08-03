@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ResetPasswordForm } from "./ResetPasswordForm";
 
 export const metadata: Metadata = {
-  title: "Redefinir senha · KPH OS",
+  title: "Redefinir senha · Maza",
   description: "Crie uma nova senha para sua conta.",
 };
 

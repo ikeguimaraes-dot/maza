@@ -65,7 +65,7 @@ export default function GlobalError({
                 color: "#A09890",
               }}
             >
-              KPH OS
+              Maza
             </div>
             <h1
               style={{

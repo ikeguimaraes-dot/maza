@@ -2,7 +2,7 @@
 
 // Server Actions do módulo Recrutamento.
 //
-// Padrão KPH OS: ActionResult<T> + cookie SSR. Service_role só na ação que
+// Padrão Maza: ActionResult<T> + cookie SSR. Service_role só na ação que
 // candidato (sem auth) chama no app mobile pra inserir interview_responses
 // — essa não fica aqui, fica no app mobile + endpoint próprio.
 

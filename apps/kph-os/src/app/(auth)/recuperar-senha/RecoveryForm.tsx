@@ -45,7 +45,7 @@ export function RecoveryForm() {
           type="email"
           autoComplete="email"
           required
-          placeholder="voce@kph.os"
+          placeholder="voce@maza.com.br"
           disabled={pending}
           className={cn(
             "h-10 w-full rounded-lg px-3 text-sm transition-colors outline-none",

@@ -462,7 +462,7 @@ function LearningMachinePanel({
             )}
           </div>
           <p className="text-sm text-muted-foreground">
-            {report?.insights?.headline ?? "Análise semanal dos 40 agentes IA do KPH OS."}
+            {report?.insights?.headline ?? "Análise semanal dos 40 agentes IA da Maza."}
           </p>
         </div>
         <div className="flex items-center gap-3">

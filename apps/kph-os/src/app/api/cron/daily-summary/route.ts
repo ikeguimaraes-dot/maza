@@ -106,10 +106,10 @@ export async function GET(request: Request) {
     })
 
     await sendDiscordMessage('general', {
-      title: `📊 KPH OS — Resumo ${today}`,
+      title: `📊 Maza — Resumo ${today}`,
       color: DISCORD_COLORS.blue,
       fields,
-      footer: { text: 'KPH OS · Resumo Diário Automático' },
+      footer: { text: 'Maza · Resumo Diário Automático' },
       timestamp: new Date().toISOString(),
     })
 

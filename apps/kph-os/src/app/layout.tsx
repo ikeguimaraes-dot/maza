@@ -21,8 +21,8 @@ const instrumentSans = Instrument_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "KPH OS",
-  description: "Sistema operacional do grupo KPH — hospitalidade premium.",
+  title: "Maza",
+  description: "Sistema operacional Maza.",
   manifest: "/manifest.json",
   // appleWebApp.capable=false impede iOS de oferecer "Add to Home Screen"
   // como app standalone — homescreen vira bookmark Safari, mantendo
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   // (PWA standalone tem storage isolado que quebra @supabase/ssr.)
   appleWebApp: {
     capable: false,
-    title: "KPH Ponto",
+    title: "Maza Ponto",
   },
 };
 

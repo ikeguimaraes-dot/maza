@@ -48,7 +48,7 @@ export default async function MetasPage() {
           Metas
         </h1>
         <p style={{ fontSize: 13, color: "var(--text-3)", marginTop: 6 }}>
-          OKRs e metas estratégicas do grupo KPH
+          OKRs e metas estratégicas da Maza
         </p>
       </header>
 

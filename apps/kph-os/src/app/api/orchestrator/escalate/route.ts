@@ -71,7 +71,7 @@ export async function GET(req: NextRequest) {
     const hoursElapsed = Math.floor(
       (Date.now() - new Date(run.created_at).getTime()) / 3_600_000
     )
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://kph-os.vercel.app'
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
 
     await sendDiscordMessage('orquestrador', {
       title: `${TIER_EMOJI[tier]} Orquestrador HOS — Escalação`,

@@ -55,7 +55,7 @@ export async function requestPasswordReset(
     (forwardedHost ? `${forwardedProto}://${forwardedHost}` : null) ??
     process.env.NEXT_PUBLIC_SHELL_URL ??
     process.env.NEXT_PUBLIC_APP_URL ??
-    "https://kph-os.vercel.app";
+    "http://localhost:3000";
   const redirectTo = `${origin}/auth/callback?type=recovery&next=/redefinir-senha`;
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {

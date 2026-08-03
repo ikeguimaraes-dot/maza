@@ -2,7 +2,7 @@
 
 // Server Actions do módulo Eventos.
 //
-// Padrão KPH OS: ActionResult<T> + cookie SSR (createSupabaseServerClient)
+// Padrão Maza: ActionResult<T> + cookie SSR (createSupabaseServerClient)
 // + RLS via kph_has_role_for_brand. Insert/update fazem `as never` cast
 // porque Database<T> infere `never` em PostgREST v12.
 

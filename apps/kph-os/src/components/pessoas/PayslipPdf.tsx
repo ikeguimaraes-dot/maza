@@ -193,7 +193,7 @@ export function PayslipPdf({
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
-          <Text style={styles.brand}>{brandName ? brandName.toUpperCase() : "KPH OS"}</Text>
+          <Text style={styles.brand}>{brandName ? brandName.toUpperCase() : "MAZA"}</Text>
           <Text style={styles.title}>Recibo de pagamento de salário</Text>
           <Text style={styles.meta}>
             {unitName} · Competência {competenciaLabel(payslip.competencia)}
@@ -256,7 +256,7 @@ export function PayslipPdf({
         </View>
 
         <Text style={styles.footer}>
-          Documento gerado por KPH OS · {new Date().toLocaleDateString("pt-BR")}
+          Documento gerado por Maza · {new Date().toLocaleDateString("pt-BR")}
         </Text>
       </Page>
     </Document>

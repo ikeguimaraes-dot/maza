@@ -1,6 +1,6 @@
 import { createServiceClient } from '@kph/db/supabase/server'
 
-const SYSTEM_PROMPT = `Você é o Assistente do Orquestrador HOS da KPH Participações.
+const SYSTEM_PROMPT = `Você é o Assistente do Orquestrador da Maza.
 Responda de forma concisa e direta. Use formatação Discord (**negrito**, \`código\`).
 Você está conversando com o founder via Discord.`
 

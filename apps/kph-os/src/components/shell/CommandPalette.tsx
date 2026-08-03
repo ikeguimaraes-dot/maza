@@ -40,7 +40,7 @@ export function CommandPalette({ open, onOpenChange }: Props) {
   );
 
   return (
-    <Command.Dialog open={open} onOpenChange={onOpenChange} label="Navegar no KPH OS">
+    <Command.Dialog open={open} onOpenChange={onOpenChange} label="Navegar no Maza">
       <Command.Input placeholder="Buscar módulo ou ação..." />
       <Command.List>
         <Command.Empty>Nenhum resultado para essa busca.</Command.Empty>

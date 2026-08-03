@@ -114,7 +114,7 @@ export default async function DashboardPage() {
               letterSpacing: "0.01em",
             }}
           >
-            Grupo KPH · {dia} · {resumo.total_marcas_ativas} marcas ativas
+            Maza · {dia} · {resumo.total_marcas_ativas} marcas ativas
           </p>
         </div>
 
@@ -493,7 +493,7 @@ function EmptyDashboard({
           {greet}, {nome}.
         </h1>
         <p style={{ fontSize: "0.8125rem", color: "var(--text-3)", marginTop: 7 }}>
-          Grupo KPH · {dia}
+          Maza · {dia}
         </p>
       </header>
 

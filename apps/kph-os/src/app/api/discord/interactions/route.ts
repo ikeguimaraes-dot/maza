@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
 
     // Also attempt post-approval action for orquestrador_jobs (fire-and-forget)
     if (decision === 'approve' && process.env.KPH_API_SECRET) {
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://kph-os.vercel.app'
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
       fetch(`${baseUrl}/api/orquestrador/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

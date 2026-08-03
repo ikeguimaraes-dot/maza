@@ -56,7 +56,7 @@ const PATH_LABELS: Record<string, string> = {
 export function TopBar() {
   const pathname = usePathname();
   const { user } = useAuth();
-  const title = PATH_LABELS[pathname] ?? "KPH OS";
+  const title = PATH_LABELS[pathname] ?? "Maza";
   const name = greetName(user);
   const [cmdOpen, setCmdOpen] = useState(false);
 

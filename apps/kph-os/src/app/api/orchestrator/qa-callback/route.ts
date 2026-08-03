@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     // Se falhou, o run permanece em awaiting_approval para revisão humana
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://kph-os.vercel.app'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
   const passed_label = passed ? 'QA passou' : 'QA falhou — revisão necessária'
   await sendDiscordMessage('orquestrador', {
     title: passed_label,

@@ -3,9 +3,9 @@
  * Encoding latin1 (lido no browser como ISO-8859-1).
  * Separador auto-detectado (`;` ou `,`).
  *
- * Adaptação pra KPH OS:
+ * Adaptação para Maza:
  *   - parsePeriodoIso devolve 'YYYY-MM-01' (DATE no Postgres) em vez de 'YYYY-MM'
- *   - csvRowToTimeRecord devolve shape compatível com `time_records` do KPH OS
+ *   - csvRowToTimeRecord devolve shape compatível com `time_records` do Maza
  *   - csvRowToOvertimeRecord devolve shape compatível com `overtime_records`
  */
 
@@ -134,7 +134,7 @@ export function parsePontoCsv(text: string): PontoCsvRow[] {
   return rows;
 }
 
-/** Shape pra time_records (KPH OS). null se período inválido. */
+/** Shape para time_records (Maza). null se período inválido. */
 export function csvRowToTimeRecord(
   row: PontoCsvRow,
   employeeId: string,
@@ -177,7 +177,7 @@ export function csvRowToTimeRecord(
   };
 }
 
-/** Shape pra overtime_records (KPH OS). null se sem horas positivas. */
+/** Shape para overtime_records (Maza). null se sem horas positivas. */
 export function csvRowToOvertimeRecord(
   row: PontoCsvRow,
   employeeId: string,

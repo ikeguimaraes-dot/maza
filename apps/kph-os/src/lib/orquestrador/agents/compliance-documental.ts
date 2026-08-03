@@ -90,7 +90,7 @@ export async function runComplianceDocumental(): Promise<{ created: number }> {
   }
 
   if (created > 0) {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://kph-os.vercel.app'
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
     await sendDiscordMessage('orquestrador', {
       title: 'Compliance Documental',
       description: `${created} alerta(s) gerado(s).\nAcesse o painel para revisar: ${baseUrl}/orquestrador`,

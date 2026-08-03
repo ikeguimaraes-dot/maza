@@ -42,7 +42,7 @@ export default function NotFound() {
             marginBottom: 10,
           }}
         >
-          KPH OS
+          Maza
         </div>
         <h1
           style={{

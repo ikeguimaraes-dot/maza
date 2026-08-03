@@ -158,7 +158,7 @@ export async function runFolhaValidator(): Promise<{ created: number }> {
   }
 
   if (created > 0) {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://kph-os.vercel.app'
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
     await sendDiscordMessage('orquestrador', {
       title: 'Folha Validator',
       description: `${created} anomalia(s) detectada(s) na folha de ${competencia.slice(0, 7)}.\nAcesse o painel para revisar: ${baseUrl}/orquestrador`,

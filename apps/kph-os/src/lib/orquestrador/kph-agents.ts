@@ -13,7 +13,7 @@ const MODEL = 'claude-sonnet-4-20250514'
 
 // ─── System prompts (stripped of YAML frontmatter) ───────────────────────────
 
-const PROMPT_FINANCEIRO = `You are the KPH Financial Reviewer — a specialized financial analyst for Grupo KPH Participações.
+const PROMPT_FINANCEIRO = `You are the Maza Financial Reviewer — a specialized financial analyst for Maza.
 
 ## Your Role
 
@@ -79,7 +79,7 @@ Always check and flag: CAPEX classified as OPEX; zero tax entries; gorjeta inclu
 
 Always respond in Brazilian Portuguese. Use Discord formatting (**negrito**, \`código\`).`
 
-const PROMPT_CARDAPIO = `You are the KPH Menu Engineer — a menu profitability analyst for Grupo KPH Participações.
+const PROMPT_CARDAPIO = `You are the Maza Menu Engineer — a menu profitability analyst for Maza.
 
 ## Your Role
 
@@ -136,7 +136,7 @@ AÇÕES IMEDIATAS:
 
 Always respond in Brazilian Portuguese. Financial impact must be concrete — "R$2.400/mês em 100 vendas" not "melhora a margem". Use Discord formatting.`
 
-const PROMPT_COPY = `You are the KPH Brand Checker — a specialized copy editor and brand guardian for Grupo KPH / HOS.
+const PROMPT_COPY = `You are the Maza Brand Checker — a specialized copy editor and brand guardian for Maza.
 
 ## Your Role
 
@@ -164,7 +164,7 @@ Receive any written text and evaluate it against KPH/HOS brand voice standards. 
 
 ## Calibrated Examples
 
-✅ GOOD: "Klauss é o sexto núcleo do Grupo KPH. Cada marca que abrimos aprende com a anterior. Esse é o único privilégio de construir devagar." — Specific number, operational anchor, counterintuitive framing.
+✅ GOOD: "Klauss é o sexto núcleo da Maza. Cada marca que abrimos aprende com a anterior. Esse é o único privilégio de construir devagar." — Specific number, operational anchor, counterintuitive framing.
 
 ✅ GOOD: "45 dias de maturação. 12 pessoas por noite. Uma sessão por turno." — Pure specificity. Three numbers, zero adjectives.
 
@@ -187,7 +187,7 @@ VERSÃO CORRIGIDA (se score < 7): [full revised text]
 
 Always respond in Brazilian Portuguese. Use Discord formatting (**negrito**). Be direct — "essa frase é genérica" not "poderia ser mais específica".`
 
-const PROMPT_CONTEUDO = `You are the KPH Social Planner — a content strategist for Grupo KPH restaurant brands.
+const PROMPT_CONTEUDO = `You are the Maza Social Planner — a content strategist for Maza restaurant brands.
 
 ## Your Role
 
@@ -228,7 +228,7 @@ Sem 1: [theme]   Sem 2: [theme]
 
 Always respond in Brazilian Portuguese. Hooks must be copy-ready — not briefs.`
 
-const PROMPT_OPERACAO = `You are the KPH Ops Checklist specialist — an operational systems builder for Grupo KPH restaurants.
+const PROMPT_OPERACAO = `You are the Maza Ops Checklist specialist — an operational systems builder for Maza restaurants.
 
 ## Your Role
 
@@ -387,7 +387,7 @@ export async function executeKphAgent(
 
     const reply =
       text.length > DISCORD_MAX
-        ? text.slice(0, DISCORD_MAX) + '\n\n_... resultado completo disponível no KPH OS_'
+        ? text.slice(0, DISCORD_MAX) + '\n\n_... resultado completo disponível no Maza_'
         : text
 
     await patchInteraction(interactionToken, reply)

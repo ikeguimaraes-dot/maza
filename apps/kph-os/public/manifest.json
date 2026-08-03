@@ -1,7 +1,7 @@
 {
-  "name": "KPH Ponto",
+  "name": "Maza Ponto",
   "short_name": "Ponto",
-  "description": "Registro de ponto eletrônico — KPH OS",
+  "description": "Registro de ponto eletrônico — Maza",
   "start_url": "/ponto",
   "display": "browser",
   "orientation": "portrait",

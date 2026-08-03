@@ -5,8 +5,8 @@ import { getCurrentUser } from "@kph/auth/server";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Entrar · KPH OS",
-  description: "Sistema operacional do grupo KPH — hospitalidade premium.",
+  title: "Entrar · Maza",
+  description: "Sistema operacional Maza.",
 };
 
 /**
@@ -54,7 +54,7 @@ export default async function LoginPage({
               fontWeight: 600,
             }}
           >
-            K
+            M
           </div>
           <div className="flex flex-col gap-1">
             <h1
@@ -64,13 +64,13 @@ export default async function LoginPage({
                 color: "var(--text, #F5F0E8)",
               }}
             >
-              KPH OS
+              Maza
             </h1>
             <p
               className="text-sm"
               style={{ color: "var(--text-3, #A09890)" }}
             >
-              Sistema operacional do grupo KPH
+              Sistema operacional Maza
             </p>
           </div>
         </div>
@@ -139,7 +139,7 @@ export default async function LoginPage({
         >
           Acesso restrito a colaboradores autorizados.
           <br />
-          © {new Date().getFullYear()} Grupo KPH
+          © {new Date().getFullYear()} Maza
         </p>
       </div>
     </main>

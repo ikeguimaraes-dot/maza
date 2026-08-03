@@ -1,5 +1,5 @@
 {
-  "name": "kph-workspace",
+  "name": "maza-workspace",
   "private": true,
   "workspaces": [
     "apps/*",

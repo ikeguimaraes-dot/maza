@@ -3,7 +3,7 @@ import Link from "next/link";
 import { RecoveryForm } from "./RecoveryForm";
 
 export const metadata: Metadata = {
-  title: "Recuperar senha · KPH OS",
+  title: "Recuperar senha · Maza",
   description: "Receba um link para redefinir sua senha.",
 };
 
@@ -102,7 +102,7 @@ export default function RecoverPasswordPage() {
         >
           Acesso restrito a colaboradores autorizados.
           <br />
-          © {new Date().getFullYear()} Grupo KPH
+          © {new Date().getFullYear()} Maza
         </p>
       </div>
     </main>
