@@ -3,10 +3,10 @@ import { getCurrentUser } from "@maza/auth/server";
 import { createServiceClient } from "@maza/db/supabase/server";
 
 const ZONES = [
-  { prefixes: ["/financeiro"], env: "FINANCEIRO_APP_URL", fallback: "http://localhost:3001" },
+  { prefixes: ["/financeiro"], env: "FINANCEIRO_APP_URL", fallback: "https://maza-financeiro.vercel.app" },
   { prefixes: ["/pessoas"], env: "PESSOAS_APP_URL", fallback: "http://localhost:3002" },
-  { prefixes: ["/operacao"], env: "OPERACAO_APP_URL", fallback: "http://localhost:3003" },
-  { prefixes: ["/compras", "/cardapio"], env: "COMPRAS_APP_URL", fallback: "http://localhost:3004" },
+  { prefixes: ["/operacao"], env: "OPERACAO_APP_URL", fallback: "https://maza-operacao.vercel.app" },
+  { prefixes: ["/compras", "/cardapio"], env: "COMPRAS_APP_URL", fallback: "https://maza-compras.vercel.app" },
   { prefixes: ["/comercial"], env: "COMERCIAL_APP_URL", fallback: "http://localhost:3005" },
   { prefixes: ["/marca"], env: "MARCA_APP_URL", fallback: "http://localhost:3006" },
   { prefixes: ["/inteligencia", "/orquestrador"], env: "INTELIGENCIA_APP_URL", fallback: "http://localhost:3007" },

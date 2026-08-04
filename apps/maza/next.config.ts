@@ -12,10 +12,10 @@ function zoneUrl(envName: string, localPort: number, productionHost: string) {
 }
 
 const zones = [
-  { prefix: "/financeiro",   origin: zoneUrl("FINANCEIRO_APP_URL", 3001, "localhost:3001") },
+  { prefix: "/financeiro",   origin: zoneUrl("FINANCEIRO_APP_URL", 3001, "maza-financeiro.vercel.app") },
   { prefix: "/pessoas",      origin: zoneUrl("PESSOAS_APP_URL", 3002, "localhost:3002") },
-  { prefix: "/operacao",     origin: zoneUrl("OPERACAO_APP_URL", 3003, "localhost:3003") },
-  { prefix: "/compras",      origin: zoneUrl("COMPRAS_APP_URL", 3004, "localhost:3004") },
+  { prefix: "/operacao",     origin: zoneUrl("OPERACAO_APP_URL", 3003, "maza-operacao.vercel.app") },
+  { prefix: "/compras",      origin: zoneUrl("COMPRAS_APP_URL", 3004, "maza-compras.vercel.app") },
   { prefix: "/comercial",    origin: zoneUrl("COMERCIAL_APP_URL", 3005, "localhost:3005") },
   { prefix: "/marca",        origin: zoneUrl("MARCA_APP_URL", 3006, "localhost:3006") },
   { prefix: "/inteligencia", origin: zoneUrl("INTELIGENCIA_APP_URL", 3007, "localhost:3007") },
