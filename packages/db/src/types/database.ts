@@ -1,4 +1,4 @@
-// Tipos do schema Supabase do KPH OS.
+// Tipos do schema Supabase da Maza.
 //
 // Mantido manualmente — quando o schema crescer, considerar gerar via
 // `supabase gen types typescript`. Por enquanto, single source of truth aqui.
@@ -2664,13 +2664,13 @@ export type Database = {
       };
     };
     Functions: {
-      kph_is_founder: { Args: Record<string, never>; Returns: boolean };
-      kph_is_founder_or_cfo: { Args: Record<string, never>; Returns: boolean };
-      kph_has_role_for_unit: { Args: { p_unit_id: string }; Returns: boolean };
-      kph_has_role_for_brand: { Args: { p_brand_id: string }; Returns: boolean };
-      kph_has_role_for_group: { Args: { p_group_id: string }; Returns: boolean };
-      kph_can_write_event_brand: { Args: { p_brand_id: string }; Returns: boolean };
-      kph_can_delete_event_brand: { Args: { p_brand_id: string }; Returns: boolean };
+      maza_is_founder: { Args: Record<string, never>; Returns: boolean };
+      maza_is_founder_or_cfo: { Args: Record<string, never>; Returns: boolean };
+      maza_has_role_for_unit: { Args: { p_unit_id: string }; Returns: boolean };
+      maza_has_role_for_brand: { Args: { p_brand_id: string }; Returns: boolean };
+      maza_has_role_for_group: { Args: { p_group_id: string }; Returns: boolean };
+      maza_can_write_event_brand: { Args: { p_brand_id: string }; Returns: boolean };
+      maza_can_delete_event_brand: { Args: { p_brand_id: string }; Returns: boolean };
     };
     Enums: Record<string, never>;
   };

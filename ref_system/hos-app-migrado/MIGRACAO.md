@@ -1,6 +1,6 @@
-# Migração HOS App → KPH OS
+# Migração HOS App → Maza
 
-> Reescrita do backend do app mobile pra apontar pro Supabase do **KPH OS**
+> Reescrita do backend do app mobile pra apontar pro Supabase do **Maza**
 > (`iqgrvptrtphvbmvrqntm`) ao invés do Supabase legado HOS (`afxsrcezmetipzgosdvb`).
 >
 > O app original ficou intocado em `ref_system/hos-app-main/`. Este diretório
@@ -13,7 +13,7 @@
 
 ### 1. Migrations + buckets (já feito)
 
-As migrations 011-018 do KPH OS criaram as tabelas RH (`employee_auth`,
+As migrations 011-018 do Maza criaram as tabelas RH (`employee_auth`,
 `documents`, `tips_records`, `transport_vouchers`, `time_records`,
 `vacations`, `overtime_records`, `import_logs`, `campaigns`, `job_openings`,
 `candidates`, `interview_questions`, `interview_responses`) e os 4 storage
@@ -22,9 +22,9 @@ As policies de storage também já estão aplicadas.
 
 ### 2. ⚠ Seed manual de `employee_auth`
 
-O ETL HOS → KPH OS migrou os 78 funcionários e dados financeiros (holerites,
+O ETL HOS → Maza migrou os 78 funcionários e dados financeiros (holerites,
 banco de horas, gorjetas, VT) — **mas não migrou as senhas**. A tabela
-`employee_auth` foi criada vazia no KPH OS.
+`employee_auth` foi criada vazia no Maza.
 
 Antes do app funcionar pra qualquer colaborador, rodar um destes 2 caminhos:
 
@@ -55,7 +55,7 @@ Recomendo **Opção A**: cada colaborador escolhe a própria senha.
 
 ### `src/lib/supabase.ts`
 - URL: `iqgrvptrtphvbmvrqntm.supabase.co` (era `afxsrcezmetipzgosdvb`).
-- Service role key trocada pela do KPH OS.
+- Service role key trocada pela do Maza.
 - Mantido `autoRefreshToken/persistSession/detectSessionInUrl: false` —
   o app continua autenticando manualmente via `employee_auth`.
 
@@ -79,7 +79,7 @@ Recomendo **Opção A**: cada colaborador escolhe a própria senha.
   pra resolver `empresa`.
 - `login`: atualiza `employee_auth.last_login` (best-effort).
 - `login`: respeita `employee_auth.is_active = false` (bloqueia acesso).
-- `primeiroAcesso`: insere com `employee_id` (FK NOT NULL no KPH OS — antes
+- `primeiroAcesso`: insere com `employee_id` (FK NOT NULL no Maza — antes
   o schema HOS permitia `employee_id` null).
 
 ### `src/screens/HomeScreen.tsx`
@@ -93,9 +93,9 @@ Recomendo **Opção A**: cada colaborador escolhe a própria senha.
 - `formatCurrency` aceita string|number (NUMERIC vem como string do PostgREST).
 
 ### `src/screens/FinanceiroScreen.tsx`
-- Tipo `Payslip` reescrito pra refletir KPH OS.
+- Tipo `Payslip` reescrito pra refletir Maza.
 - `total_vencimentos` e `total_descontos` calculados client-side somando
-  os componentes (KPH OS não tem esses campos consolidados; foram removidos).
+  os componentes (Maza não tem esses campos consolidados; foram removidos).
 - `inss_base`/`irrf_base` removidos da UI; `fgts_base` e `faixa_irrf` exibidos.
 - Query ordena por `competencia` (era `periodo`).
 - `handleVerPDF` aceita URL completa (preferencial: pdf_url do server) OU
@@ -106,7 +106,7 @@ Recomendo **Opção A**: cada colaborador escolhe a própria senha.
 
 ### `src/screens/DocumentosScreen.tsx`
 - Estado novo `unitId` carregado via `SELECT employees.unit_id WHERE id = empId`.
-- Insert agora envia `unit_id` (FK NOT NULL no KPH OS).
+- Insert agora envia `unit_id` (FK NOT NULL no Maza).
 - `getDocumentType()` removido — substituído por **modal de seleção** com
   os 6 valores válidos (RG/CPF/CTPS/contrato/exame/outro). UX: pickar arquivo
   → escolher tipo → upload.
@@ -118,18 +118,18 @@ Recomendo **Opção A**: cada colaborador escolhe a própria senha.
 - Query absences/warnings ordena por `data`.
 - Render absence/warning ajustado pros novos nomes de campo.
 - Paleta de cores em `Warning`: agora cobre tanto os valores antigos
-  (leve/moderada/grave) quanto os do KPH OS (verbal/escrita/suspensao).
+  (leve/moderada/grave) quanto os do Maza (verbal/escrita/suspensao).
 - `formatCurrency` aceita string|number; `Number(item.valor_ponto)` no
   cálculo do total de gorjeta.
 
 ### `src/screens/FeriasScreen.tsx`
 - Query mantém `time_records WHERE ferias_dias > 0`.
-- Adicionado: também busca `vacations` (módulo Férias do painel KPH OS) e
+- Adicionado: também busca `vacations` (módulo Férias do painel Maza) e
   mescla — mostra os dois tipos de registro (importação Totvs + agendamentos
   no painel).
 
 ### `src/screens/CampanhasScreen.tsx`
-- Lógica de filtro reescrita pro multi-tenant KPH OS:
+- Lógica de filtro reescrita pro multi-tenant Maza:
   1. Resolve o `brand_id` do user via JOIN `employees → units → brand_id`.
   2. Filtra `campaigns` com `brand_id IS NULL OR brand_id = <user_brand>`.
   3. Filtra janela de datas com `starts_at IS NULL OR ≤ hoje` e
@@ -168,7 +168,7 @@ Recomendo **Opção A**: cada colaborador escolhe a própria senha.
 
 Plano mínimo de teste em ordem:
 
-1. **Login + Primeiro Acesso** com um colaborador real (CPF do banco KPH OS).
+1. **Login + Primeiro Acesso** com um colaborador real (CPF do banco Maza).
 2. **Home**: pódio top 3, último holerite com `competencia/liquido` corretos,
    banco de horas, faltas do mês.
 3. **Financeiro**: holerites com Total Vencimentos e Total Descontos batendo
@@ -193,7 +193,7 @@ Plano mínimo de teste em ordem:
 ```bash
 # 1. Da pasta hos-app-migrado:
 cd ~/Documents/hos-app-migrado    # ou onde quiser
-cp -r ~/Desktop/_ORKESTRI/kph-os/ref_system/hos-app-migrado/* .
+cp -r ~/Desktop/_ORKESTRI/maza/ref_system/hos-app-migrado/* .
 
 # 2. Instalar deps:
 npm install
@@ -208,7 +208,7 @@ Não precisa de prebuild/EAS — funciona direto no Expo Go SDK 54.
 
 ---
 
-## Schema reference rápido (KPH OS)
+## Schema reference rápido (Maza)
 
 | Tabela | Campos críticos pro app |
 |---|---|

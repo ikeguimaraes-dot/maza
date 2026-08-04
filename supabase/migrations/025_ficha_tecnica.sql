@@ -1,4 +1,4 @@
--- KPH OS — 025_ficha_tecnica.sql
+-- Maza — 025_ficha_tecnica.sql
 -- Sprint 5 / Etapa 2 — ficha técnica detalhada de cardápio.
 -- DEPRECATED: cmv_items/cmv_item_id renamed to menu_items/menu_item_id in migration 028 (nunca rodou em produção).
 --
@@ -14,7 +14,7 @@
 --     com SUM(recipe_items.custo_total) sempre que recipe_items muda. Isso
 --     dispara a recomputação do cmv_items.cmv_pct (GENERATED em 010).
 --   • recipe_notes: anotações livres por prato (técnicas, observações).
---   • RLS via kph_has_role_for_unit em recipe_items; recipe_notes cascateia
+--   • RLS via maza_has_role_for_unit em recipe_items; recipe_notes cascateia
 --     via cmv_items.unit_id.
 
 -- ── TABELAS ────────────────────────────────────────────────────
@@ -82,8 +82,8 @@ CREATE POLICY "ri_select" ON recipe_items FOR SELECT
     cmv_item_id IN (
       SELECT id FROM cmv_items
       WHERE unit_id IS NULL
-         OR kph_has_role_for_unit(unit_id)
-         OR kph_has_role_for_brand(brand_id)
+         OR maza_has_role_for_unit(unit_id)
+         OR maza_has_role_for_brand(brand_id)
     )
   );
 
@@ -92,7 +92,7 @@ CREATE POLICY "ri_insert" ON recipe_items FOR INSERT
   WITH CHECK (
     cmv_item_id IN (
       SELECT id FROM cmv_items
-      WHERE kph_has_role_for_brand(brand_id)
+      WHERE maza_has_role_for_brand(brand_id)
     )
   );
 
@@ -101,13 +101,13 @@ CREATE POLICY "ri_update" ON recipe_items FOR UPDATE
   USING (
     cmv_item_id IN (
       SELECT id FROM cmv_items
-      WHERE kph_has_role_for_brand(brand_id)
+      WHERE maza_has_role_for_brand(brand_id)
     )
   )
   WITH CHECK (
     cmv_item_id IN (
       SELECT id FROM cmv_items
-      WHERE kph_has_role_for_brand(brand_id)
+      WHERE maza_has_role_for_brand(brand_id)
     )
   );
 
@@ -116,7 +116,7 @@ CREATE POLICY "ri_delete" ON recipe_items FOR DELETE
   USING (
     cmv_item_id IN (
       SELECT id FROM cmv_items
-      WHERE kph_has_role_for_brand(brand_id)
+      WHERE maza_has_role_for_brand(brand_id)
     )
   );
 
@@ -127,8 +127,8 @@ CREATE POLICY "rn_select" ON recipe_notes FOR SELECT
     cmv_item_id IN (
       SELECT id FROM cmv_items
       WHERE unit_id IS NULL
-         OR kph_has_role_for_unit(unit_id)
-         OR kph_has_role_for_brand(brand_id)
+         OR maza_has_role_for_unit(unit_id)
+         OR maza_has_role_for_brand(brand_id)
     )
   );
 
@@ -137,13 +137,13 @@ CREATE POLICY "rn_insert" ON recipe_notes FOR INSERT
   WITH CHECK (
     cmv_item_id IN (
       SELECT id FROM cmv_items
-      WHERE kph_has_role_for_brand(brand_id)
+      WHERE maza_has_role_for_brand(brand_id)
     )
   );
 
 DROP POLICY IF EXISTS "rn_delete" ON recipe_notes;
 CREATE POLICY "rn_delete" ON recipe_notes FOR DELETE
-  USING (kph_is_founder());
+  USING (maza_is_founder());
 
 -- ── GRANTS ─────────────────────────────────────────────────────
 GRANT SELECT, INSERT, UPDATE, DELETE ON recipe_items TO authenticated;

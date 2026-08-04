@@ -25,7 +25,7 @@ INSERT INTO auth.users (
   '00000000-0000-0000-0000-000000000000',
   'authenticated',
   'authenticated',
-  'bypass@kph.os',
+  'bypass@maza.local',
   '',
   NOW(),
   '{"provider":"email","providers":["email"]}',
@@ -35,7 +35,7 @@ INSERT INTO auth.users (
   NOW()
 ) ON CONFLICT (id) DO NOTHING;
 
--- 2. Vincula ao role founder no grupo KPH (necessário para kph_is_founder() se
+-- 2. Vincula ao role founder no grupo Maza (necessário para maza_is_founder() se
 --    a autenticação for re-habilitada no futuro; sem efeito enquanto service_role é usado).
 INSERT INTO public.user_roles (user_id, role_id, group_id)
 SELECT
@@ -44,7 +44,7 @@ SELECT
   g.id
 FROM roles r, groups g
 WHERE r.name = 'founder'
-  AND g.slug = 'kph'
+  AND g.slug = 'maza'
   AND NOT EXISTS (
     SELECT 1 FROM public.user_roles
     WHERE user_id = '00000000-0000-0000-0000-000000000001'

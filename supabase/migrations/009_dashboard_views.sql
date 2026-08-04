@@ -1,4 +1,4 @@
--- KPH OS — 009_dashboard_views.sql
+-- Maza — 009_dashboard_views.sql
 -- Fase E3 — views agregadoras pro Dashboard Executivo Consolidado.
 --
 -- Aditivo: nenhuma tabela existente alterada. Apenas CREATE OR REPLACE VIEW.

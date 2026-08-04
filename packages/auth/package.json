@@ -1,5 +1,5 @@
 {
-  "name": "@kph/auth",
+  "name": "@maza/auth",
   "version": "0.1.0",
   "private": true,
   "exports": {
@@ -9,7 +9,7 @@
     "./unit": "./src/unit.ts"
   },
   "dependencies": {
-    "@kph/db": "*"
+    "@maza/db": "*"
   },
   "peerDependencies": {
     "next": "*",

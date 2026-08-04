@@ -1,4 +1,4 @@
--- KPH OS — 028_ingredientes.sql
+-- Maza — 028_ingredientes.sql
 -- Auto-suficiente: ingredients + ingredient_price_history + recipe_items + recipe_notes
 -- Sem ALTER TABLE — CREATE TABLE IF NOT EXISTS inclui todas as colunas.
 -- Ordem: ingredientes antes de recipe_items (FK ingredient_id depende de ingredients).
@@ -169,23 +169,23 @@ ALTER TABLE public.recipe_notes             ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "ingredients_select" ON ingredients;
 CREATE POLICY "ingredients_select" ON ingredients FOR SELECT
-  USING (public.kph_has_role_for_group(group_id));
+  USING (public.maza_has_role_for_group(group_id));
 DROP POLICY IF EXISTS "ingredients_insert" ON ingredients;
 CREATE POLICY "ingredients_insert" ON ingredients FOR INSERT
-  WITH CHECK (public.kph_has_role_for_group(group_id));
+  WITH CHECK (public.maza_has_role_for_group(group_id));
 DROP POLICY IF EXISTS "ingredients_update" ON ingredients;
 CREATE POLICY "ingredients_update" ON ingredients FOR UPDATE
-  USING (public.kph_has_role_for_group(group_id))
-  WITH CHECK (public.kph_has_role_for_group(group_id));
+  USING (public.maza_has_role_for_group(group_id))
+  WITH CHECK (public.maza_has_role_for_group(group_id));
 DROP POLICY IF EXISTS "ingredients_delete" ON ingredients;
 CREATE POLICY "ingredients_delete" ON ingredients FOR DELETE
-  USING (public.kph_is_founder());
+  USING (public.maza_is_founder());
 
 DROP POLICY IF EXISTS "price_history_select" ON ingredient_price_history;
 CREATE POLICY "price_history_select" ON ingredient_price_history FOR SELECT
   USING (EXISTS (
     SELECT 1 FROM public.ingredients i
-    WHERE i.id = ingredient_id AND public.kph_has_role_for_group(i.group_id)
+    WHERE i.id = ingredient_id AND public.maza_has_role_for_group(i.group_id)
   ));
 
 DROP POLICY IF EXISTS "ri_select" ON recipe_items;
@@ -193,38 +193,38 @@ CREATE POLICY "ri_select" ON recipe_items FOR SELECT
   USING (cmv_item_id IN (
     SELECT id FROM public.cmv_items
     WHERE unit_id IS NULL
-       OR public.kph_has_role_for_unit(unit_id)
-       OR public.kph_has_role_for_brand(brand_id)
+       OR public.maza_has_role_for_unit(unit_id)
+       OR public.maza_has_role_for_brand(brand_id)
   ));
 DROP POLICY IF EXISTS "ri_insert" ON recipe_items;
 CREATE POLICY "ri_insert" ON recipe_items FOR INSERT
   WITH CHECK (cmv_item_id IN (
-    SELECT id FROM public.cmv_items WHERE public.kph_has_role_for_brand(brand_id)
+    SELECT id FROM public.cmv_items WHERE public.maza_has_role_for_brand(brand_id)
   ));
 DROP POLICY IF EXISTS "ri_update" ON recipe_items;
 CREATE POLICY "ri_update" ON recipe_items FOR UPDATE
-  USING  (cmv_item_id IN (SELECT id FROM public.cmv_items WHERE public.kph_has_role_for_brand(brand_id)))
-  WITH CHECK (cmv_item_id IN (SELECT id FROM public.cmv_items WHERE public.kph_has_role_for_brand(brand_id)));
+  USING  (cmv_item_id IN (SELECT id FROM public.cmv_items WHERE public.maza_has_role_for_brand(brand_id)))
+  WITH CHECK (cmv_item_id IN (SELECT id FROM public.cmv_items WHERE public.maza_has_role_for_brand(brand_id)));
 DROP POLICY IF EXISTS "ri_delete" ON recipe_items;
 CREATE POLICY "ri_delete" ON recipe_items FOR DELETE
-  USING (cmv_item_id IN (SELECT id FROM public.cmv_items WHERE public.kph_has_role_for_brand(brand_id)));
+  USING (cmv_item_id IN (SELECT id FROM public.cmv_items WHERE public.maza_has_role_for_brand(brand_id)));
 
 DROP POLICY IF EXISTS "rn_select" ON recipe_notes;
 CREATE POLICY "rn_select" ON recipe_notes FOR SELECT
   USING (cmv_item_id IN (
     SELECT id FROM public.cmv_items
     WHERE unit_id IS NULL
-       OR public.kph_has_role_for_unit(unit_id)
-       OR public.kph_has_role_for_brand(brand_id)
+       OR public.maza_has_role_for_unit(unit_id)
+       OR public.maza_has_role_for_brand(brand_id)
   ));
 DROP POLICY IF EXISTS "rn_insert" ON recipe_notes;
 CREATE POLICY "rn_insert" ON recipe_notes FOR INSERT
   WITH CHECK (cmv_item_id IN (
-    SELECT id FROM public.cmv_items WHERE public.kph_has_role_for_brand(brand_id)
+    SELECT id FROM public.cmv_items WHERE public.maza_has_role_for_brand(brand_id)
   ));
 DROP POLICY IF EXISTS "rn_delete" ON recipe_notes;
 CREATE POLICY "rn_delete" ON recipe_notes FOR DELETE
-  USING (public.kph_is_founder());
+  USING (public.maza_is_founder());
 
 -- ── 9. GRANTS ─────────────────────────────────────────────────
 

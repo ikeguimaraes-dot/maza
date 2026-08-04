@@ -1,4 +1,4 @@
--- KPH OS — 022_avaliacoes.sql
+-- Maza — 022_avaliacoes.sql
 -- Sprint 4 / Etapa 1 — módulo Avaliação de desempenho.
 --
 -- Pré-req: 001 (groups/brands/units + helpers RBAC) · 003 (employees).
@@ -13,7 +13,7 @@
 --   • performance_reviews.respostas é um mapa {criterio_id: valor}.
 --   • nota_geral é a média ponderada das respostas tipo 'nota_1_5' calculada
 --     pela app no save (não via GENERATED — depende de criterios em outra row).
---   • RLS em templates: kph_has_role_for_brand (espelha training_templates).
+--   • RLS em templates: maza_has_role_for_brand (espelha training_templates).
 --   • RLS em reviews: cascade via employee.unit_id (espelha training_records).
 
 -- ── TABELAS ────────────────────────────────────────────────────
@@ -82,50 +82,50 @@ ALTER TABLE performance_reviews   ENABLE ROW LEVEL SECURITY;
 --                        DELETE só founder.
 DROP POLICY IF EXISTS "pt_select" ON performance_templates;
 CREATE POLICY "pt_select" ON performance_templates FOR SELECT
-  USING (kph_has_role_for_brand(brand_id));
+  USING (maza_has_role_for_brand(brand_id));
 
 DROP POLICY IF EXISTS "pt_insert" ON performance_templates;
 CREATE POLICY "pt_insert" ON performance_templates FOR INSERT
-  WITH CHECK (kph_has_role_for_brand(brand_id));
+  WITH CHECK (maza_has_role_for_brand(brand_id));
 
 DROP POLICY IF EXISTS "pt_update" ON performance_templates;
 CREATE POLICY "pt_update" ON performance_templates FOR UPDATE
-  USING (kph_has_role_for_brand(brand_id))
-  WITH CHECK (kph_has_role_for_brand(brand_id));
+  USING (maza_has_role_for_brand(brand_id))
+  WITH CHECK (maza_has_role_for_brand(brand_id));
 
 DROP POLICY IF EXISTS "pt_delete" ON performance_templates;
 CREATE POLICY "pt_delete" ON performance_templates FOR DELETE
-  USING (kph_is_founder());
+  USING (maza_is_founder());
 
 -- performance_reviews: cascade via employee.unit_id.
 DROP POLICY IF EXISTS "pr_select" ON performance_reviews;
 CREATE POLICY "pr_select" ON performance_reviews FOR SELECT
   USING (EXISTS (
     SELECT 1 FROM employees e
-    WHERE e.id = employee_id AND kph_has_role_for_unit(e.unit_id)
+    WHERE e.id = employee_id AND maza_has_role_for_unit(e.unit_id)
   ));
 
 DROP POLICY IF EXISTS "pr_insert" ON performance_reviews;
 CREATE POLICY "pr_insert" ON performance_reviews FOR INSERT
   WITH CHECK (EXISTS (
     SELECT 1 FROM employees e
-    WHERE e.id = employee_id AND kph_has_role_for_unit(e.unit_id)
+    WHERE e.id = employee_id AND maza_has_role_for_unit(e.unit_id)
   ));
 
 DROP POLICY IF EXISTS "pr_update" ON performance_reviews;
 CREATE POLICY "pr_update" ON performance_reviews FOR UPDATE
   USING (EXISTS (
     SELECT 1 FROM employees e
-    WHERE e.id = employee_id AND kph_has_role_for_unit(e.unit_id)
+    WHERE e.id = employee_id AND maza_has_role_for_unit(e.unit_id)
   ))
   WITH CHECK (EXISTS (
     SELECT 1 FROM employees e
-    WHERE e.id = employee_id AND kph_has_role_for_unit(e.unit_id)
+    WHERE e.id = employee_id AND maza_has_role_for_unit(e.unit_id)
   ));
 
 DROP POLICY IF EXISTS "pr_delete" ON performance_reviews;
 CREATE POLICY "pr_delete" ON performance_reviews FOR DELETE
-  USING (kph_is_founder());
+  USING (maza_is_founder());
 
 -- ── GRANTS ─────────────────────────────────────────────────────
 GRANT SELECT, INSERT, UPDATE, DELETE ON performance_templates TO authenticated;

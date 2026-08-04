@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
-// KPH OS — projeto kph-os-dev
+// Maza — projeto maza-dev
 // Migrado em 2026-04-27 do projeto HOS antigo (afxsrcezmetipzgosdvb)
-// para o KPH OS (iqgrvptrtphvbmvrqntm).
+// para o Maza (iqgrvptrtphvbmvrqntm).
 const supabaseUrl = 'https://iqgrvptrtphvbmvrqntm.supabase.co';
 
 // SERVICE ROLE: o app autentica manualmente via tabela employee_auth (CPF + senha)

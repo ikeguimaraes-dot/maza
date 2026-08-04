@@ -75,9 +75,9 @@ export default function CampanhasScreen() {
   async function fetchCampaigns() {
     if (!employee) return;
 
-    // KPH OS multi-tenant: campaigns.brand_id (FK brands). Resolvemos o
+    // Maza multi-tenant: campaigns.brand_id (FK brands). Resolvemos o
     // brand do usuario via employees → units → brand_id, e filtramos.
-    // target='company' do schema antigo nao existe no KPH OS; aceitamos
+    // target='company' do schema antigo nao existe no Maza; aceitamos
     // 'all' OR ('department' AND target_value=<dept>).
     const { data: empRow } = await supabase
       .from('employees')
@@ -108,7 +108,7 @@ export default function CampanhasScreen() {
     if (error) console.error('[CAMPANHAS] error:', error);
 
     // Filtro de departamento client-side (PostgREST.or aninhado fica
-    // ilegivel). KPH OS: target='all' | 'department'.
+    // ilegivel). Maza: target='all' | 'department'.
     const filtered = (data || []).filter((c: any) => {
       if (c.target === 'department') {
         return c.target_value === employee.departamento;
@@ -116,7 +116,7 @@ export default function CampanhasScreen() {
       return c.target === 'all';
     });
 
-    // KPH OS: campaigns.image_url eh path no bucket campaign-images (public read).
+    // Maza: campaigns.image_url eh path no bucket campaign-images (public read).
     // Resolvemos pra URL pública aqui pra simplificar a renderizacao.
     const withUrls = filtered.map((c: any) => {
       if (!c.image_url || /^https?:\/\//.test(c.image_url)) return c;

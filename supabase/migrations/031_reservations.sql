@@ -34,13 +34,13 @@ alter table reservations enable row level security;
 
 create policy "unit members can select reservations"
   on reservations for select
-  using (kph_has_role_for_unit(unit_id));
+  using (maza_has_role_for_unit(unit_id));
 
 create policy "unit members can insert reservations"
   on reservations for insert
-  with check (kph_has_role_for_unit(unit_id));
+  with check (maza_has_role_for_unit(unit_id));
 
 create policy "unit members can update reservations"
   on reservations for update
-  using (kph_has_role_for_unit(unit_id))
-  with check (kph_has_role_for_unit(unit_id));
+  using (maza_has_role_for_unit(unit_id))
+  with check (maza_has_role_for_unit(unit_id));

@@ -39,22 +39,22 @@ CREATE POLICY "emp_docs_select" ON employee_documents FOR SELECT
   USING (EXISTS (
     SELECT 1 FROM public.employees e
     WHERE e.id = employee_id
-      AND (e.user_id = auth.uid() OR public.kph_has_role_for_unit(e.unit_id))
+      AND (e.user_id = auth.uid() OR public.maza_has_role_for_unit(e.unit_id))
   ));
 
 CREATE POLICY "emp_docs_insert" ON employee_documents FOR INSERT
   WITH CHECK (EXISTS (
     SELECT 1 FROM public.employees e
     WHERE e.id = employee_id
-      AND public.kph_has_role_for_unit(e.unit_id)
+      AND public.maza_has_role_for_unit(e.unit_id)
   ));
 
 CREATE POLICY "emp_docs_update" ON employee_documents FOR UPDATE
   USING (EXISTS (
     SELECT 1 FROM public.employees e
     WHERE e.id = employee_id
-      AND public.kph_has_role_for_unit(e.unit_id)
+      AND public.maza_has_role_for_unit(e.unit_id)
   ));
 
 CREATE POLICY "emp_docs_delete" ON employee_documents FOR DELETE
-  USING (public.kph_is_founder());
+  USING (public.maza_is_founder());

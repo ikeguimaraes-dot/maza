@@ -41,7 +41,7 @@ export default function CandidateLoginScreen({ navigation }: any) {
 
       const candidate = data as Candidate;
 
-      // KPH OS: ciclo da entrevista vai em interview_status (status agora
+      // Maza: ciclo da entrevista vai em interview_status (status agora
       // eh decisao do RH — pendente/aprovado/reprovado). O app so toca em
       // interview_status.
       if (candidate.interview_status === 'concluido') {

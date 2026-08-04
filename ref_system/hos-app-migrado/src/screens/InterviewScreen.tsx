@@ -58,14 +58,14 @@ export default function InterviewScreen({ route, navigation }: any) {
 
   async function initInterview() {
     try {
-      // KPH OS: ciclo da entrevista usa interview_status (vs status antigo).
+      // Maza: ciclo da entrevista usa interview_status (vs status antigo).
       // status agora eh decisao do RH — nao mexer aqui.
       await supabase
         .from('candidates')
         .update({ interview_status: 'em_andamento' })
         .eq('id', candidate.id);
 
-      // KPH OS: interview_questions.order_num (vs ordem).
+      // Maza: interview_questions.order_num (vs ordem).
       const { data: questionsData, error: questionsError } = await supabase
         .from('interview_questions')
         .select('*')
@@ -105,7 +105,7 @@ export default function InterviewScreen({ route, navigation }: any) {
 
   async function loadQuestionVideo(question: InterviewQuestion) {
     setLoadingVideo(true);
-    // KPH OS: video_url (vs video_path antigo). Pode ser null (RH ainda
+    // Maza: video_url (vs video_path antigo). Pode ser null (RH ainda
     // nao gravou) — nesse caso, mostramos a pergunta em texto.
     if (!question.video_url) {
       setQuestionVideoUrl(null);
@@ -279,7 +279,7 @@ export default function InterviewScreen({ route, navigation }: any) {
         </View>
       </View>
 
-      {/* Vídeo da pergunta — KPH OS: pode nao ter video, mostra texto. */}
+      {/* Vídeo da pergunta — Maza: pode nao ter video, mostra texto. */}
       <View style={styles.questionVideoContainer}>
         {loadingVideo ? (
           <ActivityIndicator size="large" color="#FFF" />

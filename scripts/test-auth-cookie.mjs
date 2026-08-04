@@ -126,7 +126,7 @@ const FAKE_SESSION = {
   token_type: "bearer",
   user: {
     id: "user-test-123",
-    email: "ike@kph.os",
+    email: "admin@maza.com.br",
     role: "authenticated",
   },
 };

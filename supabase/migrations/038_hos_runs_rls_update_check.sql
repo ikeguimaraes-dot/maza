@@ -8,5 +8,5 @@ DROP POLICY IF EXISTS "Admins podem atualizar execucoes" ON public.hos_runs;
 CREATE POLICY "Admins podem atualizar execucoes"
     ON public.hos_runs FOR UPDATE
     TO authenticated
-    USING (public.kph_has_role_for_unit(null) OR public.kph_is_founder())
-    WITH CHECK (public.kph_has_role_for_unit(null) OR public.kph_is_founder());
+    USING (public.maza_has_role_for_unit(null) OR public.maza_is_founder())
+    WITH CHECK (public.maza_has_role_for_unit(null) OR public.maza_is_founder());

@@ -1,5 +1,5 @@
--- KPH OS — Fase 1 / Módulo Pessoas
--- Aplicar APÓS 001 + 002 (helpers RBAC kph_has_role_for_unit precisam existir).
+-- Maza — Fase 1 / Módulo Pessoas
+-- Aplicar APÓS 001 + 002 (helpers RBAC maza_has_role_for_unit precisam existir).
 -- Idempotente.
 
 -- ── Colaboradores ──────────────────────────────────────────────
@@ -130,36 +130,36 @@ ALTER TABLE cct_versions        ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "employees_select" ON employees;
 CREATE POLICY "employees_select" ON employees FOR SELECT
-  USING (kph_has_role_for_unit(unit_id));
+  USING (maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "employees_insert" ON employees;
 CREATE POLICY "employees_insert" ON employees FOR INSERT
-  WITH CHECK (kph_has_role_for_unit(unit_id));
+  WITH CHECK (maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "employees_update" ON employees;
 CREATE POLICY "employees_update" ON employees FOR UPDATE
-  USING (kph_has_role_for_unit(unit_id));
+  USING (maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "shifts_select" ON shifts;
 CREATE POLICY "shifts_select" ON shifts FOR SELECT
-  USING (kph_has_role_for_unit(unit_id));
+  USING (maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "shifts_all" ON shifts;
 CREATE POLICY "shifts_all" ON shifts FOR ALL
-  USING (kph_has_role_for_unit(unit_id));
+  USING (maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "punches_select" ON time_clock_punches;
 CREATE POLICY "punches_select" ON time_clock_punches FOR SELECT
   USING (EXISTS (
     SELECT 1 FROM employees e
-    WHERE e.id = employee_id AND kph_has_role_for_unit(e.unit_id)
+    WHERE e.id = employee_id AND maza_has_role_for_unit(e.unit_id)
   ));
 
 DROP POLICY IF EXISTS "payslips_select" ON payslips;
 CREATE POLICY "payslips_select" ON payslips FOR SELECT
   USING (EXISTS (
     SELECT 1 FROM employees e
-    WHERE e.id = employee_id AND kph_has_role_for_unit(e.unit_id)
+    WHERE e.id = employee_id AND maza_has_role_for_unit(e.unit_id)
   ));
 
 DROP POLICY IF EXISTS "cct_select" ON cct_versions;

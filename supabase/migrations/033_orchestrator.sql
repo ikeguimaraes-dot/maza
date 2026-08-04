@@ -57,43 +57,43 @@ ALTER TABLE public.hos_runs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.hos_approvals ENABLE ROW LEVEL SECURITY;
 
 -- Políticas de RLS para Orquestrador (Apenas roles administrativas)
--- Assumindo que kph_is_founder() e roles existem na estrutura base
+-- Assumindo que maza_is_founder() e roles existem na estrutura base
 CREATE POLICY "Admins podem ver todos os jobs"
     ON public.hos_jobs FOR SELECT
     TO authenticated
-    USING (public.kph_has_role_for_unit(null) OR public.kph_is_founder());
+    USING (public.maza_has_role_for_unit(null) OR public.maza_is_founder());
 
 CREATE POLICY "Admins podem inserir jobs"
     ON public.hos_jobs FOR INSERT
     TO authenticated
-    WITH CHECK (public.kph_is_founder());
+    WITH CHECK (public.maza_is_founder());
 
 CREATE POLICY "Admins podem atualizar jobs"
     ON public.hos_jobs FOR UPDATE
     TO authenticated
-    USING (public.kph_is_founder());
+    USING (public.maza_is_founder());
 
 CREATE POLICY "Admins podem ver todas as execucoes"
     ON public.hos_runs FOR SELECT
     TO authenticated
-    USING (public.kph_has_role_for_unit(null) OR public.kph_is_founder());
+    USING (public.maza_has_role_for_unit(null) OR public.maza_is_founder());
 
 -- Os agentes podem inserir/atualizar (via service role / rotas backend) então o RLS normal não bloqueia o server.
 -- O painel UI (usuário autenticado) pode atualizar (por exemplo, quando muda o status apos aprovacao)
 CREATE POLICY "Admins podem atualizar execucoes"
     ON public.hos_runs FOR UPDATE
     TO authenticated
-    USING (public.kph_has_role_for_unit(null) OR public.kph_is_founder());
+    USING (public.maza_has_role_for_unit(null) OR public.maza_is_founder());
 
 CREATE POLICY "Admins podem ver aprovacoes"
     ON public.hos_approvals FOR SELECT
     TO authenticated
-    USING (public.kph_has_role_for_unit(null) OR public.kph_is_founder());
+    USING (public.maza_has_role_for_unit(null) OR public.maza_is_founder());
 
 CREATE POLICY "Admins podem inserir aprovacoes"
     ON public.hos_approvals FOR INSERT
     TO authenticated
-    WITH CHECK (public.kph_has_role_for_unit(null) OR public.kph_is_founder());
+    WITH CHECK (public.maza_has_role_for_unit(null) OR public.maza_is_founder());
 
 -- Seeds de jobs padrao
 INSERT INTO public.hos_jobs (name, slug, description) VALUES

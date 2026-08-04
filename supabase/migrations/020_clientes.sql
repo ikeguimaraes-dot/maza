@@ -1,4 +1,4 @@
--- KPH OS — 020_clientes.sql
+-- Maza — 020_clientes.sql
 -- Sprint 3 / Etapa 2 — módulo Cliente / CRM.
 --
 -- Pré-req: 001 (groups/brands/units + helpers RBAC) · 008 (events).
@@ -56,50 +56,50 @@ ALTER TABLE client_interactions  ENABLE ROW LEVEL SECURITY;
 -- clients: SELECT/INSERT/UPDATE via role na unit; DELETE só founder.
 DROP POLICY IF EXISTS "clients_select" ON clients;
 CREATE POLICY "clients_select" ON clients FOR SELECT
-  USING (kph_has_role_for_unit(unit_id));
+  USING (maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "clients_insert" ON clients;
 CREATE POLICY "clients_insert" ON clients FOR INSERT
-  WITH CHECK (kph_has_role_for_unit(unit_id));
+  WITH CHECK (maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "clients_update" ON clients;
 CREATE POLICY "clients_update" ON clients FOR UPDATE
-  USING (kph_has_role_for_unit(unit_id))
-  WITH CHECK (kph_has_role_for_unit(unit_id));
+  USING (maza_has_role_for_unit(unit_id))
+  WITH CHECK (maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "clients_delete" ON clients;
 CREATE POLICY "clients_delete" ON clients FOR DELETE
-  USING (kph_is_founder());
+  USING (maza_is_founder());
 
 -- client_interactions: cascade via parent client.
 DROP POLICY IF EXISTS "client_interactions_select" ON client_interactions;
 CREATE POLICY "client_interactions_select" ON client_interactions FOR SELECT
   USING (EXISTS (
     SELECT 1 FROM clients c
-    WHERE c.id = client_id AND kph_has_role_for_unit(c.unit_id)
+    WHERE c.id = client_id AND maza_has_role_for_unit(c.unit_id)
   ));
 
 DROP POLICY IF EXISTS "client_interactions_insert" ON client_interactions;
 CREATE POLICY "client_interactions_insert" ON client_interactions FOR INSERT
   WITH CHECK (EXISTS (
     SELECT 1 FROM clients c
-    WHERE c.id = client_id AND kph_has_role_for_unit(c.unit_id)
+    WHERE c.id = client_id AND maza_has_role_for_unit(c.unit_id)
   ));
 
 DROP POLICY IF EXISTS "client_interactions_update" ON client_interactions;
 CREATE POLICY "client_interactions_update" ON client_interactions FOR UPDATE
   USING (EXISTS (
     SELECT 1 FROM clients c
-    WHERE c.id = client_id AND kph_has_role_for_unit(c.unit_id)
+    WHERE c.id = client_id AND maza_has_role_for_unit(c.unit_id)
   ))
   WITH CHECK (EXISTS (
     SELECT 1 FROM clients c
-    WHERE c.id = client_id AND kph_has_role_for_unit(c.unit_id)
+    WHERE c.id = client_id AND maza_has_role_for_unit(c.unit_id)
   ));
 
 DROP POLICY IF EXISTS "client_interactions_delete" ON client_interactions;
 CREATE POLICY "client_interactions_delete" ON client_interactions FOR DELETE
-  USING (kph_is_founder());
+  USING (maza_is_founder());
 
 -- ── GRANTS ─────────────────────────────────────────────────────
 GRANT SELECT, INSERT, UPDATE, DELETE ON clients             TO authenticated;

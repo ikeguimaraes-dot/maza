@@ -1,5 +1,5 @@
 -- Migration 048 — candidatos_maya
--- Leads WhatsApp do agente R&S Maya — separado da tabela candidates (pipeline web KPH OS)
+-- Leads WhatsApp do agente R&S Maya — separado da tabela candidates (pipeline web Maza)
 
 CREATE TABLE IF NOT EXISTS public.candidatos_maya (
   id              UUID        PRIMARY KEY DEFAULT gen_random_uuid(),

@@ -1,4 +1,4 @@
--- KPH OS — 010_financeiro.sql
+-- Maza — 010_financeiro.sql
 -- Fase E4 — módulo Financeiro: períodos, projeção, lançamentos, CMV,
 -- aprovações, config por marca + DRE/gap/CMV/aprovações em views.
 -- DEPRECATED: cmv_items renamed to menu_items in migration 028 (nunca rodou em produção).
@@ -245,7 +245,7 @@ ALTER TABLE brand_financial_config  ENABLE ROW LEVEL SECURITY;
 -- financial_periods
 DROP POLICY IF EXISTS "fp_select" ON financial_periods;
 CREATE POLICY "fp_select" ON financial_periods FOR SELECT
-  USING (kph_has_role_for_brand(brand_id));
+  USING (maza_has_role_for_brand(brand_id));
 
 DROP POLICY IF EXISTS "fp_write" ON financial_periods;
 CREATE POLICY "fp_write" ON financial_periods FOR ALL
@@ -270,7 +270,7 @@ CREATE POLICY "cfe_select" ON cash_flow_entries FOR SELECT
   USING (EXISTS (
     SELECT 1 FROM financial_periods fp
     WHERE fp.id = cash_flow_entries.period_id
-      AND kph_has_role_for_brand(fp.brand_id)
+      AND maza_has_role_for_brand(fp.brand_id)
   ));
 
 DROP POLICY IF EXISTS "cfe_insert" ON cash_flow_entries;
@@ -312,7 +312,7 @@ CREATE POLICY "cfp_select" ON cash_flow_projections FOR SELECT
   USING (EXISTS (
     SELECT 1 FROM financial_periods fp
     WHERE fp.id = cash_flow_projections.period_id
-      AND kph_has_role_for_brand(fp.brand_id)
+      AND maza_has_role_for_brand(fp.brand_id)
   ));
 
 DROP POLICY IF EXISTS "cfp_write" ON cash_flow_projections;
@@ -337,7 +337,7 @@ CREATE POLICY "cfp_write" ON cash_flow_projections FOR ALL
 -- cmv_items
 DROP POLICY IF EXISTS "cmv_select" ON cmv_items;
 CREATE POLICY "cmv_select" ON cmv_items FOR SELECT
-  USING (kph_has_role_for_brand(brand_id));
+  USING (maza_has_role_for_brand(brand_id));
 
 DROP POLICY IF EXISTS "cmv_write" ON cmv_items;
 CREATE POLICY "cmv_write" ON cmv_items FOR ALL
@@ -390,7 +390,7 @@ CREATE POLICY "ar_write" ON approval_requests FOR ALL
 -- brand_financial_config
 DROP POLICY IF EXISTS "bfc_select" ON brand_financial_config;
 CREATE POLICY "bfc_select" ON brand_financial_config FOR SELECT
-  USING (kph_has_role_for_brand(brand_id));
+  USING (maza_has_role_for_brand(brand_id));
 
 DROP POLICY IF EXISTS "bfc_write" ON brand_financial_config;
 CREATE POLICY "bfc_write" ON brand_financial_config FOR ALL

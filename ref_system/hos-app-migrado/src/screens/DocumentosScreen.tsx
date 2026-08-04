@@ -22,7 +22,7 @@ import { supabase } from '../lib/supabase';
 import { getSession } from '../lib/auth';
 import { COLORS } from '../lib/types';
 
-// KPH OS documents: type CHECK IN ('RG','CPF','CTPS','contrato','exame','outro').
+// Maza documents: type CHECK IN ('RG','CPF','CTPS','contrato','exame','outro').
 type DocType = 'RG' | 'CPF' | 'CTPS' | 'contrato' | 'exame' | 'outro';
 const DOC_TYPE_OPTIONS: ReadonlyArray<{ value: DocType; label: string }> = [
   { value: 'RG', label: 'RG' },
@@ -55,7 +55,7 @@ export default function DocumentosScreen({ navigation }: any) {
     { uri: string; name: string; mimeType: string } | null
   >(null);
   const [employeeId, setEmployeeId] = useState<string | null>(null);
-  // KPH OS documents.unit_id eh NOT NULL — buscamos do employee na sessao.
+  // Maza documents.unit_id eh NOT NULL — buscamos do employee na sessao.
   const [unitId, setUnitId] = useState<string | null>(null);
   const [viewerUrl, setViewerUrl] = useState<string | null>(null);
 
@@ -99,7 +99,7 @@ export default function DocumentosScreen({ navigation }: any) {
     setRefreshing(false);
   }, [employeeId]);
 
-  // Fluxo KPH OS: usuario seleciona o ARQUIVO primeiro, depois o TIPO (enum
+  // Fluxo Maza: usuario seleciona o ARQUIVO primeiro, depois o TIPO (enum
   // com 6 valores). Antes era inferido por substring do nome — agora eh explicito.
   function pickAndOpenTypeChooser(file: { uri: string; name: string; mimeType: string }) {
     setPendingFile(file);
@@ -134,7 +134,7 @@ export default function DocumentosScreen({ navigation }: any) {
         throw new Error(storageError.message);
       }
 
-      // KPH OS exige unit_id no insert (FK NOT NULL).
+      // Maza exige unit_id no insert (FK NOT NULL).
       const { error: insertError } = await supabase
         .from('documents')
         .insert({
@@ -218,7 +218,7 @@ export default function DocumentosScreen({ navigation }: any) {
   }
 
   function getIcon(type: DocType) {
-    // Icones por tipo de documento KPH OS.
+    // Icones por tipo de documento Maza.
     if (type === 'RG' || type === 'CPF' || type === 'CTPS') return '📋';
     if (type === 'contrato') return '📄';
     if (type === 'exame') return '🩺';
@@ -349,7 +349,7 @@ export default function DocumentosScreen({ navigation }: any) {
         </Pressable>
       </Modal>
 
-      {/* Tipo do documento — KPH OS exige enum (RG/CPF/CTPS/contrato/exame/outro). */}
+      {/* Tipo do documento — Maza exige enum (RG/CPF/CTPS/contrato/exame/outro). */}
       <Modal
         visible={typeModalVisible}
         transparent

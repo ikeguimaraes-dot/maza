@@ -27,14 +27,14 @@ const MESES: Record<string, string> = {
 
 function formatPeriodo(periodo: string): string {
   if (!periodo) return '—';
-  // KPH OS: payslips.competencia eh DATE (YYYY-MM-DD); pegamos so YYYY-MM.
+  // Maza: payslips.competencia eh DATE (YYYY-MM-DD); pegamos so YYYY-MM.
   const [ano, mes] = periodo.split('-');
   return `${MESES[mes] || mes} ${ano}`;
 }
 
 function formatCurrency(value?: number | string | null): string {
   if (value == null || value === '') return '—';
-  // KPH OS: NUMERIC vem como string do PostgREST — converter aqui.
+  // Maza: NUMERIC vem como string do PostgREST — converter aqui.
   const n = typeof value === 'string' ? Number(value) : value;
   if (!Number.isFinite(n)) return '—';
   return `R$ ${n.toFixed(2).replace('.', ',')}`;
@@ -42,7 +42,7 @@ function formatCurrency(value?: number | string | null): string {
 
 interface PodiumEmployee {
   id: string;
-  // KPH OS: nome + sobrenome separados (vs full_name antigo).
+  // Maza: nome + sobrenome separados (vs full_name antigo).
   nome: string;
   sobrenome: string;
   photo_url?: string;
@@ -51,7 +51,7 @@ interface PodiumEmployee {
 
 interface DashboardData {
   score: number | null;
-  // KPH OS: payslips.competencia (DATE) + payslips.liquido (vs periodo TEXT + valor_liquido).
+  // Maza: payslips.competencia (DATE) + payslips.liquido (vs periodo TEXT + valor_liquido).
   ultimoHolerite: { competencia: string; liquido: number } | null;
   bancoHoras: { saldo_banco: string; banco_horas_acumulado: string } | null;
   faltasMes: number;
@@ -90,12 +90,12 @@ export default function HomeScreen({ navigation }: any) {
 
     const [scoreRes, holeriteRes, bancoRes, faltasRes, podiumRes] = await Promise.all([
       supabase.from('employees').select('score, photo_url').eq('id', empId).single(),
-      // KPH OS: competencia (DATE), liquido (NUMERIC).
+      // Maza: competencia (DATE), liquido (NUMERIC).
       supabase.from('payslips').select('competencia, liquido').eq('employee_id', empId).order('competencia', { ascending: false }).limit(1).maybeSingle(),
       supabase.from('time_records').select('saldo_banco, banco_horas_acumulado').eq('employee_id', empId).order('periodo', { ascending: false }).limit(1).maybeSingle(),
-      // KPH OS: absences.data (vs date).
+      // Maza: absences.data (vs date).
       supabase.from('absences').select('id', { count: 'exact', head: true }).eq('employee_id', empId).gte('data', firstOfMonth),
-      // KPH OS: nome + sobrenome.
+      // Maza: nome + sobrenome.
       supabase.from('employees').select('id, nome, sobrenome, photo_url, score').not('score', 'is', null).order('score', { ascending: false }).limit(3),
     ]);
 

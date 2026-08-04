@@ -1,4 +1,4 @@
--- KPH OS — 024_notificacoes.sql
+-- Maza — 024_notificacoes.sql
 -- Sprint 4 / Etapa 4 — módulo Notificações in-app.
 --
 -- Pré-req: nenhum (auth.users é parte do Supabase).

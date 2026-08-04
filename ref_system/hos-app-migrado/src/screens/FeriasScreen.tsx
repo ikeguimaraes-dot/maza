@@ -74,7 +74,7 @@ export default function FeriasScreen({ navigation }: any) {
       }
       setEmployeeId(session.employee.id);
 
-      // KPH OS: vacations exige unit_id NOT NULL — busca via JOIN em employees.
+      // Maza: vacations exige unit_id NOT NULL — busca via JOIN em employees.
       const { data: emp } = await supabase
         .from('employees')
         .select('unit_id')
@@ -91,8 +91,8 @@ export default function FeriasScreen({ navigation }: any) {
   async function fetchFerias() {
     if (!employeeId) return;
 
-    // KPH OS: time_records mantem o mesmo schema (ferias_dias). Se a tabela
-    // vacations tiver dados (modulo Ferias do painel KPH OS), tambem inclui.
+    // Maza: time_records mantem o mesmo schema (ferias_dias). Se a tabela
+    // vacations tiver dados (modulo Ferias do painel Maza), tambem inclui.
     const [timeRes, vacationsRes] = await Promise.all([
       supabase
         .from('time_records')
@@ -151,7 +151,7 @@ export default function FeriasScreen({ navigation }: any) {
       return;
     }
     setSubmitting(true);
-    // KPH OS: vacations.status='agendada' até o admin aprovar (em_andamento)
+    // Maza: vacations.status='agendada' até o admin aprovar (em_andamento)
     // ou rejeitar (cancelada). created_by NULL identifica solicitação via app.
     const { error } = await supabase.from('vacations').insert({
       employee_id: employeeId,

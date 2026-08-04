@@ -1,0 +1,460 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-instrument-sans, system-ui, sans-serif);
+  --font-mono: var(--font-instrument-sans, monospace);
+  --font-heading: var(--font-fraunces, Georgia, serif);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* ── Light fallback (nunca mostrado — app é always dark) ── */
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+/* ══════════════════════════════════════════════════════
+   MAZA DESIGN SYSTEM — Dark Theme
+   Paleta: Carvão · Creme · Brasa · Pedra · Ouro
+   Fontes: Fraunces (display) · Instrument Sans (UI)
+   ══════════════════════════════════════════════════════ */
+.dark {
+  /* ── Shadcn/Tailwind semantic tokens (requeried by components) ── */
+  --background:            #111110;
+  --foreground:            #F5F0E8;
+  --card:                  #1A1A18;
+  --card-foreground:       #F5F0E8;
+  --popover:               #222220;
+  --popover-foreground:    #F5F0E8;
+  --primary:               #C4622D;       /* Brasa — ação principal */
+  --primary-foreground:    #F5F0E8;
+  --secondary:             #242422;
+  --secondary-foreground:  #F5F0E8;
+  --muted:                 #242422;
+  --muted-foreground:      #8A8278;       /* Pedra */
+  --accent:                rgba(196,98,45,0.12);
+  --accent-foreground:     #C4622D;
+  --destructive:           #FCA5A5;
+  --border:                rgba(245,240,232,0.08);
+  --input:                 rgba(245,240,232,0.06);
+  --ring:                  #C4622D;
+  --chart-1:               #C4622D;       /* Brasa */
+  --chart-2:               #B8975A;       /* Ouro */
+  --chart-3:               #8A8278;       /* Pedra */
+  --chart-4:               #F5F0E8;       /* Creme */
+  --chart-5:               #4ADE80;
+  --radius:                0.625rem;
+  --sidebar:               #151513;
+  --sidebar-foreground:    #F5F0E8;
+  --sidebar-primary:       #C4622D;
+  --sidebar-primary-foreground: #F5F0E8;
+  --sidebar-accent:        rgba(196,98,45,0.08);
+  --sidebar-accent-foreground: #F5F0E8;
+  --sidebar-border:        rgba(245,240,232,0.06);
+  --sidebar-ring:          #C4622D;
+
+  /* ── MAZA Brand tokens primitivos ── */
+  --maza-carvao:   #1A1A1A;
+  --maza-creme:    #F5F0E8;
+  --maza-brasa:    #C4622D;
+  --maza-pedra:    #8A8278;
+  --maza-ouro:     #B8975A;
+
+  /* ── Semantic (custom components, inline styles) ── */
+  --bg:              #111110;
+  --surface:         #1A1A18;
+  --surface-2:       #222220;
+  --surface-3:       #2C2C2A;
+  --surface-hover:   rgba(245,240,232,0.04);
+  --text:            #F5F0E8;
+  --text-2:          #C4BDB4;
+  --text-3:          #A09890;
+  --border-soft:     rgba(245,240,232,0.08);
+  --border-hover:    rgba(245,240,232,0.16);
+  --border-active:   rgba(196,98,45,0.4);
+  --border-strong:   rgba(245,240,232,0.14);
+  --brand:           #C4622D;
+  --brand-soft:      rgba(196,98,45,0.10);
+  --brand-hover:     rgba(196,98,45,0.16);
+  --brand-strong:    #A84E22;
+  --ouro:            #B8975A;
+  --ouro-soft:       rgba(184,151,90,0.12);
+
+  /* ── Status ── */
+  --color-success:    #4ADE80;
+  --color-success-bg: rgba(74,222,128,0.08);
+  --color-warning:    #FCD34D;
+  --color-warning-bg: rgba(252,211,77,0.08);
+  --color-danger:     #FCA5A5;
+  --color-danger-bg:  rgba(252,165,165,0.08);
+  --color-info:       #C4622D;
+  --color-info-bg:    rgba(196,98,45,0.08);
+
+  /* ── Typography ── */
+  --font-display:    var(--font-fraunces, Georgia, serif);
+  --font-ui:         var(--font-instrument-sans, system-ui, sans-serif);
+
+  /* ── Spacing (8px grid) ── */
+  --sp-1: 0.25rem; --sp-2: 0.5rem; --sp-3: 0.75rem;
+  --sp-4: 1rem;    --sp-6: 1.5rem; --sp-8: 2rem;
+  --sp-12: 3rem;   --sp-16: 4rem;
+
+  /* ── Radius ── */
+  --r-sm:   4px;
+  --r-md:   6px;
+  --r-lg:   10px;
+  --r-xl:   14px;
+  --r-full: 9999px;
+
+  /* ── Shadows ── */
+  --shadow-sm:    0 1px 2px rgba(0,0,0,0.5);
+  --shadow-md:    0 4px 12px rgba(0,0,0,0.6);
+  --shadow-lg:    0 8px 32px rgba(0,0,0,0.7);
+  --shadow-brasa: 0 0 20px rgba(196,98,45,0.12);
+  --shadow-card:  0 1px 3px rgba(0,0,0,0.4), 0 0 0 1px rgba(245,240,232,0.04);
+
+  /* ── Transitions ── */
+  --t:         180ms ease;
+  --t-fast:    120ms ease;
+  --t-slow:    300ms ease;
+  --t-spring:  350ms cubic-bezier(0.34,1.56,0.64,1);
+}
+
+/* ══════════════════════════════════════════════════════
+   BASE RESETS
+   ══════════════════════════════════════════════════════ */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    box-sizing: border-box;
+  }
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-ui);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+/* ── Seleção de texto ── */
+::selection {
+  background: rgba(196,98,45,0.28);
+  color: #F5F0E8;
+}
+
+/* ── Focus visible global ── */
+*:focus { outline: none; }
+*:focus-visible {
+  outline: 1.5px solid var(--maza-brasa, #C4622D);
+  outline-offset: 2px;
+  border-radius: var(--r-sm, 4px);
+}
+
+/* ── Scrollbar premium ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(245,240,232,0.12);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(245,240,232,0.22);
+}
+
+/* ══════════════════════════════════════════════════════
+   ANIMATIONS
+   ══════════════════════════════════════════════════════ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slideRight {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes shimmer {
+  from { background-position: -600px 0; }
+  to   { background-position:  600px 0; }
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.6; transform: scale(0.85); }
+}
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)  scale(1); }
+}
+
+.anim-fade-up    { animation: fadeUp   250ms ease both; }
+.anim-fade-in    { animation: fadeIn   200ms ease both; }
+.anim-slide-right { animation: slideRight 200ms ease both; }
+.anim-count-up   { animation: countUp  400ms var(--t-spring, cubic-bezier(0.34,1.56,0.64,1)) both; }
+
+/* Stagger para listas */
+.stagger > *:nth-child(1) { animation-delay:   0ms; }
+.stagger > *:nth-child(2) { animation-delay:  40ms; }
+.stagger > *:nth-child(3) { animation-delay:  80ms; }
+.stagger > *:nth-child(4) { animation-delay: 120ms; }
+.stagger > *:nth-child(5) { animation-delay: 160ms; }
+.stagger > *:nth-child(6) { animation-delay: 200ms; }
+.stagger > *:nth-child(7) { animation-delay: 240ms; }
+.stagger > *:nth-child(8) { animation-delay: 280ms; }
+
+/* Skeleton shimmer */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--surface, #1A1A18) 25%,
+    var(--surface-3, #2C2C2A) 50%,
+    var(--surface, #1A1A18) 75%
+  );
+  background-size: 600px 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+  border-radius: var(--r-md, 6px);
+}
+
+/* Live dot pulsante */
+.live-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--color-success, #4ADE80);
+  animation: pulse-dot 1.8s ease-in-out infinite;
+  display: inline-block;
+}
+
+/* Linha Ouro — detalhe premium nos KPI cards */
+.kpi-accent-line::before {
+  content: '';
+  display: block;
+  height: 1.5px;
+  width: 100%;
+  background: linear-gradient(90deg, var(--maza-ouro, #B8975A) 0%, transparent 70%);
+  margin-bottom: 14px;
+  border-radius: 2px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration:  0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   SHELL RESPONSIVO
+   ══════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+  .shell-sidebar {
+    position: fixed !important;
+    top: 0; left: 0; bottom: 0;
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+  }
+  .shell-sidebar.open { transform: translateX(0); }
+  .shell-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.65);
+    z-index: 90;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .shell-backdrop.open { opacity: 1; pointer-events: auto; }
+  .shell-hamburger  { display: flex !important; }
+  .shell-topbar     { padding: 0 16px !important; gap: 12px !important; }
+  .shell-topbar-title {
+    font-size: 13px !important;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .shell-topbar-date   { display: none !important; }
+  .shell-topbar-search span { display: none !important; }
+  .shell-main          { padding: 24px 16px !important; }
+  .ponto-toggle        { width: 100%; }
+  .ponto-toggle a      { flex: 1; text-align: center; justify-content: center; }
+  .ponto-bulk-actions  { width: 100%; }
+  .ponto-bulk-btn      { width: 100%; justify-content: center; }
+  .ponto-date-filter   { width: 100%; }
+}
+
+@media (min-width: 768px) {
+  .shell-sidebar  { position: relative !important; transform: none !important; }
+  .shell-backdrop { display: none !important; }
+  .shell-hamburger { display: none !important; }
+}
+
+/* ── Command Palette (cmdk) ─────────────────────────────────────────────── */
+[cmdk-overlay] {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 17, 16, 0.72);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 999;
+}
+
+[cmdk-dialog] {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  width: min(520px, calc(100vw - 32px));
+}
+
+[cmdk-root] {
+  background: var(--surface);
+  border: 1px solid var(--border-strong, rgba(245,240,232,0.14));
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(245,240,232,0.04);
+}
+
+[cmdk-input] {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-soft);
+  outline: none;
+  color: var(--text);
+  font-size: 0.875rem;
+  font-family: var(--font-ui);
+  box-sizing: border-box;
+}
+
+[cmdk-input]::placeholder {
+  color: var(--text-3);
+}
+
+[cmdk-list] {
+  max-height: 360px;
+  overflow-y: auto;
+  padding: 6px 0 8px;
+  overscroll-behavior: contain;
+}
+
+[cmdk-group-heading] {
+  padding: 8px 14px 4px;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  font-family: var(--font-ui);
+}
+
+[cmdk-item] {
+  display: flex;
+  align-items: center;
+  padding: 9px 12px;
+  margin: 1px 6px;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  color: var(--text-2);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  transition: background var(--t, 150ms ease), color var(--t, 150ms ease);
+  user-select: none;
+}
+
+[cmdk-item][aria-selected="true"],
+[cmdk-item]:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+[cmdk-empty] {
+  padding: 28px 16px;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--text-3);
+  font-family: var(--font-ui);
+}
+
+[cmdk-separator] {
+  height: 1px;
+  background: var(--border-soft);
+  margin: 4px 0;
+}

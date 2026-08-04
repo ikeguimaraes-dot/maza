@@ -36,23 +36,23 @@ alter table price_quotes enable row level security;
 alter table price_quote_items enable row level security;
 
 create policy "unit members can select quotes"
-  on price_quotes for select using (kph_has_role_for_unit(unit_id));
+  on price_quotes for select using (maza_has_role_for_unit(unit_id));
 create policy "unit members can insert quotes"
-  on price_quotes for insert with check (kph_has_role_for_unit(unit_id));
+  on price_quotes for insert with check (maza_has_role_for_unit(unit_id));
 create policy "unit members can update quotes"
   on price_quotes for update
-  using (kph_has_role_for_unit(unit_id))
-  with check (kph_has_role_for_unit(unit_id));
+  using (maza_has_role_for_unit(unit_id))
+  with check (maza_has_role_for_unit(unit_id));
 
 create policy "unit members can select quote items"
   on price_quote_items for select
-  using (exists (select 1 from price_quotes q where q.id = quote_id and kph_has_role_for_unit(q.unit_id)));
+  using (exists (select 1 from price_quotes q where q.id = quote_id and maza_has_role_for_unit(q.unit_id)));
 create policy "unit members can insert quote items"
   on price_quote_items for insert
-  with check (exists (select 1 from price_quotes q where q.id = quote_id and kph_has_role_for_unit(q.unit_id)));
+  with check (exists (select 1 from price_quotes q where q.id = quote_id and maza_has_role_for_unit(q.unit_id)));
 create policy "unit members can update quote items"
   on price_quote_items for update
-  using (exists (select 1 from price_quotes q where q.id = quote_id and kph_has_role_for_unit(q.unit_id)));
+  using (exists (select 1 from price_quotes q where q.id = quote_id and maza_has_role_for_unit(q.unit_id)));
 create policy "unit members can delete quote items"
   on price_quote_items for delete
-  using (exists (select 1 from price_quotes q where q.id = quote_id and kph_has_role_for_unit(q.unit_id)));
+  using (exists (select 1 from price_quotes q where q.id = quote_id and maza_has_role_for_unit(q.unit_id)));

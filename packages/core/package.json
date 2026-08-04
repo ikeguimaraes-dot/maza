@@ -1,5 +1,5 @@
 {
-  "name": "@kph/core",
+  "name": "@maza/core",
   "version": "0.1.0",
   "private": true,
   "exports": {
@@ -8,6 +8,6 @@
     "./learning-machine": "./src/learning-machine.ts"
   },
   "dependencies": {
-    "@kph/db": "*"
+    "@maza/db": "*"
   }
 }

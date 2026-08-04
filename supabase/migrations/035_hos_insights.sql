@@ -17,9 +17,9 @@ ALTER TABLE public.hos_insights ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Admins podem ver insights"
     ON public.hos_insights FOR SELECT
     TO authenticated
-    USING (public.kph_has_role_for_unit(null) OR public.kph_is_founder());
+    USING (public.maza_has_role_for_unit(null) OR public.maza_is_founder());
 
 CREATE POLICY "Admins podem inserir insights"
     ON public.hos_insights FOR INSERT
     TO authenticated
-    WITH CHECK (public.kph_has_role_for_unit(null) OR public.kph_is_founder());
+    WITH CHECK (public.maza_has_role_for_unit(null) OR public.maza_is_founder());

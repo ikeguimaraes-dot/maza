@@ -15,8 +15,8 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "paths": {
-      "@kph/db": ["../../packages/db/src/index.ts"],
-      "@kph/db/*": ["../../packages/db/src/*"]
+      "@maza/db": ["../../packages/db/src/index.ts"],
+      "@maza/db/*": ["../../packages/db/src/*"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],

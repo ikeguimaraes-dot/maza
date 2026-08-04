@@ -1,4 +1,4 @@
-// Tipos do app mobile — refletem o schema do KPH OS (migrations 011-018).
+// Tipos do app mobile — refletem o schema do Maza (migrations 011-018).
 //
 // ⚠ Mudanças importantes vs schema antigo HOS:
 //   - employees: full_name → nome + sobrenome (separados)
@@ -10,7 +10,7 @@
 export interface Employee {
   id: string;
   cpf: string;
-  /** Primeiro nome — KPH OS separa nome / sobrenome (vs full_name antigo). */
+  /** Primeiro nome — Maza separa nome / sobrenome (vs full_name antigo). */
   nome: string;
   sobrenome: string;
   email: string;
@@ -41,8 +41,8 @@ export interface AuthSession {
 
 // ── Recrutamento ─────────────────────────────────────────────
 //
-// candidates.status (KPH OS) = decisao do RH: 'pendente' | 'aprovado' | 'reprovado'
-// candidates.interview_status (KPH OS) = ciclo do app: 'pendente' | 'em_andamento' | 'concluido'
+// candidates.status (Maza) = decisao do RH: 'pendente' | 'aprovado' | 'reprovado'
+// candidates.interview_status (Maza) = ciclo do app: 'pendente' | 'em_andamento' | 'concluido'
 //
 // O app SO toca em interview_status. status (decisao RH) eh resolvido no painel web.
 
@@ -63,7 +63,7 @@ export interface Candidate {
 export interface InterviewQuestion {
   id: string;
   job_opening_id: string;
-  /** Antes era `video_path` no schema HOS — KPH OS usa `video_url` (storage path). */
+  /** Antes era `video_path` no schema HOS — Maza usa `video_url` (storage path). */
   video_url: string | null;
   question_text: string;
   /** Antes era `ordem`. */

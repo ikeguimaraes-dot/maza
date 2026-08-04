@@ -9,7 +9,7 @@ export default function InterviewCompleteScreen({ route, navigation }: any) {
   const { candidate }: { candidate: Candidate } = route.params;
 
   useEffect(() => {
-    // KPH OS: ciclo da entrevista vai em interview_status. status agora eh
+    // Maza: ciclo da entrevista vai em interview_status. status agora eh
     // decisao do RH (pendente/aprovado/reprovado) — nao mexer aqui.
     supabase
       .from('candidates')

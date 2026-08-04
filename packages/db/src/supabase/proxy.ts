@@ -21,10 +21,10 @@ export async function updateSession(request: NextRequest) {
 
   const projectRef = new URL(url).hostname.split(".")[0] ?? "";
   const authCookieName = `sb-${projectRef}-auth-token`;
-  const backupCookieName = "kph_auth_session_backup";
+  const backupCookieName = "maza_auth_session_backup";
   const backup = request.cookies.get(backupCookieName)?.value;
-  const accessToken = request.cookies.get("kph_access_token")?.value;
-  const refreshToken = request.cookies.get("kph_refresh_token")?.value;
+  const accessToken = request.cookies.get("maza_access_token")?.value;
+  const refreshToken = request.cookies.get("maza_refresh_token")?.value;
   let recoverableSession = backup;
   if (!recoverableSession && accessToken && refreshToken) {
     const jwtPayload = accessToken.split(".")[1];

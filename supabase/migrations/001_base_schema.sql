@@ -1,6 +1,6 @@
--- KPH OS — 001_base_schema.sql
+-- Maza — 001_base_schema.sql
 -- Fase 0 / Dia 2 — fundação multi-marca + RBAC + audit log.
--- Aplicação: rodar no SQL Editor do Supabase Dashboard (kph-os-dev), em ordem.
+-- Aplicação: rodar no SQL Editor do Supabase Dashboard (maza-dev), em ordem.
 -- Idempotente nos CREATEs (IF NOT EXISTS) — re-rodar é seguro.
 
 -- ── Holdings, marcas, unidades ──────────────────────────────────
@@ -92,7 +92,7 @@ CREATE INDEX IF NOT EXISTS idx_audit_resource ON audit_log(resource, resource_id
 -- SECURITY DEFINER pra ler user_roles sem cair em recursão de RLS.
 -- Função roda com privilégios do owner (postgres) — bypassa policies do user_roles.
 
-CREATE OR REPLACE FUNCTION public.kph_is_founder()
+CREATE OR REPLACE FUNCTION public.maza_is_founder()
 RETURNS BOOLEAN
 LANGUAGE sql STABLE SECURITY DEFINER
 SET search_path = public
@@ -104,12 +104,12 @@ AS $$
   );
 $$;
 
-CREATE OR REPLACE FUNCTION public.kph_has_role_for_unit(p_unit_id UUID)
+CREATE OR REPLACE FUNCTION public.maza_has_role_for_unit(p_unit_id UUID)
 RETURNS BOOLEAN
 LANGUAGE sql STABLE SECURITY DEFINER
 SET search_path = public
 AS $$
-  SELECT public.kph_is_founder()
+  SELECT public.maza_is_founder()
       OR EXISTS (
         SELECT 1 FROM user_roles ur
         WHERE ur.user_id = auth.uid()
@@ -117,12 +117,12 @@ AS $$
       );
 $$;
 
-CREATE OR REPLACE FUNCTION public.kph_has_role_for_brand(p_brand_id UUID)
+CREATE OR REPLACE FUNCTION public.maza_has_role_for_brand(p_brand_id UUID)
 RETURNS BOOLEAN
 LANGUAGE sql STABLE SECURITY DEFINER
 SET search_path = public
 AS $$
-  SELECT public.kph_is_founder()
+  SELECT public.maza_is_founder()
       OR EXISTS (
         SELECT 1 FROM user_roles ur
         WHERE ur.user_id = auth.uid()
@@ -131,12 +131,12 @@ AS $$
       );
 $$;
 
-CREATE OR REPLACE FUNCTION public.kph_has_role_for_group(p_group_id UUID)
+CREATE OR REPLACE FUNCTION public.maza_has_role_for_group(p_group_id UUID)
 RETURNS BOOLEAN
 LANGUAGE sql STABLE SECURITY DEFINER
 SET search_path = public
 AS $$
-  SELECT public.kph_is_founder()
+  SELECT public.maza_is_founder()
       OR EXISTS (
         SELECT 1 FROM user_roles ur
         WHERE ur.user_id = auth.uid()
@@ -145,7 +145,7 @@ AS $$
       );
 $$;
 
-CREATE OR REPLACE FUNCTION public.kph_is_founder_or_cfo()
+CREATE OR REPLACE FUNCTION public.maza_is_founder_or_cfo()
 RETURNS BOOLEAN
 LANGUAGE sql STABLE SECURITY DEFINER
 SET search_path = public

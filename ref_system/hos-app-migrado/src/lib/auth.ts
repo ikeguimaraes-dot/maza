@@ -7,7 +7,7 @@ const SESSION_KEY = '@hos_session';
 /**
  * Login do colaborador via CPF + senha.
  *
- * Schema KPH OS:
+ * Schema Maza:
  *   employees: nome, sobrenome (separados), funcao (era cargo), departamento,
  *              email, telefone, photo_url, score, status_rh, unit_id
  *   employee_auth: cpf UNIQUE, password_hash (plaintext por enquanto), employee_id
@@ -106,7 +106,7 @@ export async function logout(): Promise<void> {
 
 /**
  * Primeiro acesso: cria registro em employee_auth com employee_id (FK NOT NULL no
- * KPH OS — o schema antigo permitia inserir sem employee_id, o novo nao).
+ * Maza — o schema antigo permitia inserir sem employee_id, o novo nao).
  */
 export async function primeiroAcesso(cpf: string, password: string): Promise<void> {
   console.log('[PRIMEIRO ACESSO] Iniciando com CPF:', cpf);
@@ -136,7 +136,7 @@ export async function primeiroAcesso(cpf: string, password: string): Promise<voi
     throw new Error('Este CPF já possui acesso. Use a tela de login.');
   }
 
-  // Step 3 — criar registro com employee_id obrigatorio (mudanca KPH OS)
+  // Step 3 — criar registro com employee_id obrigatorio (mudanca Maza)
   const { error: insertError } = await supabase
     .from('employee_auth')
     .insert({

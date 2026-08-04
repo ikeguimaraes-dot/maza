@@ -1,4 +1,4 @@
--- KPH OS — 008_events.sql
+-- Maza — 008_events.sql
 -- Fase E2 — módulo Eventos / Ordem de Serviço (O.S.).
 --
 -- Pré-req: 001 (groups/brands/units + RBAC + helpers) · 003 (employees) ·
@@ -156,13 +156,13 @@ CREATE TRIGGER trg_events_updated_at
 -- ── Helper: user pode ESCREVER em eventos da brand? ────────────
 -- WRITE = founder / cfo / gm / comercial / operacional com role
 -- pra brand (escopo brand_id direto, OU unit_id na brand, OU group_id da brand).
--- Reusa o padrão da função kph_has_role_for_brand pra resolver escopo.
-CREATE OR REPLACE FUNCTION public.kph_can_write_event_brand(p_brand_id UUID)
+-- Reusa o padrão da função maza_has_role_for_brand pra resolver escopo.
+CREATE OR REPLACE FUNCTION public.maza_can_write_event_brand(p_brand_id UUID)
 RETURNS BOOLEAN
 LANGUAGE sql STABLE SECURITY DEFINER
 SET search_path = public
 AS $$
-  SELECT public.kph_is_founder()
+  SELECT public.maza_is_founder()
       OR EXISTS (
         SELECT 1
         FROM user_roles ur
@@ -178,12 +178,12 @@ AS $$
 $$;
 
 -- Helper: user pode DELETAR (founder/cfo only)
-CREATE OR REPLACE FUNCTION public.kph_can_delete_event_brand(p_brand_id UUID)
+CREATE OR REPLACE FUNCTION public.maza_can_delete_event_brand(p_brand_id UUID)
 RETURNS BOOLEAN
 LANGUAGE sql STABLE SECURITY DEFINER
 SET search_path = public
 AS $$
-  SELECT public.kph_is_founder()
+  SELECT public.maza_is_founder()
       OR EXISTS (
         SELECT 1
         FROM user_roles ur
@@ -207,22 +207,22 @@ ALTER TABLE event_attachments   ENABLE ROW LEVEL SECURITY;
 ALTER TABLE event_status_log    ENABLE ROW LEVEL SECURITY;
 
 -- ── Policies — events ──────────────────────────────────────────
--- SELECT: qualquer role na brand (kph_has_role_for_brand já cobre escopos).
+-- SELECT: qualquer role na brand (maza_has_role_for_brand já cobre escopos).
 DROP POLICY IF EXISTS "events_select" ON events;
 CREATE POLICY "events_select" ON events FOR SELECT
-  USING (kph_has_role_for_brand(brand_id));
+  USING (maza_has_role_for_brand(brand_id));
 
 DROP POLICY IF EXISTS "events_insert" ON events;
 CREATE POLICY "events_insert" ON events FOR INSERT
-  WITH CHECK (kph_can_write_event_brand(brand_id));
+  WITH CHECK (maza_can_write_event_brand(brand_id));
 
 DROP POLICY IF EXISTS "events_update" ON events;
 CREATE POLICY "events_update" ON events FOR UPDATE
-  USING (kph_can_write_event_brand(brand_id));
+  USING (maza_can_write_event_brand(brand_id));
 
 DROP POLICY IF EXISTS "events_delete" ON events;
 CREATE POLICY "events_delete" ON events FOR DELETE
-  USING (kph_can_delete_event_brand(brand_id));
+  USING (maza_can_delete_event_brand(brand_id));
 
 -- ── Policies — filhos (cascade via parent brand) ───────────────
 -- SELECT: tem acesso à brand do evento.
@@ -238,7 +238,7 @@ BEGIN
       'CREATE POLICY "%s_select" ON %s FOR SELECT USING (
         EXISTS (
           SELECT 1 FROM events e
-          WHERE e.id = event_id AND kph_has_role_for_brand(e.brand_id)
+          WHERE e.id = event_id AND maza_has_role_for_brand(e.brand_id)
         )
       )',
       t, t
@@ -249,12 +249,12 @@ BEGIN
       'CREATE POLICY "%s_write" ON %s FOR ALL USING (
         EXISTS (
           SELECT 1 FROM events e
-          WHERE e.id = event_id AND kph_can_write_event_brand(e.brand_id)
+          WHERE e.id = event_id AND maza_can_write_event_brand(e.brand_id)
         )
       ) WITH CHECK (
         EXISTS (
           SELECT 1 FROM events e
-          WHERE e.id = event_id AND kph_can_write_event_brand(e.brand_id)
+          WHERE e.id = event_id AND maza_can_write_event_brand(e.brand_id)
         )
       )',
       t, t

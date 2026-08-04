@@ -1,5 +1,5 @@
 -- Migration 069: roadmap de sprints + seed
--- Standalone app kph-os-inteligencia (Sprint 3.2)
+-- Standalone app maza-inteligencia (Sprint 3.2)
 
 CREATE TABLE IF NOT EXISTS public.roadmap_items (
   id          uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -30,8 +30,8 @@ DO $$ BEGIN
   ) THEN
     CREATE POLICY "manage_roadmap" ON public.roadmap_items
       FOR ALL
-      USING (kph_is_founder_or_cfo())
-      WITH CHECK (kph_is_founder_or_cfo());
+      USING (maza_is_founder_or_cfo())
+      WITH CHECK (maza_is_founder_or_cfo());
   END IF;
 END $$;
 

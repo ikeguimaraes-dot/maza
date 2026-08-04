@@ -82,20 +82,20 @@ ALTER TABLE vacations ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "vacations_select" ON vacations;
 CREATE POLICY "vacations_select" ON vacations FOR SELECT
-  USING (public.kph_has_role_for_unit(unit_id));
+  USING (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "vacations_insert" ON vacations;
 CREATE POLICY "vacations_insert" ON vacations FOR INSERT
-  WITH CHECK (public.kph_has_role_for_unit(unit_id));
+  WITH CHECK (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "vacations_update" ON vacations;
 CREATE POLICY "vacations_update" ON vacations FOR UPDATE
-  USING (public.kph_has_role_for_unit(unit_id))
-  WITH CHECK (public.kph_has_role_for_unit(unit_id));
+  USING (public.maza_has_role_for_unit(unit_id))
+  WITH CHECK (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "vacations_delete" ON vacations;
 CREATE POLICY "vacations_delete" ON vacations FOR DELETE
-  USING (public.kph_has_role_for_unit(unit_id));
+  USING (public.maza_has_role_for_unit(unit_id));
 
 -- ============================================================
 -- PARTE 3 — Tabela transport_vouchers
@@ -124,20 +124,20 @@ ALTER TABLE transport_vouchers ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "transport_vouchers_select" ON transport_vouchers;
 CREATE POLICY "transport_vouchers_select" ON transport_vouchers FOR SELECT
-  USING (public.kph_has_role_for_unit(unit_id));
+  USING (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "transport_vouchers_insert" ON transport_vouchers;
 CREATE POLICY "transport_vouchers_insert" ON transport_vouchers FOR INSERT
-  WITH CHECK (public.kph_has_role_for_unit(unit_id));
+  WITH CHECK (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "transport_vouchers_update" ON transport_vouchers;
 CREATE POLICY "transport_vouchers_update" ON transport_vouchers FOR UPDATE
-  USING (public.kph_has_role_for_unit(unit_id))
-  WITH CHECK (public.kph_has_role_for_unit(unit_id));
+  USING (public.maza_has_role_for_unit(unit_id))
+  WITH CHECK (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "transport_vouchers_delete" ON transport_vouchers;
 CREATE POLICY "transport_vouchers_delete" ON transport_vouchers FOR DELETE
-  USING (public.kph_has_role_for_unit(unit_id));
+  USING (public.maza_has_role_for_unit(unit_id));
 
 -- ============================================================
 -- PARTE 4 — Tabela overtime_records
@@ -165,20 +165,20 @@ ALTER TABLE overtime_records ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "overtime_records_select" ON overtime_records;
 CREATE POLICY "overtime_records_select" ON overtime_records FOR SELECT
-  USING (public.kph_has_role_for_unit(unit_id));
+  USING (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "overtime_records_insert" ON overtime_records;
 CREATE POLICY "overtime_records_insert" ON overtime_records FOR INSERT
-  WITH CHECK (public.kph_has_role_for_unit(unit_id));
+  WITH CHECK (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "overtime_records_update" ON overtime_records;
 CREATE POLICY "overtime_records_update" ON overtime_records FOR UPDATE
-  USING (public.kph_has_role_for_unit(unit_id))
-  WITH CHECK (public.kph_has_role_for_unit(unit_id));
+  USING (public.maza_has_role_for_unit(unit_id))
+  WITH CHECK (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "overtime_records_delete" ON overtime_records;
 CREATE POLICY "overtime_records_delete" ON overtime_records FOR DELETE
-  USING (public.kph_has_role_for_unit(unit_id));
+  USING (public.maza_has_role_for_unit(unit_id));
 
 -- ============================================================
 -- PARTE 5 — Tabela tips_records
@@ -205,20 +205,20 @@ ALTER TABLE tips_records ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "tips_records_select" ON tips_records;
 CREATE POLICY "tips_records_select" ON tips_records FOR SELECT
-  USING (public.kph_has_role_for_unit(unit_id));
+  USING (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "tips_records_insert" ON tips_records;
 CREATE POLICY "tips_records_insert" ON tips_records FOR INSERT
-  WITH CHECK (public.kph_has_role_for_unit(unit_id));
+  WITH CHECK (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "tips_records_update" ON tips_records;
 CREATE POLICY "tips_records_update" ON tips_records FOR UPDATE
-  USING (public.kph_has_role_for_unit(unit_id))
-  WITH CHECK (public.kph_has_role_for_unit(unit_id));
+  USING (public.maza_has_role_for_unit(unit_id))
+  WITH CHECK (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "tips_records_delete" ON tips_records;
 CREATE POLICY "tips_records_delete" ON tips_records FOR DELETE
-  USING (public.kph_has_role_for_unit(unit_id));
+  USING (public.maza_has_role_for_unit(unit_id));
 
 -- ============================================================
 -- PARTE 6 — Tabela time_records (banco de horas Totvs)
@@ -253,20 +253,20 @@ ALTER TABLE time_records ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "time_records_select" ON time_records;
 CREATE POLICY "time_records_select" ON time_records FOR SELECT
-  USING (public.kph_has_role_for_unit(unit_id));
+  USING (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "time_records_insert" ON time_records;
 CREATE POLICY "time_records_insert" ON time_records FOR INSERT
-  WITH CHECK (public.kph_has_role_for_unit(unit_id));
+  WITH CHECK (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "time_records_update" ON time_records;
 CREATE POLICY "time_records_update" ON time_records FOR UPDATE
-  USING (public.kph_has_role_for_unit(unit_id))
-  WITH CHECK (public.kph_has_role_for_unit(unit_id));
+  USING (public.maza_has_role_for_unit(unit_id))
+  WITH CHECK (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "time_records_delete" ON time_records;
 CREATE POLICY "time_records_delete" ON time_records FOR DELETE
-  USING (public.kph_has_role_for_unit(unit_id));
+  USING (public.maza_has_role_for_unit(unit_id));
 
 -- ============================================================
 -- PARTE 7 — Tabela import_logs
@@ -292,8 +292,8 @@ ALTER TABLE import_logs ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "import_logs_select" ON import_logs;
 CREATE POLICY "import_logs_select" ON import_logs FOR SELECT
-  USING (public.kph_has_role_for_unit(unit_id));
+  USING (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "import_logs_insert" ON import_logs;
 CREATE POLICY "import_logs_insert" ON import_logs FOR INSERT
-  WITH CHECK (public.kph_has_role_for_unit(unit_id));
+  WITH CHECK (public.maza_has_role_for_unit(unit_id));

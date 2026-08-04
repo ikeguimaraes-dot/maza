@@ -1,5 +1,5 @@
 -- Migration 068: módulo Bugs & Feedback
--- Standalone app kph-os-inteligencia (Sprint 3.1)
+-- Standalone app maza-inteligencia (Sprint 3.1)
 
 CREATE TABLE IF NOT EXISTS public.feedback (
   id          uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -25,7 +25,7 @@ DO $$ BEGIN
     SELECT 1 FROM pg_policies WHERE tablename = 'feedback' AND policyname = 'select_feedback'
   ) THEN
     CREATE POLICY "select_feedback" ON public.feedback
-      FOR SELECT USING (user_id = auth.uid() OR kph_is_founder_or_cfo());
+      FOR SELECT USING (user_id = auth.uid() OR maza_is_founder_or_cfo());
   END IF;
 
   IF NOT EXISTS (
@@ -40,7 +40,7 @@ DO $$ BEGIN
   ) THEN
     CREATE POLICY "update_status" ON public.feedback
       FOR UPDATE
-      USING (kph_is_founder_or_cfo())
-      WITH CHECK (kph_is_founder_or_cfo());
+      USING (maza_is_founder_or_cfo())
+      WITH CHECK (maza_is_founder_or_cfo());
   END IF;
 END $$;

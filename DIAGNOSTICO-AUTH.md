@@ -1,4 +1,4 @@
-# Diagnóstico Auth — KPH-OS
+# Diagnóstico Auth — Maza
 
 > Atualizado em 2026-06-17 (Sprint 3). Versão original: 2026-06-15 (Sprint 1).
 > Base: auditoria de código, commits, diffs, verificação funcional (hotfix lockdown).
@@ -16,16 +16,16 @@
 | 2026-04-29 | `ac63f35` | Middleware restaurado com lógica de auth. `/api/auth-debug` adicionado à lista pública para diagnóstico. |
 | 2026-04-29 | `4bb77af` | Fix: `await cookies()` explicitado em `getCurrentUser()`, `cookieStore` passado como argumento. Motivo: Next.js 14+ exige `cookies()` chamado diretamente — não pode ser inferido novamente pelo callee. |
 | **2026-04-30** | **`0976701`** | **"chore: desativa autenticação — acesso livre sem login."** Três mudanças simultâneas: (1) middleware simplificado para `NextResponse.next()`, (2) `requireUser()` retorna usuário bypass, (3) `createSupabaseServerClient()` usa `service_role` sem sessão. |
-| 2026-05-22 | `0052892` | Migração para monorepo Turborepo. Arquivos de `src/` copiados para `apps/kph-os/src/`, mas o middleware (fosse `middleware.ts` ou `proxy.ts` na raiz do monolito) **não estava num padrão glob standard e não foi migrado**. |
+| 2026-05-22 | `0052892` | Migração para monorepo Turborepo. Arquivos de `src/` copiados para `apps/maza/src/`, mas o middleware (fosse `middleware.ts` ou `proxy.ts` na raiz do monolito) **não estava num padrão glob standard e não foi migrado**. |
 | 2026-05-24 | `daf1d20` | `ignoreBuildErrors: true` e `ignoreDuringBuilds: true` adicionados a todos os `next.config.ts` para destravar deploys durante migração multi-zona. |
-| 2026-06-12 | `bc69d38` | Hotfix lockdown: `apps/kph-os/src/middleware.ts` com 401 total criado. |
+| 2026-06-12 | `bc69d38` | Hotfix lockdown: `apps/maza/src/middleware.ts` com 401 total criado. |
 | 2026-06-12 | `fedc4ee` | Revert: `src/middleware.ts` deletado, sistema restaurado ao estado livre. **Sprint 3 precisa criar este arquivo com auth real.** |
 
 ### Confirmação experimental: `src/middleware.ts` funciona no Next 16
 
-O hotfix `bc69d38` criou `apps/kph-os/src/middleware.ts` com `export function middleware()` e retornou 401 em toda rota — **confirmado via curl em produção**. Portanto:
+O hotfix `bc69d38` criou `apps/maza/src/middleware.ts` com `export function middleware()` e retornou 401 em toda rota — **confirmado via curl em produção**. Portanto:
 
-- ✅ `apps/kph-os/src/middleware.ts` + `export function middleware()` → Next 16 reconhece e executa
+- ✅ `apps/maza/src/middleware.ts` + `export function middleware()` → Next 16 reconhece e executa
 - ❌ `middleware.ts` na raiz do monorepo → ignorado (o diretório raiz não é o rootDir do projeto Vercel)
 
 > **Correção à versão Sprint 1 deste documento:** A análise anterior mencionava `src/proxy.ts` com função `proxy()` como o arquivo correto para Next 16. Isso era uma inferência não confirmada. O hotfix provou que o padrão correto é `src/middleware.ts` / `middleware()` — exatamente a convenção padrão do Next.js desde a v13.
@@ -36,7 +36,7 @@ O commit desativou o auth via **três mudanças de camada de aplicação** (não
 
 | Camada | Arquivo | Bypass |
 |---|---|---|
-| 1 — Middleware | `apps/kph-os/src/middleware.ts` (inexistente hoje) | `NextResponse.next()` — qualquer rota passa |
+| 1 — Middleware | `apps/maza/src/middleware.ts` (inexistente hoje) | `NextResponse.next()` — qualquer rota passa |
 | 2 — Auth DAL | `packages/auth/src/server.ts:99-108` | `requireUser()` retorna founder fake sem sessão |
 | 3 — DB Client | `packages/db/src/supabase/server.ts:23-33` | `createSupabaseServerClient()` usa `service_role` sem cookie de sessão |
 
@@ -129,11 +129,11 @@ export async function updateSession(request: NextRequest) {
 
 `getUser()` valida o JWT contra o servidor Supabase Auth (não só o cookie local). Se o access token expirou, `@supabase/ssr` chama `setAll()` com os novos tokens antes de retornar — e esses tokens vão para a response via `response.cookies.set()`.
 
-### `apps/kph-os/src/middleware.ts` — implementação correta
+### `apps/maza/src/middleware.ts` — implementação correta
 
 ```typescript
 import { type NextRequest, NextResponse } from "next/server";
-import { updateSession } from "@kph/db/supabase/proxy";
+import { updateSession } from "@maza/db/supabase/proxy";
 
 // Rotas que não exigem sessão
 const PUBLIC_PREFIXES = [
@@ -175,7 +175,7 @@ export const config = {
 | Abordagem | Problema |
 |---|---|
 | `const user = await supabase.auth.getUser()` direto | Não tem como escrever cookies de refresh — `NextResponse.next()` não tem os Set-Cookie headers |
-| `updateSession(request)` via `@kph/db/supabase/proxy` | ✅ Cria response com set-cookie correto, retorna user validado |
+| `updateSession(request)` via `@maza/db/supabase/proxy` | ✅ Cria response com set-cookie correto, retorna user validado |
 
 ### Fluxo após ativação
 
@@ -209,18 +209,18 @@ A única mudança comportamental: `requireUser()` vai chamar `redirect("/login")
 
 | Arquivo | Ação |
 |---|---|
-| `apps/kph-os/src/middleware.ts` | CRIAR — implementação da seção 3 acima |
+| `apps/maza/src/middleware.ts` | CRIAR — implementação da seção 3 acima |
 
 ### Arquivos — edição
 
 | Arquivo | Linhas | O que mudar |
 |---|---|---|
-| `packages/auth/src/server.ts` | 98-108 | Remover bloco bypass: substituir `return { id: "00000000...", email: "bypass@kph.os", ... }` por `redirect("/login")` |
+| `packages/auth/src/server.ts` | 98-108 | Remover bloco bypass: substituir o retorno fictício por `redirect("/login")` |
 | `packages/db/src/supabase/server.ts` | 23-33 | Remover bloco `hasSession` / fallback service_role: sem sessão, retornar anon client (RLS filtra dados — não crasha) |
-| `apps/kph-os/src/lib/pessoas/ponto-actions.ts` | 65-66 | Remover `BYPASS_USER_ID = "ac559fa1..."`. A rota `/api/ponto/punch` é pública no middleware, mas o `userId` deve vir do token HMAC ou da sessão do colaborador — definir antes de codar |
-| `apps/kph-os/src/lib/pessoas/actions.ts` | 1269 | Remover `const BYPASS_USER_ID = "ac559fa1..."` e seus usos no escopo |
-| `apps/kph-os/src/app/api/intelligence/insight/route.ts` | POST handler | Adicionar `requireUser()` antes de chamar Anthropic — hoje é 100% público, consome API paga sem auth |
-| `apps/kph-os/src/app/api/auth-debug/route.ts` | inteiro | DELETAR o arquivo — a rota não tem valor em produção |
+| `apps/maza/src/lib/pessoas/ponto-actions.ts` | 65-66 | Remover `BYPASS_USER_ID = "ac559fa1..."`. A rota `/api/ponto/punch` é pública no middleware, mas o `userId` deve vir do token HMAC ou da sessão do colaborador — definir antes de codar |
+| `apps/maza/src/lib/pessoas/actions.ts` | 1269 | Remover `const BYPASS_USER_ID = "ac559fa1..."` e seus usos no escopo |
+| `apps/maza/src/app/api/intelligence/insight/route.ts` | POST handler | Adicionar `requireUser()` antes de chamar Anthropic — hoje é 100% público, consome API paga sem auth |
+| `apps/maza/src/app/api/auth-debug/route.ts` | inteiro | DELETAR o arquivo — a rota não tem valor em produção |
 
 > **Nota sobre `ponto-actions.ts`:** O UUID `ac559fa1-f10b-4ec4-9f4b-fafbc881a884` é diferente do bypass UUID da DAL (`00000000...`). É possivelmente o ID real de um usuário de testes no Supabase. Confirmar antes de remover — pode afetar registros históricos de ponto.
 
@@ -229,7 +229,7 @@ A única mudança comportamental: `requireUser()` vai chamar `redirect("/login")
 | Arquivo | Status | Conteúdo |
 |---|---|---|
 | `supabase/migrations/080_security_hardening.sql` | ⏳ Gerada, aguarda aplicação | RLS hardening, audit_log, índices de segurança |
-| `supabase/migrations/081_disable_bypass_user.sql` | ❌ A gerar | `UPDATE auth.users SET banned_until = 'infinity' WHERE email = 'bypass@kph.os'` — aditivo, não DELETE (preserve FK em registros históricos) |
+| `supabase/migrations/081_disable_bypass_user.sql` | ❌ A gerar | Desabilitar a conta técnica de bypass — aditivo, não DELETE (preserve FK em registros históricos) |
 
 ### Variáveis de ambiente
 

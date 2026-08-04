@@ -45,7 +45,7 @@ jobs:
           PREVIEW_URL: ${{ github.event.deployment_status.target_url }}
         run: |
           RESULTS=$(cat test-results.json 2>/dev/null || echo '{"stats":{"expected":0,"unexpected":4}}')
-          curl -s -X POST https://kph-os.vercel.app/api/orchestrator/qa-callback \
+          curl -s -X POST "${NEXT_PUBLIC_APP_URL:-http://localhost:3000}/api/orchestrator/qa-callback" \
             -H "Content-Type: application/json" \
             -H "x-qa-secret: $QA_CALLBACK_SECRET" \
             -d "{\"preview_url\": \"$PREVIEW_URL\", \"results\": $RESULTS}"

@@ -1,7 +1,7 @@
 -- Self-select pra colaborador no /ponto.
 --
 -- Bug original: as policies SELECT de employees e time_clock_punches só
--- aceitam kph_has_role_for_unit(unit_id) — colaborador puro (sem entry em
+-- aceitam maza_has_role_for_unit(unit_id) — colaborador puro (sem entry em
 -- user_roles) NÃO consegue ver o próprio registro nem os próprios punches.
 -- /ponto chama getMyEmployee() que retornava null mesmo com user_id setado,
 -- mostrando "conta não vinculada".

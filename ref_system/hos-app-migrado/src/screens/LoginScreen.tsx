@@ -59,7 +59,7 @@ export default function LoginScreen({ navigation }: any) {
       <View style={styles.inner}>
         <View style={styles.header}>
           <Text style={styles.logo}>HOS</Text>
-          <Text style={styles.subtitle}>Grupo KPH</Text>
+          <Text style={styles.subtitle}>Grupo MAZA</Text>
         </View>
 
         <View style={styles.form}>

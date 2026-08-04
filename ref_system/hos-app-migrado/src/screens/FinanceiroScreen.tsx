@@ -23,20 +23,20 @@ const MESES: Record<string, string> = {
 
 function formatPeriodo(periodo: string): string {
   if (!periodo) return '—';
-  // KPH OS: payslips.competencia eh DATE (YYYY-MM-DD); pegamos so YYYY-MM.
+  // Maza: payslips.competencia eh DATE (YYYY-MM-DD); pegamos so YYYY-MM.
   const [ano, mes] = periodo.split('-');
   return `${MESES[mes] || mes} ${ano}`;
 }
 
 function formatCurrency(value?: number | string | null): string {
   if (value == null || value === '') return '—';
-  // KPH OS: NUMERIC vem como string do PostgREST.
+  // Maza: NUMERIC vem como string do PostgREST.
   const n = typeof value === 'string' ? Number(value) : value;
   if (!Number.isFinite(n)) return '—';
   return `R$ ${Math.abs(n).toFixed(2).replace('.', ',')}`;
 }
 
-// KPH OS payslips schema (migrations 003 + 011):
+// Maza payslips schema (migrations 003 + 011):
 //   competencia DATE, salario_base, horas_extras, adicional_noturno, gorjeta,
 //   dsr_gorjeta, desconto_inss, desconto_irrf, desconto_vale_transporte,
 //   desconto_vale_refeicao, outros_descontos, outros_acrescimos, liquido,
@@ -66,7 +66,7 @@ interface Payslip {
   pdf_url?: string;
 }
 
-// KPH OS tips_records: valor_ponto + total_pontos + pontos_liquidos (GENERATED).
+// Maza tips_records: valor_ponto + total_pontos + pontos_liquidos (GENERATED).
 // Calculamos o valor total = valor_ponto * pontos_liquidos.
 interface TipRecord {
   id: string;
@@ -76,7 +76,7 @@ interface TipRecord {
   pontos_liquidos?: number;
 }
 
-// KPH OS transport_vouchers: dias_uteis + valor_diario + total_bruto + valor_empresa.
+// Maza transport_vouchers: dias_uteis + valor_diario + total_bruto + valor_empresa.
 interface TransportVoucher {
   id: string;
   periodo: string;
@@ -120,7 +120,7 @@ export default function FinanceiroScreen({ navigation }: any) {
     if (!employeeId) return;
 
     const [payslipRes, tipsRes, transportRes] = await Promise.all([
-      // KPH OS: payslips.competencia (vs periodo).
+      // Maza: payslips.competencia (vs periodo).
       supabase
         .from('payslips')
         .select('*')
@@ -156,7 +156,7 @@ export default function FinanceiroScreen({ navigation }: any) {
 
   async function handleVerPDF(pdfRef: string) {
     if (!pdfRef) return;
-    // KPH OS: pdf_url pode ser uma URL ja completa (gerada server-side, ex:
+    // Maza: pdf_url pode ser uma URL ja completa (gerada server-side, ex:
     // /api/holerites/[id]/pdf) ou um storage path. Detectamos pelo prefixo.
     if (/^https?:\/\//.test(pdfRef)) {
       Linking.openURL(pdfRef);
@@ -186,7 +186,7 @@ export default function FinanceiroScreen({ navigation }: any) {
   ];
 
   function renderPayslipCard(item: Payslip) {
-    // KPH OS: total_vencimentos / total_descontos derivados dos componentes.
+    // Maza: total_vencimentos / total_descontos derivados dos componentes.
     const vencimentos =
       num(item.salario_base) +
       num(item.horas_extras) +
@@ -249,7 +249,7 @@ export default function FinanceiroScreen({ navigation }: any) {
         {/* Separador */}
         <View style={styles.divider} />
 
-        {/* Detalhes secundários — KPH OS tem fgts_mes + fgts_base + faixa_irrf. */}
+        {/* Detalhes secundários — Maza tem fgts_mes + fgts_base + faixa_irrf. */}
         {item.fgts_mes != null && (
           <View style={styles.cardRow}>
             <Text style={styles.cardLabelSmall}>FGTS do mês</Text>
@@ -275,7 +275,7 @@ export default function FinanceiroScreen({ navigation }: any) {
   function renderItem({ item, section }: { item: any; section: SectionData }) {
     if (section.type === 'payslip') return renderPayslipCard(item);
     if (section.type === 'tip') {
-      // KPH OS: valor total = valor_ponto * pontos_liquidos.
+      // Maza: valor total = valor_ponto * pontos_liquidos.
       const t = item as TipRecord;
       const total = num(t.valor_ponto) * (t.pontos_liquidos ?? 0);
       return (
@@ -292,7 +292,7 @@ export default function FinanceiroScreen({ navigation }: any) {
         </View>
       );
     }
-    // transport_voucher — KPH OS exibe o valor que a empresa banca (valor_empresa).
+    // transport_voucher — Maza exibe o valor que a empresa banca (valor_empresa).
     const tv = item as TransportVoucher;
     return (
       <View style={styles.card}>

@@ -1,4 +1,4 @@
--- KPH OS — 021_treinamentos.sql
+-- Maza — 021_treinamentos.sql
 -- Sprint 3 / Etapa 4 — módulo Treinamentos / Onboarding.
 --
 -- Pré-req: 001 (groups/brands/units + helpers RBAC) · 003 (employees).
@@ -83,50 +83,50 @@ ALTER TABLE training_records   ENABLE ROW LEVEL SECURITY;
 --                     DELETE só founder.
 DROP POLICY IF EXISTS "tt_select" ON training_templates;
 CREATE POLICY "tt_select" ON training_templates FOR SELECT
-  USING (kph_has_role_for_brand(brand_id));
+  USING (maza_has_role_for_brand(brand_id));
 
 DROP POLICY IF EXISTS "tt_insert" ON training_templates;
 CREATE POLICY "tt_insert" ON training_templates FOR INSERT
-  WITH CHECK (kph_has_role_for_brand(brand_id));
+  WITH CHECK (maza_has_role_for_brand(brand_id));
 
 DROP POLICY IF EXISTS "tt_update" ON training_templates;
 CREATE POLICY "tt_update" ON training_templates FOR UPDATE
-  USING (kph_has_role_for_brand(brand_id))
-  WITH CHECK (kph_has_role_for_brand(brand_id));
+  USING (maza_has_role_for_brand(brand_id))
+  WITH CHECK (maza_has_role_for_brand(brand_id));
 
 DROP POLICY IF EXISTS "tt_delete" ON training_templates;
 CREATE POLICY "tt_delete" ON training_templates FOR DELETE
-  USING (kph_is_founder());
+  USING (maza_is_founder());
 
 -- training_records: cascade via employee.unit_id.
 DROP POLICY IF EXISTS "tr_select" ON training_records;
 CREATE POLICY "tr_select" ON training_records FOR SELECT
   USING (EXISTS (
     SELECT 1 FROM employees e
-    WHERE e.id = employee_id AND kph_has_role_for_unit(e.unit_id)
+    WHERE e.id = employee_id AND maza_has_role_for_unit(e.unit_id)
   ));
 
 DROP POLICY IF EXISTS "tr_insert" ON training_records;
 CREATE POLICY "tr_insert" ON training_records FOR INSERT
   WITH CHECK (EXISTS (
     SELECT 1 FROM employees e
-    WHERE e.id = employee_id AND kph_has_role_for_unit(e.unit_id)
+    WHERE e.id = employee_id AND maza_has_role_for_unit(e.unit_id)
   ));
 
 DROP POLICY IF EXISTS "tr_update" ON training_records;
 CREATE POLICY "tr_update" ON training_records FOR UPDATE
   USING (EXISTS (
     SELECT 1 FROM employees e
-    WHERE e.id = employee_id AND kph_has_role_for_unit(e.unit_id)
+    WHERE e.id = employee_id AND maza_has_role_for_unit(e.unit_id)
   ))
   WITH CHECK (EXISTS (
     SELECT 1 FROM employees e
-    WHERE e.id = employee_id AND kph_has_role_for_unit(e.unit_id)
+    WHERE e.id = employee_id AND maza_has_role_for_unit(e.unit_id)
   ));
 
 DROP POLICY IF EXISTS "tr_delete" ON training_records;
 CREATE POLICY "tr_delete" ON training_records FOR DELETE
-  USING (kph_is_founder());
+  USING (maza_is_founder());
 
 -- ── GRANTS ─────────────────────────────────────────────────────
 GRANT SELECT, INSERT, UPDATE, DELETE ON training_templates TO authenticated;

@@ -1,16 +1,16 @@
--- KPH OS — seed inicial (Fase 0 / Dia 2).
+-- Maza — seed inicial (Fase 0 / Dia 2).
 -- Aplicar APÓS 001 + 002. Idempotente (ON CONFLICT DO NOTHING nos slugs UNIQUE).
 --
--- Cria a holding KPH, a primeira marca (Madonna Cucina) e a primeira unidade
+-- Cria o grupo Maza, a primeira marca e a primeira unidade
 -- (SP Itaim) — espelha a realidade atual do grupo.
 
 INSERT INTO groups (slug, name)
-VALUES ('kph', 'KPH')
+VALUES ('maza', 'Maza')
 ON CONFLICT (slug) DO NOTHING;
 
 INSERT INTO brands (group_id, slug, name, color, active)
 SELECT id, 'madonna-cucina', 'Madonna Cucina', '#D4A574', TRUE
-FROM groups WHERE slug = 'kph'
+FROM groups WHERE slug = 'maza'
 ON CONFLICT (slug) DO NOTHING;
 
 INSERT INTO units (brand_id, name, address, whatsapp_number, active)
@@ -26,4 +26,4 @@ FROM brands b WHERE b.slug = 'madonna-cucina'
 -- INSERT INTO user_roles (user_id, role_id, group_id)
 -- SELECT '<auth.uid do Ike>'::uuid, r.id, g.id
 -- FROM roles r, groups g
--- WHERE r.name = 'founder' AND g.slug = 'kph';
+-- WHERE r.name = 'founder' AND g.slug = 'maza';

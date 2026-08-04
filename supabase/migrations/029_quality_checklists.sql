@@ -38,10 +38,10 @@ alter table checklist_records  enable row level security;
 
 create policy "unit members can manage checklists"
   on quality_checklists for all
-  using (kph_has_role_for_unit(unit_id))
-  with check (kph_has_role_for_unit(unit_id));
+  using (maza_has_role_for_unit(unit_id))
+  with check (maza_has_role_for_unit(unit_id));
 
 create policy "unit members can select records"
-  on checklist_records for select using (kph_has_role_for_unit(unit_id));
+  on checklist_records for select using (maza_has_role_for_unit(unit_id));
 create policy "unit members can insert records"
-  on checklist_records for insert with check (kph_has_role_for_unit(unit_id));
+  on checklist_records for insert with check (maza_has_role_for_unit(unit_id));

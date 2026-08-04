@@ -1,4 +1,4 @@
--- KPH OS — 019_compras.sql
+-- Maza — 019_compras.sql
 -- Sprint 2 / Etapa 2 — módulo Compras (pedidos + fornecedores).
 --
 -- Pré-req: 001 (groups/brands/units + helpers RBAC).
@@ -118,68 +118,68 @@ ALTER TABLE purchase_order_items  ENABLE ROW LEVEL SECURITY;
 -- suppliers
 DROP POLICY IF EXISTS "suppliers_select" ON suppliers;
 CREATE POLICY "suppliers_select" ON suppliers FOR SELECT
-  USING (kph_has_role_for_unit(unit_id));
+  USING (maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "suppliers_insert" ON suppliers;
 CREATE POLICY "suppliers_insert" ON suppliers FOR INSERT
-  WITH CHECK (kph_has_role_for_unit(unit_id));
+  WITH CHECK (maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "suppliers_update" ON suppliers;
 CREATE POLICY "suppliers_update" ON suppliers FOR UPDATE
-  USING (kph_has_role_for_unit(unit_id))
-  WITH CHECK (kph_has_role_for_unit(unit_id));
+  USING (maza_has_role_for_unit(unit_id))
+  WITH CHECK (maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "suppliers_delete" ON suppliers;
 CREATE POLICY "suppliers_delete" ON suppliers FOR DELETE
-  USING (kph_is_founder());
+  USING (maza_is_founder());
 
 -- purchase_orders
 DROP POLICY IF EXISTS "po_select" ON purchase_orders;
 CREATE POLICY "po_select" ON purchase_orders FOR SELECT
-  USING (kph_has_role_for_unit(unit_id));
+  USING (maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "po_insert" ON purchase_orders;
 CREATE POLICY "po_insert" ON purchase_orders FOR INSERT
-  WITH CHECK (kph_has_role_for_unit(unit_id));
+  WITH CHECK (maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "po_update" ON purchase_orders;
 CREATE POLICY "po_update" ON purchase_orders FOR UPDATE
-  USING (kph_has_role_for_unit(unit_id))
-  WITH CHECK (kph_has_role_for_unit(unit_id));
+  USING (maza_has_role_for_unit(unit_id))
+  WITH CHECK (maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "po_delete" ON purchase_orders;
 CREATE POLICY "po_delete" ON purchase_orders FOR DELETE
-  USING (kph_is_founder());
+  USING (maza_is_founder());
 
 -- purchase_order_items: cascade via parent
 DROP POLICY IF EXISTS "po_items_select" ON purchase_order_items;
 CREATE POLICY "po_items_select" ON purchase_order_items FOR SELECT
   USING (EXISTS (
     SELECT 1 FROM purchase_orders po
-    WHERE po.id = order_id AND kph_has_role_for_unit(po.unit_id)
+    WHERE po.id = order_id AND maza_has_role_for_unit(po.unit_id)
   ));
 
 DROP POLICY IF EXISTS "po_items_insert" ON purchase_order_items;
 CREATE POLICY "po_items_insert" ON purchase_order_items FOR INSERT
   WITH CHECK (EXISTS (
     SELECT 1 FROM purchase_orders po
-    WHERE po.id = order_id AND kph_has_role_for_unit(po.unit_id)
+    WHERE po.id = order_id AND maza_has_role_for_unit(po.unit_id)
   ));
 
 DROP POLICY IF EXISTS "po_items_update" ON purchase_order_items;
 CREATE POLICY "po_items_update" ON purchase_order_items FOR UPDATE
   USING (EXISTS (
     SELECT 1 FROM purchase_orders po
-    WHERE po.id = order_id AND kph_has_role_for_unit(po.unit_id)
+    WHERE po.id = order_id AND maza_has_role_for_unit(po.unit_id)
   ))
   WITH CHECK (EXISTS (
     SELECT 1 FROM purchase_orders po
-    WHERE po.id = order_id AND kph_has_role_for_unit(po.unit_id)
+    WHERE po.id = order_id AND maza_has_role_for_unit(po.unit_id)
   ));
 
 DROP POLICY IF EXISTS "po_items_delete" ON purchase_order_items;
 CREATE POLICY "po_items_delete" ON purchase_order_items FOR DELETE
-  USING (kph_is_founder());
+  USING (maza_is_founder());
 
 -- ── GRANTS (authenticated role) ────────────────────────────────
 GRANT SELECT, INSERT, UPDATE, DELETE ON suppliers            TO authenticated;

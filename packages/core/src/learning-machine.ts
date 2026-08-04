@@ -1,18 +1,18 @@
-// Learning Machine — análise semanal de atividade dos 40 agentes IA do KPH OS.
+// Learning Machine — análise semanal de atividade dos agentes IA da Maza.
 // Roda toda sexta via Vercel Cron (0 11 * * 5 = 08:00 BRT).
 // Requer ANTHROPIC_API_KEY configurada no ambiente.
 //
-// Kernel @kph/core: implementação ÚNICA, consumida pelo shell (apps/kph-os)
+// Kernel @maza/core: implementação ÚNICA, consumida pelo shell (apps/maza)
 // e pelo app inteligencia (apps/inteligencia). Notificação pós-relatório é
 // injetada pelo caller via `opts.notify` — o core não conhece Discord.
 
-import { createSupabaseServerClient } from "@kph/db/supabase/server";
+import { createSupabaseServerClient } from "@maza/db/supabase/server";
 
 // ── Catálogo dos 40 agentes por categoria ─────────────────────────────
 
 export const AGENT_REGISTRY: Record<string, string[]> = {
   "Código & Plataformas": [
-    "kph-os-dev",
+    "maza-dev",
     "hos-app-dev",
     "mise-dev",
     "mcp-builder",
@@ -189,7 +189,7 @@ export async function generateLearningMachineReport(
     .map(([cat, agents]) => `  ${cat} (${agents.length}): ${agents.join(", ")}`)
     .join("\n");
 
-  // 3) Call Claude Haiku for analysis (raw fetch — matches kph-os pattern)
+  // 3) Call Claude Haiku for analysis
   let insights: LMReportInsight | null = null;
   let rawAnalysis: string | null = null;
 
@@ -220,7 +220,7 @@ export async function generateLearningMachineReport(
           messages: [
             {
               role: "user",
-              content: `Você é o Learning Machine do KPH OS — plataforma de operações hospitaleiras para 9 marcas de restaurantes no Brasil. Analise a atividade semanal dos 40 agentes IA especializados.
+              content: `Você é o Learning Machine da Maza — plataforma de operações hospitaleiras. Analise a atividade semanal dos agentes IA especializados.
 
 Semana ${week}/${year} — Relatório Learning Machine
 

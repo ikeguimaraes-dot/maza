@@ -1,4 +1,4 @@
--- KPH OS — 035_gorjetas.sql
+-- Maza — 035_gorjetas.sql
 -- Módulo de Gorjetas baseado em sistema de pontos diário.
 -- Idempotente.
 
@@ -68,53 +68,53 @@ ALTER TABLE gorjeta_dias         ENABLE ROW LEVEL SECURITY;
 -- gorjeta_cargo_pontos
 DROP POLICY IF EXISTS "gorjeta_cargo_pontos_select" ON gorjeta_cargo_pontos;
 CREATE POLICY "gorjeta_cargo_pontos_select" ON gorjeta_cargo_pontos
-  FOR SELECT USING (public.kph_has_role_for_unit(unit_id));
+  FOR SELECT USING (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "gorjeta_cargo_pontos_insert" ON gorjeta_cargo_pontos;
 CREATE POLICY "gorjeta_cargo_pontos_insert" ON gorjeta_cargo_pontos
-  FOR INSERT WITH CHECK (public.kph_has_role_for_unit(unit_id));
+  FOR INSERT WITH CHECK (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "gorjeta_cargo_pontos_update" ON gorjeta_cargo_pontos;
 CREATE POLICY "gorjeta_cargo_pontos_update" ON gorjeta_cargo_pontos
-  FOR UPDATE USING (public.kph_has_role_for_unit(unit_id))
-  WITH CHECK (public.kph_has_role_for_unit(unit_id));
+  FOR UPDATE USING (public.maza_has_role_for_unit(unit_id))
+  WITH CHECK (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "gorjeta_cargo_pontos_delete" ON gorjeta_cargo_pontos;
 CREATE POLICY "gorjeta_cargo_pontos_delete" ON gorjeta_cargo_pontos
-  FOR DELETE USING (public.kph_has_role_for_unit(unit_id));
+  FOR DELETE USING (public.maza_has_role_for_unit(unit_id));
 
 -- gorjeta_periodos
 DROP POLICY IF EXISTS "gorjeta_periodos_select" ON gorjeta_periodos;
 CREATE POLICY "gorjeta_periodos_select" ON gorjeta_periodos
-  FOR SELECT USING (public.kph_has_role_for_unit(unit_id));
+  FOR SELECT USING (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "gorjeta_periodos_insert" ON gorjeta_periodos;
 CREATE POLICY "gorjeta_periodos_insert" ON gorjeta_periodos
-  FOR INSERT WITH CHECK (public.kph_has_role_for_unit(unit_id));
+  FOR INSERT WITH CHECK (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "gorjeta_periodos_update" ON gorjeta_periodos;
 CREATE POLICY "gorjeta_periodos_update" ON gorjeta_periodos
-  FOR UPDATE USING (public.kph_has_role_for_unit(unit_id))
-  WITH CHECK (public.kph_has_role_for_unit(unit_id));
+  FOR UPDATE USING (public.maza_has_role_for_unit(unit_id))
+  WITH CHECK (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "gorjeta_periodos_delete" ON gorjeta_periodos;
 CREATE POLICY "gorjeta_periodos_delete" ON gorjeta_periodos
-  FOR DELETE USING (public.kph_has_role_for_unit(unit_id));
+  FOR DELETE USING (public.maza_has_role_for_unit(unit_id));
 
 -- gorjeta_dias
 DROP POLICY IF EXISTS "gorjeta_dias_select" ON gorjeta_dias;
 CREATE POLICY "gorjeta_dias_select" ON gorjeta_dias
-  FOR SELECT USING (public.kph_has_role_for_unit(unit_id));
+  FOR SELECT USING (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "gorjeta_dias_insert" ON gorjeta_dias;
 CREATE POLICY "gorjeta_dias_insert" ON gorjeta_dias
-  FOR INSERT WITH CHECK (public.kph_has_role_for_unit(unit_id));
+  FOR INSERT WITH CHECK (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "gorjeta_dias_update" ON gorjeta_dias;
 CREATE POLICY "gorjeta_dias_update" ON gorjeta_dias
-  FOR UPDATE USING (public.kph_has_role_for_unit(unit_id))
-  WITH CHECK (public.kph_has_role_for_unit(unit_id));
+  FOR UPDATE USING (public.maza_has_role_for_unit(unit_id))
+  WITH CHECK (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "gorjeta_dias_delete" ON gorjeta_dias;
 CREATE POLICY "gorjeta_dias_delete" ON gorjeta_dias
-  FOR DELETE USING (public.kph_has_role_for_unit(unit_id));
+  FOR DELETE USING (public.maza_has_role_for_unit(unit_id));

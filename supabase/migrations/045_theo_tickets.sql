@@ -1,5 +1,5 @@
 -- Migration 045 — theo_tickets
--- Tabela de tickets do agente SAC Theo (WhatsApp interno KPH)
+-- Tabela de tickets do agente SAC Theo (WhatsApp interno MAZA)
 -- Aplicada manualmente em 10/05/2026 via psql (adicionada ao repo retroativamente)
 
 CREATE TABLE IF NOT EXISTS theo_tickets (

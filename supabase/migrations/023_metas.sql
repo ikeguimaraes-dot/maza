@@ -1,4 +1,4 @@
--- KPH OS — 023_metas.sql
+-- Maza — 023_metas.sql
 -- Sprint 4 / Etapa 2 — módulo Metas por marca.
 --
 -- Pré-req: 001 (groups/brands/units + helpers RBAC) · 010 (financeiro).
@@ -14,7 +14,7 @@
 --     v_headcount_por_marca já existentes — não há GENERATED.
 --   • target_notes: anotações livres por meta (auditoria/contexto).
 --   • RLS espelha o padrão Brand (templates de treinamento/avaliação):
---     SELECT/INSERT/UPDATE via kph_has_role_for_brand; DELETE founder.
+--     SELECT/INSERT/UPDATE via maza_has_role_for_brand; DELETE founder.
 
 -- ── TABELAS ────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS brand_targets (
@@ -62,20 +62,20 @@ ALTER TABLE target_notes  ENABLE ROW LEVEL SECURITY;
 -- brand_targets: SELECT/INSERT/UPDATE qualquer role na brand; DELETE founder.
 DROP POLICY IF EXISTS "bt_select" ON brand_targets;
 CREATE POLICY "bt_select" ON brand_targets FOR SELECT
-  USING (kph_has_role_for_brand(brand_id));
+  USING (maza_has_role_for_brand(brand_id));
 
 DROP POLICY IF EXISTS "bt_insert" ON brand_targets;
 CREATE POLICY "bt_insert" ON brand_targets FOR INSERT
-  WITH CHECK (kph_has_role_for_brand(brand_id));
+  WITH CHECK (maza_has_role_for_brand(brand_id));
 
 DROP POLICY IF EXISTS "bt_update" ON brand_targets;
 CREATE POLICY "bt_update" ON brand_targets FOR UPDATE
-  USING (kph_has_role_for_brand(brand_id))
-  WITH CHECK (kph_has_role_for_brand(brand_id));
+  USING (maza_has_role_for_brand(brand_id))
+  WITH CHECK (maza_has_role_for_brand(brand_id));
 
 DROP POLICY IF EXISTS "bt_delete" ON brand_targets;
 CREATE POLICY "bt_delete" ON brand_targets FOR DELETE
-  USING (kph_is_founder());
+  USING (maza_is_founder());
 
 -- target_notes: cascade via parent target. Usa IN ao invés de EXISTS pra
 -- evitar `bt.id` no SQL (o `.id` é TLD válido e renderers de chat o
@@ -84,19 +84,19 @@ DROP POLICY IF EXISTS "tn_select" ON target_notes;
 CREATE POLICY "tn_select" ON target_notes FOR SELECT
   USING (target_id IN (
     SELECT id FROM brand_targets
-    WHERE kph_has_role_for_brand(brand_id)
+    WHERE maza_has_role_for_brand(brand_id)
   ));
 
 DROP POLICY IF EXISTS "tn_insert" ON target_notes;
 CREATE POLICY "tn_insert" ON target_notes FOR INSERT
   WITH CHECK (target_id IN (
     SELECT id FROM brand_targets
-    WHERE kph_has_role_for_brand(brand_id)
+    WHERE maza_has_role_for_brand(brand_id)
   ));
 
 DROP POLICY IF EXISTS "tn_delete" ON target_notes;
 CREATE POLICY "tn_delete" ON target_notes FOR DELETE
-  USING (kph_is_founder());
+  USING (maza_is_founder());
 
 -- ── GRANTS ─────────────────────────────────────────────────────
 GRANT SELECT, INSERT, UPDATE, DELETE ON brand_targets TO authenticated;

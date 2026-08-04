@@ -1,4 +1,4 @@
--- KPH OS — 034_ponto_mensal.sql
+-- Maza — 034_ponto_mensal.sql
 -- Relatório de Ponto mensal importado do Totvs.
 -- Armazena o relatório agregado (≠ registros individuais de ponto).
 -- Cada linha = 1 colaborador por período por unidade.
@@ -76,12 +76,12 @@ ALTER TABLE ponto_mensal ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "ponto_mensal_select" ON ponto_mensal;
 CREATE POLICY "ponto_mensal_select" ON ponto_mensal
-  FOR SELECT USING (public.kph_has_role_for_unit(unit_id));
+  FOR SELECT USING (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "ponto_mensal_insert" ON ponto_mensal;
 CREATE POLICY "ponto_mensal_insert" ON ponto_mensal
-  FOR INSERT WITH CHECK (public.kph_has_role_for_unit(unit_id));
+  FOR INSERT WITH CHECK (public.maza_has_role_for_unit(unit_id));
 
 DROP POLICY IF EXISTS "ponto_mensal_delete" ON ponto_mensal;
 CREATE POLICY "ponto_mensal_delete" ON ponto_mensal
-  FOR DELETE USING (public.kph_has_role_for_unit(unit_id));
+  FOR DELETE USING (public.maza_has_role_for_unit(unit_id));

@@ -3,12 +3,13 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { CurrentUser } from "./server";
-import type { Unit } from "@kph/db/types/database";
-import { getBrowserClient } from "@kph/db/supabase/client";
+import type { Unit } from "@maza/db/types/database";
+import { getBrowserClient } from "@maza/db/supabase/client";
 
 type AuthContextValue = {
   user: CurrentUser | null;
   units: Unit[];
+  hasRegisteredUnits: boolean;
   unitId: string | null;
   setUnitId: (id: string) => void;
   signOut: () => Promise<void>;
@@ -16,7 +17,7 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-const STORED_UNIT_KEY = "kph_unit_id";
+const STORED_UNIT_KEY = "maza_unit_id";
 // Cookie espelha o localStorage pra Server Components conseguirem ler.
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 ano
 
@@ -36,10 +37,12 @@ function persistUnit(id: string) {
 export function AuthProvider({
   user,
   units,
+  hasRegisteredUnits,
   children,
 }: {
   user: CurrentUser | null;
   units: Unit[];
+  hasRegisteredUnits: boolean;
   children: React.ReactNode;
 }) {
   const router = useRouter();
@@ -83,9 +86,9 @@ export function AuthProvider({
   };
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, units, unitId, setUnitId, signOut }),
+    () => ({ user, units, hasRegisteredUnits, unitId, setUnitId, signOut }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [user, units, unitId],
+    [user, units, hasRegisteredUnits, unitId],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

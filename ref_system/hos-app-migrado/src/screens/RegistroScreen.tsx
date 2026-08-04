@@ -55,7 +55,7 @@ interface OvertimeRecord {
   reason?: string;
 }
 
-// KPH OS warnings: campos data / nivel / descricao (vs date/level/description antigos).
+// Maza warnings: campos data / nivel / descricao (vs date/level/description antigos).
 interface Warning {
   id: string;
   data: string;
@@ -80,7 +80,7 @@ interface TransportVoucher {
   valor_empresa?: number;
 }
 
-// KPH OS absences: campos data / tipo / motivo (vs date/type/reason antigos).
+// Maza absences: campos data / tipo / motivo (vs date/type/reason antigos).
 interface Absence {
   id: string;
   data: string;
@@ -141,13 +141,13 @@ export default function RegistroScreen({ navigation }: any) {
         .from('absences')
         .select('*')
         .eq('employee_id', employeeId)
-        // KPH OS: absences.data
+        // Maza: absences.data
         .order('data', { ascending: false }),
       supabase
         .from('warnings')
         .select('*')
         .eq('employee_id', employeeId)
-        // KPH OS: warnings.data
+        // Maza: warnings.data
         .order('data', { ascending: false }),
       supabase
         .from('tips_records')
@@ -269,7 +269,7 @@ export default function RegistroScreen({ navigation }: any) {
   }
 
   function renderAbsenceCard(item: Absence) {
-    // KPH OS: tipo / motivo / data.
+    // Maza: tipo / motivo / data.
     const isInjustificada = item.tipo?.toLowerCase().includes('injustificad');
     const isDanger = isInjustificada;
     return (
@@ -311,7 +311,7 @@ export default function RegistroScreen({ navigation }: any) {
     );
   }
 
-  // KPH OS: NUMERIC vem como string do PostgREST — converter aqui.
+  // Maza: NUMERIC vem como string do PostgREST — converter aqui.
   function formatCurrency(val?: number | string | null) {
     if (val == null || val === '') return '—';
     const n = typeof val === 'string' ? Number(val) : val;
@@ -320,7 +320,7 @@ export default function RegistroScreen({ navigation }: any) {
   }
 
   function renderTipsCard(item: TipsRecord) {
-    // KPH OS: valor_ponto vem como string (NUMERIC do PostgREST). Number() converte.
+    // Maza: valor_ponto vem como string (NUMERIC do PostgREST). Number() converte.
     const total = (item.pontos_liquidos ?? item.total_pontos ?? 0) * Number(item.valor_ponto ?? 0);
     return (
       <View style={styles.card}>
@@ -384,14 +384,14 @@ export default function RegistroScreen({ navigation }: any) {
   }
 
   function renderWarningCard(item: Warning) {
-    // KPH OS: warnings usa nivel = 'verbal' | 'escrita' | 'suspensao'
+    // Maza: warnings usa nivel = 'verbal' | 'escrita' | 'suspensao'
     // (vs 'leve' | 'moderada' | 'grave' antigo) — mapear ambas paletas.
     const levelColors: Record<string, string> = {
       // Antigos
       leve: '#F59E0B',
       moderada: '#F97316',
       grave: '#EF4444',
-      // KPH OS
+      // Maza
       verbal: '#F59E0B',
       escrita: '#F97316',
       suspensao: '#EF4444',

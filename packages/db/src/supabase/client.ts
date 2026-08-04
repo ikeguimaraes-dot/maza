@@ -26,7 +26,7 @@ export function getBrowserClient(): SupabaseClient<Database> | null {
     },
     // cookies: { getAll, setAll } bypassa o cookie.serialize() interno do @supabase/ssr,
     // que pode falhar silenciosamente em certos bundles (cookie v1.x + Turbopack).
-    // Escrevemos document.cookie diretamente — o mesmo mecanismo que kph_unit_id usa.
+    // Escrevemos document.cookie diretamente — o mesmo mecanismo que maza_unit_id usa.
     cookies: {
       getAll() {
         if (typeof document === "undefined") return [];

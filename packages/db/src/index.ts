@@ -1,10 +1,10 @@
-// @kph/db — Supabase clients + database types
+// @maza/db — Supabase clients + database types
 // Import specific exports via subpaths:
-//   @kph/db/supabase/client
-//   @kph/db/supabase/server
-//   @kph/db/supabase/proxy
-//   @kph/db/supabase/operations-client
-//   @kph/db/types/database
-//   @kph/db/types/operations-database
-//   @kph/db/types/pessoas
-//   @kph/db/types/compras-ingredientes
+//   @maza/db/supabase/client
+//   @maza/db/supabase/server
+//   @maza/db/supabase/proxy
+//   @maza/db/supabase/operations-client
+//   @maza/db/types/database
+//   @maza/db/types/operations-database
+//   @maza/db/types/pessoas
+//   @maza/db/types/compras-ingredientes

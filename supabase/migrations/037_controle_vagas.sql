@@ -59,7 +59,7 @@ CREATE POLICY "job_opening_logs_select" ON job_opening_logs
     EXISTS (
       SELECT 1 FROM job_openings jo
       WHERE jo.id = opening_id
-        AND public.kph_has_role_for_unit(jo.unit_id)
+        AND public.maza_has_role_for_unit(jo.unit_id)
     )
   );
 
@@ -69,7 +69,7 @@ CREATE POLICY "job_opening_logs_insert" ON job_opening_logs
     EXISTS (
       SELECT 1 FROM job_openings jo
       WHERE jo.id = opening_id
-        AND public.kph_has_role_for_unit(jo.unit_id)
+        AND public.maza_has_role_for_unit(jo.unit_id)
     )
   );
 
@@ -79,7 +79,7 @@ CREATE POLICY "job_opening_logs_delete" ON job_opening_logs
     EXISTS (
       SELECT 1 FROM job_openings jo
       WHERE jo.id = opening_id
-        AND public.kph_has_role_for_unit(jo.unit_id)
+        AND public.maza_has_role_for_unit(jo.unit_id)
     )
   );
 

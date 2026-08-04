@@ -41,11 +41,11 @@ DROP POLICY IF EXISTS "theo_tickets_select"        ON theo_tickets;
 CREATE POLICY "theo_tickets_select" ON theo_tickets
   FOR SELECT TO authenticated
   USING (
-    kph_is_founder()
+    maza_is_founder()
     OR EXISTS (
       SELECT 1 FROM employees e
       WHERE e.id = theo_tickets.employee_id
-        AND kph_has_role_for_unit(e.unit_id)
+        AND maza_has_role_for_unit(e.unit_id)
     )
   );
 
@@ -92,21 +92,21 @@ CREATE POLICY "candidatos_maya_select" ON candidatos_maya
   );
 
 
--- ── 5. kph_learning_proposals ────────────────────────────────────────────────
+-- ── 5. maza_learning_proposals ────────────────────────────────────────────────
 -- Contexto: propostas do Learning Machine — aprovadas/descartadas via Orquestrador.
 -- SELECT USING (true): intencional — transparência para todos os autenticados. Mantido.
 -- Problema: UPDATE USING (true) permite que qualquer autenticado aprove/descarte
 -- propostas de qualquer módulo, sem restrição de role.
 -- Fix: UPDATE restrito a founder. Somente o Ike aprova ou descarta propostas.
 
-DROP POLICY IF EXISTS "kph_learning_proposals_update"         ON kph_learning_proposals;
-DROP POLICY IF EXISTS "kph_learning_proposals_update_founder" ON kph_learning_proposals;
+DROP POLICY IF EXISTS "maza_learning_proposals_update"         ON maza_learning_proposals;
+DROP POLICY IF EXISTS "maza_learning_proposals_update_founder" ON maza_learning_proposals;
 
-CREATE POLICY "kph_learning_proposals_update_founder"
-  ON kph_learning_proposals
+CREATE POLICY "maza_learning_proposals_update_founder"
+  ON maza_learning_proposals
   FOR UPDATE
   TO authenticated
-  USING (kph_is_founder())
+  USING (maza_is_founder())
   WITH CHECK (status IN ('approved', 'dismissed'));
 
 
@@ -115,7 +115,7 @@ CREATE POLICY "kph_learning_proposals_update_founder"
 -- Problema: criada sem WITH (security_invoker = true) — queries na view rodavam
 -- com os privilégios do owner (postgres), bypassando o RLS de gorjeta_dias.
 -- Fix: recriar com security_invoker = true. A view passa a respeitar o RLS da
--- tabela base (gorjeta_dias usa kph_has_role_for_unit) automaticamente.
+-- tabela base (gorjeta_dias usa maza_has_role_for_unit) automaticamente.
 --
 -- Nota: o app mobile usa service_role → este fix não afeta o app.
 -- O fix fecha a brecha para usuários autenticados sem role na unidade certa.
@@ -141,7 +141,7 @@ GROUP BY gd.employee_id, to_char(gd.data, 'YYYY-MM');
 
 COMMENT ON VIEW public.tips_records IS
   'Agrega gorjeta_dias por colaborador/mês para o app mobile HOS. Read-only. '
-  'security_invoker=true: respeita RLS da tabela base (kph_has_role_for_unit).';
+  'security_invoker=true: respeita RLS da tabela base (maza_has_role_for_unit).';
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
@@ -173,8 +173,8 @@ BEGIN;
     -- espera: 0 (mesmo critério)
 
     (SELECT count(*)
-     FROM kph_learning_proposals
-     WHERE kph_is_founder())                             AS proposals_can_update;
+     FROM maza_learning_proposals
+     WHERE maza_is_founder())                             AS proposals_can_update;
     -- espera: 0 (não é founder — UPDATE policy rejeita)
 
 ROLLBACK;

@@ -1,5 +1,5 @@
 /**
- * KPH Score Policy — Kernel de pontuação oficial
+ * MAZA Score Policy — Kernel de pontuação oficial
  *
  * ÚNICA fonte de verdade para as regras de teto de score.
  * Qualquer módulo, qualquer painel — todos leem o mesmo número porque

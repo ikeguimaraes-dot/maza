@@ -20,8 +20,8 @@ create index restaurant_tables_unit_idx on restaurant_tables(unit_id);
 alter table restaurant_tables enable row level security;
 
 create policy "unit members can select tables"
-  on restaurant_tables for select using (kph_has_role_for_unit(unit_id));
+  on restaurant_tables for select using (maza_has_role_for_unit(unit_id));
 create policy "unit members can manage tables"
   on restaurant_tables for all
-  using (kph_has_role_for_unit(unit_id))
-  with check (kph_has_role_for_unit(unit_id));
+  using (maza_has_role_for_unit(unit_id))
+  with check (maza_has_role_for_unit(unit_id));

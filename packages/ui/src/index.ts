@@ -1,8 +1,8 @@
-// @kph/ui — shadcn/ui primitives + cn utility
+// @maza/ui — shadcn/ui primitives + cn utility
 // Import specific exports via subpaths:
-//   @kph/ui/avatar   @kph/ui/badge    @kph/ui/button
-//   @kph/ui/card     @kph/ui/command  @kph/ui/dialog
-//   @kph/ui/dropdown-menu   @kph/ui/input   @kph/ui/input-group
-//   @kph/ui/label    @kph/ui/select   @kph/ui/sheet
-//   @kph/ui/sonner   @kph/ui/table    @kph/ui/tabs
-//   @kph/ui/textarea @kph/ui/tooltip  @kph/ui/utils
+//   @maza/ui/avatar   @maza/ui/badge    @maza/ui/button
+//   @maza/ui/card     @maza/ui/command  @maza/ui/dialog
+//   @maza/ui/dropdown-menu   @maza/ui/input   @maza/ui/input-group
+//   @maza/ui/label    @maza/ui/select   @maza/ui/sheet
+//   @maza/ui/sonner   @maza/ui/table    @maza/ui/tabs
+//   @maza/ui/textarea @maza/ui/tooltip  @maza/ui/utils

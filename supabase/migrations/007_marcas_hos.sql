@@ -1,10 +1,10 @@
--- KPH OS — 007_marcas_hos.sql
--- Fase E1 — semeia as 11 marcas operacionais do Grupo HOS na holding KPH
+-- Maza — 007_marcas_hos.sql
+-- Fase E1 — semeia as 11 marcas operacionais do Grupo HOS na holding MAZA
 -- e cria a tabela brand_links (consolida os 12 portais Netlify externos
--- num único módulo /marcas dentro do KPH OS).
+-- num único módulo /marcas dentro da Maza).
 --
 -- Pré-req: 001 (groups/brands/units/roles + helpers RBAC) + seed.sql
--- (group 'kph' e brand 'madonna-cucina').
+-- (group 'maza' e brand 'madonna-cucina').
 --
 -- Idempotente: ON CONFLICT DO NOTHING / CREATE IF NOT EXISTS / DROP POLICY
 -- IF EXISTS antes de cada CREATE POLICY / NOT EXISTS no seed de links.
@@ -16,7 +16,7 @@ INSERT INTO roles (name, description) VALUES
 ON CONFLICT (name) DO NOTHING;
 
 -- ── Marcas operacionais (skip madonna-cucina, já está no seed) ─
-WITH g AS (SELECT id FROM groups WHERE slug = 'kph')
+WITH g AS (SELECT id FROM groups WHERE slug = 'maza')
 INSERT INTO brands (group_id, slug, name, color, active)
 SELECT g.id, b.slug, b.name, b.color, TRUE
 FROM g, (VALUES
@@ -50,12 +50,12 @@ ALTER TABLE brand_links ENABLE ROW LEVEL SECURITY;
 -- SELECT: qualquer usuário com role na marca (founder via helper).
 DROP POLICY IF EXISTS "brand_links_select" ON brand_links;
 CREATE POLICY "brand_links_select" ON brand_links FOR SELECT
-  USING (kph_has_role_for_brand(brand_id));
+  USING (maza_has_role_for_brand(brand_id));
 
 -- WRITE: founder/cfo (governança de links externos).
 DROP POLICY IF EXISTS "brand_links_write" ON brand_links;
 CREATE POLICY "brand_links_write" ON brand_links FOR ALL
-  USING (kph_is_founder_or_cfo());
+  USING (maza_is_founder_or_cfo());
 
 -- ── Seed dos links extraídos dos sub-portais Netlify ───────────
 -- Coletado em 2026-04-27 via curl direto nos portal-{slug}.netlify.app.

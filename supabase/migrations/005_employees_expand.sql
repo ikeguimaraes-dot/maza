@@ -55,14 +55,14 @@ DROP POLICY IF EXISTS "dependents_select" ON dependents;
 CREATE POLICY "dependents_select" ON dependents FOR SELECT
   USING (EXISTS (
     SELECT 1 FROM employees e
-    WHERE e.id = employee_id AND kph_has_role_for_unit(e.unit_id)
+    WHERE e.id = employee_id AND maza_has_role_for_unit(e.unit_id)
   ));
 
 DROP POLICY IF EXISTS "dependents_all" ON dependents;
 CREATE POLICY "dependents_all" ON dependents FOR ALL
   USING (EXISTS (
     SELECT 1 FROM employees e
-    WHERE e.id = employee_id AND kph_has_role_for_unit(e.unit_id)
+    WHERE e.id = employee_id AND maza_has_role_for_unit(e.unit_id)
   ));
 
 -- ── Faltas / atestados ─────────────────────────────────────────
@@ -84,7 +84,7 @@ DROP POLICY IF EXISTS "absences_all" ON absences;
 CREATE POLICY "absences_all" ON absences FOR ALL
   USING (EXISTS (
     SELECT 1 FROM employees e
-    WHERE e.id = employee_id AND kph_has_role_for_unit(e.unit_id)
+    WHERE e.id = employee_id AND maza_has_role_for_unit(e.unit_id)
   ));
 
 -- ── Advertências (CLT) ─────────────────────────────────────────
@@ -106,7 +106,7 @@ DROP POLICY IF EXISTS "warnings_all" ON warnings;
 CREATE POLICY "warnings_all" ON warnings FOR ALL
   USING (EXISTS (
     SELECT 1 FROM employees e
-    WHERE e.id = employee_id AND kph_has_role_for_unit(e.unit_id)
+    WHERE e.id = employee_id AND maza_has_role_for_unit(e.unit_id)
   ));
 
 -- ── Score / gamificação RH ─────────────────────────────────────
@@ -127,16 +127,16 @@ DROP POLICY IF EXISTS "score_select" ON score_events;
 CREATE POLICY "score_select" ON score_events FOR SELECT
   USING (EXISTS (
     SELECT 1 FROM employees e
-    WHERE e.id = employee_id AND kph_has_role_for_unit(e.unit_id)
+    WHERE e.id = employee_id AND maza_has_role_for_unit(e.unit_id)
   ));
 
 DROP POLICY IF EXISTS "score_insert" ON score_events;
 CREATE POLICY "score_insert" ON score_events FOR INSERT
   WITH CHECK (EXISTS (
     SELECT 1 FROM employees e
-    WHERE e.id = employee_id AND kph_has_role_for_unit(e.unit_id)
+    WHERE e.id = employee_id AND maza_has_role_for_unit(e.unit_id)
   ));
 
--- ── Banco de horas: origem (KPH calculado vs Totvs importado) ──
-ALTER TABLE time_bank_balance ADD COLUMN IF NOT EXISTS source TEXT DEFAULT 'kph';
+-- ── Banco de horas: origem (MAZA calculado vs Totvs importado) ──
+ALTER TABLE time_bank_balance ADD COLUMN IF NOT EXISTS source TEXT DEFAULT 'maza';
 ALTER TABLE time_bank_balance ADD COLUMN IF NOT EXISTS observacao TEXT;

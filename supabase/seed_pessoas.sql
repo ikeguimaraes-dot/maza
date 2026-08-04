@@ -1,4 +1,4 @@
--- KPH OS — seed de colaboradores fictícios pra desenvolvimento.
+-- Maza — seed de colaboradores fictícios para desenvolvimento.
 -- Idempotente — usa NOT EXISTS pra evitar duplicação.
 -- Vincula à unit Madonna SP Itaim (busca via brand slug).
 

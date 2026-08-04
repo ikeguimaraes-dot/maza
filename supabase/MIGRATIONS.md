@@ -6,7 +6,7 @@ Os arquivos nesta pasta são o registro do que já foi aplicado, não uma fila p
 
 ## Duplicatas de numeração (pré-fusão, já aplicadas — NÃO renomear)
 
-Antes da fusão Orkestri, o repo kph-os acumulou números duplicados. Todos os
+Antes da fusão Orkestri, o repo maza acumulou números duplicados. Todos os
 arquivos abaixo **já foram aplicados ao banco**; renomeá-los agora só quebraria
 a rastreabilidade com o histórico do git. Ficam como estão:
 
@@ -21,17 +21,17 @@ a rastreabilidade com o histórico do git. Ficam como estão:
 Ambos os arquivos de cada par foram aplicados. A ordem real de aplicação está
 no histórico do git (data do commit de cada arquivo).
 
-## 074–079: importadas do repo kph-os-inteligencia (fusão Orkestri, jun/2026)
+## 074–079: importadas do repo maza-inteligencia (fusão Orkestri, jun/2026)
 
-O repo `kph-os-inteligencia` mantinha migrations próprias numeradas 065–070,
-**colidindo** com as do kph-os. Na fusão foram renumeradas para 074–079 —
+O repo `maza-inteligencia` mantinha migrations próprias numeradas 065–070,
+**colidindo** com as do maza. Na fusão foram renumeradas para 074–079 —
 o conteúdo é idêntico ao original e **todas já estavam aplicadas ao banco**:
 
 | Novo nome | Nome original (repo inteligencia) |
 |---|---|
-| `074_kph_alerts.sql` | `065_kph_alerts.sql` |
-| `075_kph_intelligence_score.sql` | `066_kph_intelligence_score.sql` |
-| `076_kph_insights.sql` | `067_kph_insights.sql` |
+| `074_maza_alerts.sql` | `065_maza_alerts.sql` |
+| `075_maza_intelligence_score.sql` | `066_maza_intelligence_score.sql` |
+| `076_maza_insights.sql` | `067_maza_insights.sql` |
 | `077_agent_runs.sql` | `068_agent_runs.sql` |
 | `078_learning_machine_reports.sql` | `069_learning_machine_reports.sql` |
 | `079_seed_agent_runs.sql` | `070_seed_agent_runs.sql` |

@@ -1,5 +1,5 @@
 -- Migration 067: página de adoção — rastreamento de navegação
--- Standalone app kph-os-inteligencia (Sprint 2.2)
+-- Standalone app maza-inteligencia (Sprint 2.2)
 
 CREATE TABLE IF NOT EXISTS public.page_views (
   id          uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -19,7 +19,7 @@ DO $$ BEGIN
     SELECT 1 FROM pg_policies WHERE tablename = 'page_views' AND policyname = 'select_own'
   ) THEN
     CREATE POLICY "select_own" ON public.page_views
-      FOR SELECT USING (user_id = auth.uid() OR kph_is_founder_or_cfo());
+      FOR SELECT USING (user_id = auth.uid() OR maza_is_founder_or_cfo());
   END IF;
 
   IF NOT EXISTS (
