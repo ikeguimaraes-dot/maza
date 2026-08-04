@@ -548,6 +548,7 @@ function SidebarNav({ pathname, groups }: { pathname: string; groups: NavGroup[]
 
   return (
     <nav
+      className="sidebar-nav-scroll"
       style={{
         flex: 1,
         padding: "8px 12px",
@@ -575,7 +576,7 @@ function SidebarNav({ pathname, groups }: { pathname: string; groups: NavGroup[]
             }}
             style={{ display: "flex", flexDirection: "column", gap: 1 }}
           >
-            {g.title && (
+            {g.title ? (
               <summary
                 style={{
                   display: "flex",
@@ -607,6 +608,8 @@ function SidebarNav({ pathname, groups }: { pathname: string; groups: NavGroup[]
                   }}
                 />
               </summary>
+            ) : (
+              <summary aria-hidden="true" style={{ display: "none" }} />
             )}
             {g.items.map((it) => {
                 const Icon = it.icon;
