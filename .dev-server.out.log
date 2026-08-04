@@ -1,0 +1,126 @@
+
+> dev
+> turbo dev
+
+
+   • Packages in scope: @maza/auth, @maza/core, @maza/db, @maza/ui, maza
+   • Running dev in 5 packages
+   • Remote caching disabled
+
+maza:dev: cache bypass, force executing 15212d6f16499803
+maza:dev: 
+maza:dev: > maza@0.1.0 dev
+maza:dev: > next dev
+maza:dev: 
+maza:dev: ▲ Next.js 16.2.4 (Turbopack)
+maza:dev: - Local:         http://localhost:3000
+maza:dev: - Network:       http://192.168.68.67:3000
+maza:dev: - Environments: .env.local
+maza:dev: ✓ Ready in 448ms
+maza:dev: ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+maza:dev: 
+maza:dev: [shell-auth-boundary] {
+maza:dev:   pathname: '/financeiro/_next/webpack-hmr',
+maza:dev:   cookieNames: [
+maza:dev:   'kph_unit_id',
+maza:dev:   'kph_auth_session_backup',
+maza:dev:   'kph_access_token',
+maza:dev:   'kph_refresh_token',
+maza:dev:   'sb-dncqjezvndoxeqpklefy-auth-token',
+maza:dev:   'maza_auth_session_backup',
+maza:dev:   'maza_access_token',
+maza:dev:   'maza_refresh_token',
+maza:dev:   '__next_hmr_refresh_hash__'
+maza:dev: ],
+maza:dev:   authenticated: false,
+maza:dev:   authError: 'fetch failed'
+maza:dev: }
+maza:dev:  GET /login 200 in 356ms (next.js: 163ms, proxy.ts: 2ms, application-code: 190ms)
+maza:dev:  GET /login 200 in 43ms (next.js: 4ms, proxy.ts: 3ms, application-code: 36ms)
+maza:dev: [shell-auth-boundary] {
+maza:dev:   pathname: '/dashboard',
+maza:dev:   cookieNames: [
+maza:dev:   'kph_unit_id',
+maza:dev:   'kph_auth_session_backup',
+maza:dev:   'kph_access_token',
+maza:dev:   'kph_refresh_token',
+maza:dev:   'sb-dncqjezvndoxeqpklefy-auth-token',
+maza:dev:   'maza_auth_session_backup',
+maza:dev:   'maza_access_token',
+maza:dev:   'maza_refresh_token',
+maza:dev:   '__next_hmr_refresh_hash__'
+maza:dev: ],
+maza:dev:   authenticated: false,
+maza:dev:   authError: 'fetch failed'
+maza:dev: }
+maza:dev: Using the user object as returned from supabase.auth.getSession() or from some supabase.auth.onAuthStateChange() events could be insecure! This value comes directly from the storage medium (usually cookies on the server) and may not be authentic. Use supabase.auth.getUser() instead which authenticates the data by contacting the Supabase Auth server.
+maza:dev:  GET /login?next=%2Fdashboard 200 in 2.8s (next.js: 5ms, proxy.ts: 3ms, application-code: 2.8s)
+maza:dev: [shell-auth-boundary] {
+maza:dev:   pathname: '/financeiro/_next/static/chunks/%5Broot-of-the-server%5D__02nfq85._.css',
+maza:dev:   cookieNames: [
+maza:dev:   'kph_unit_id',
+maza:dev:   'kph_auth_session_backup',
+maza:dev:   'kph_access_token',
+maza:dev:   'kph_refresh_token',
+maza:dev:   'sb-dncqjezvndoxeqpklefy-auth-token',
+maza:dev:   'maza_auth_session_backup',
+maza:dev:   'maza_access_token',
+maza:dev:   'maza_refresh_token',
+maza:dev:   '__next_hmr_refresh_hash__'
+maza:dev: ],
+maza:dev:   authenticated: false,
+maza:dev:   authError: 'fetch failed'
+maza:dev: }
+maza:dev: [shell-auth-boundary] {
+maza:dev:   pathname: '/financeiro/_next/static/chunks/%5Bnext%5D_internal_font_google_11jv5o8._.css',
+maza:dev:   cookieNames: [
+maza:dev:   'kph_unit_id',
+maza:dev:   'kph_auth_session_backup',
+maza:dev:   'kph_access_token',
+maza:dev:   'kph_refresh_token',
+maza:dev:   'sb-dncqjezvndoxeqpklefy-auth-token',
+maza:dev:   'maza_auth_session_backup',
+maza:dev:   'maza_access_token',
+maza:dev:   'maza_refresh_token',
+maza:dev:   '__next_hmr_refresh_hash__'
+maza:dev: ],
+maza:dev:   authenticated: false,
+maza:dev:   authError: 'fetch failed'
+maza:dev: }
+maza:dev: Using the user object as returned from supabase.auth.getSession() or from some supabase.auth.onAuthStateChange() events could be insecure! This value comes directly from the storage medium (usually cookies on the server) and may not be authentic. Use supabase.auth.getUser() instead which authenticates the data by contacting the Supabase Auth server.
+maza:dev: Using the user object as returned from supabase.auth.getSession() or from some supabase.auth.onAuthStateChange() events could be insecure! This value comes directly from the storage medium (usually cookies on the server) and may not be authentic. Use supabase.auth.getUser() instead which authenticates the data by contacting the Supabase Auth server.
+maza:dev: [getCurrentUser] roles query error: TypeError: fetch failed
+maza:dev: [getCurrentUser] roles query error: TypeError: fetch failed
+maza:dev: [getCurrentUser] roles query error: TypeError: fetch failed
+maza:dev:  GET /login?next=%2Ffinanceiro%2F_next%2Fstatic%2Fchunks%2F%255Broot-of-the-server%255D__02nfq85._.css 200 in 7.2s (next.js: 12ms, proxy.ts: 5ms, application-code: 7.2s)
+maza:dev:  GET /login?next=%2Ffinanceiro%2F_next%2Fstatic%2Fchunks%2F%255Bnext%255D_internal_font_google_11jv5o8._.css 200 in 7.2s (next.js: 32ms, proxy.ts: 11ms, application-code: 7.1s)
+maza:dev: [shell-auth-boundary] {
+maza:dev:   pathname: '/financeiro/_next/webpack-hmr',
+maza:dev:   cookieNames: [
+maza:dev:   'kph_unit_id',
+maza:dev:   'kph_auth_session_backup',
+maza:dev:   'kph_access_token',
+maza:dev:   'kph_refresh_token',
+maza:dev:   'sb-dncqjezvndoxeqpklefy-auth-token',
+maza:dev:   'maza_auth_session_backup',
+maza:dev:   'maza_access_token',
+maza:dev:   'maza_refresh_token',
+maza:dev:   '__next_hmr_refresh_hash__'
+maza:dev: ],
+maza:dev:   authenticated: false,
+maza:dev:   authError: 'fetch failed'
+maza:dev: }
+maza:dev: [?25h
+maza:dev: npm error Lifecycle script `dev` failed with error:
+maza:dev: npm error code 4294967295
+maza:dev: npm error path C:\Users\Victor\Desktop\maza-completo\maza\apps\maza
+maza:dev: npm error workspace maza@0.1.0
+maza:dev: npm error location C:\Users\Victor\Desktop\maza-completo\maza\apps\maza
+maza:dev: npm error command failed
+maza:dev: npm error command C:\WINDOWS\system32\cmd.exe /d /s /c next dev
+
+ Tasks:    0 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    3m25.086s 
+Failed:    maza#dev
+

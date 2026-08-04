@@ -1,0 +1,3 @@
+• turbo 2.10.6
+maza#dev:  ERROR  command (C:\Users\Victor\Desktop\maza-completo\maza\apps\maza) C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js run dev exited (-1)
+ ERROR  run failed: command  exited (-1)

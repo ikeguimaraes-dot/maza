@@ -212,6 +212,18 @@
   }
 }
 
+/* Expansores nativos da navegação: continuam funcionais mesmo quando uma
+   página de módulo é carregada por proxy antes da hidratação do React. */
+.sidebar-disclosure > summary {
+  list-style: none;
+}
+.sidebar-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+.sidebar-disclosure[open] > summary .sidebar-disclosure-chevron {
+  transform: rotate(90deg);
+}
+
 /* ── Seleção de texto ── */
 ::selection {
   background: rgba(196,98,45,0.28);

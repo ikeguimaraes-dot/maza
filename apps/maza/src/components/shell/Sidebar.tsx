@@ -546,24 +546,6 @@ function SidebarNav({ pathname, groups }: { pathname: string; groups: NavGroup[]
     }
   }, [activeHref, groups]);
 
-  function toggleGroup(id: string) {
-    setOpenMap((prev) => {
-      const next = { ...prev, [id]: !prev[id] };
-      if (typeof window !== "undefined") {
-        try {
-          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-        } catch {
-          // ignora QuotaExceeded
-        }
-      }
-      return next;
-    });
-  }
-
-  function toggleItem(label: string) {
-    setOpenItems((prev) => ({ ...prev, [label]: !prev[label] }));
-  }
-
   return (
     <nav
       style={{
@@ -578,12 +560,23 @@ function SidebarNav({ pathname, groups }: { pathname: string; groups: NavGroup[]
       {groups.map((g) => {
         const isOpen = openMap[g.id] ?? g.defaultOpen;
         return (
-          <div key={g.id} style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          <details
+            key={g.id}
+            className="sidebar-disclosure"
+            open={isOpen}
+            onToggle={(event) => {
+              const nextOpen = event.currentTarget.open;
+              setOpenMap((prev) => {
+                if (prev[g.id] === nextOpen) return prev;
+                const next = { ...prev, [g.id]: nextOpen };
+                try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
+                return next;
+              });
+            }}
+            style={{ display: "flex", flexDirection: "column", gap: 1 }}
+          >
             {g.title && (
-              <button
-                type="button"
-                onClick={() => toggleGroup(g.id)}
-                aria-expanded={isOpen}
+              <summary
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -606,17 +599,16 @@ function SidebarNav({ pathname, groups }: { pathname: string; groups: NavGroup[]
                 )}
                 <span style={{ flex: 1 }}>{g.title}</span>
                 <ChevronRight
+                  className="sidebar-disclosure-chevron"
                   size={12}
                   style={{
                     color: "var(--text-3)",
-                    transform: isOpen ? "rotate(90deg)" : "none",
                     transition: hydrated ? "transform var(--t)" : "none",
                   }}
                 />
-              </button>
+              </summary>
             )}
-            {isOpen &&
-              g.items.map((it) => {
+            {g.items.map((it) => {
                 const Icon = it.icon;
 
                 if (it.children) {
@@ -624,10 +616,18 @@ function SidebarNav({ pathname, groups }: { pathname: string; groups: NavGroup[]
                   const childActive = it.children.some((c) => c.href === activeHref);
                   const highlighted = childActive;
                   return (
-                    <div key={it.label}>
-                      <button
-                        type="button"
-                        onClick={() => toggleItem(it.label)}
+                    <details
+                      key={it.label}
+                      className="sidebar-disclosure sidebar-subdisclosure"
+                      open={itemOpen}
+                      onToggle={(event) => {
+                        const nextOpen = event.currentTarget.open;
+                        setOpenItems((prev) => prev[it.label] === nextOpen
+                          ? prev
+                          : { ...prev, [it.label]: nextOpen });
+                      }}
+                    >
+                      <summary
                         style={{
                           position: "relative",
                           display: "flex",
@@ -666,16 +666,15 @@ function SidebarNav({ pathname, groups }: { pathname: string; groups: NavGroup[]
                         />
                         <span style={{ flex: 1 }}>{it.label}</span>
                         <ChevronRight
+                          className="sidebar-disclosure-chevron"
                           size={12}
                           style={{
                             color: "var(--text-3)",
-                            transform: itemOpen ? "rotate(90deg)" : "none",
                             transition: hydrated ? "transform var(--t)" : "none",
                           }}
                         />
-                      </button>
-                      {itemOpen &&
-                        it.children.map((child) => {
+                      </summary>
+                      {it.children.map((child) => {
                           if (!child.href) return null;
                           const ChildIcon = child.icon;
                           const childIsActive = child.href === activeHref;
@@ -721,7 +720,7 @@ function SidebarNav({ pathname, groups }: { pathname: string; groups: NavGroup[]
                             </ChildNavEl>
                           );
                         })}
-                    </div>
+                    </details>
                   );
                 }
 
@@ -768,7 +767,7 @@ function SidebarNav({ pathname, groups }: { pathname: string; groups: NavGroup[]
                   </NavEl>
                 );
               })}
-          </div>
+          </details>
         );
       })}
     </nav>
