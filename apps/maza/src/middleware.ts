@@ -19,6 +19,7 @@ import { updateSession } from "@maza/db/supabase/proxy";
  *   /auth/callback                — OAuth / magic link callback
  *   /auth/sign-out                — logout
  *   /api/ponto/punch              — colaboradores batem ponto sem sessão browser
+ *   /api/nav                      — configuração global lida pelos submódulos
  *   /api/orchestrator/*           — webhooks externos com CRON_SECRET/HMAC
  *   /api/cron/*                   — Vercel Cron (autenticação por header)
  */
@@ -27,6 +28,7 @@ const PUBLIC_PREFIXES: ReadonlyArray<string> = [
   "/recuperar-senha",
   "/auth/",
   "/api/ponto/punch",
+  "/api/nav",
   "/api/orchestrator/",
   "/api/cron/",
 ];
