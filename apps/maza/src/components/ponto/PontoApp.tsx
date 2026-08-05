@@ -678,12 +678,12 @@ function DebugPanel({
       style={{
         marginTop: 18,
         padding: "14px 16px",
-        background: "#1A1208",
-        border: "1px solid #D4A574",
+        background: "var(--surface-2)",
+        border: "1px solid var(--brand)",
         borderRadius: 12,
         fontFamily: "var(--font-geist-mono, monospace)",
         fontSize: 10,
-        color: "#D4A574",
+        color: "var(--brand)",
         lineHeight: 1.45,
         whiteSpace: "pre-wrap",
         wordBreak: "break-all",
@@ -724,8 +724,8 @@ function DebugPanel({
         disabled={loading}
         style={{
           padding: "6px 10px",
-          background: "#D4A574",
-          color: "#1A1208",
+          background: "var(--brand)",
+          color: "var(--primary-foreground)",
           border: "none",
           borderRadius: 6,
           fontSize: 10,

@@ -24,7 +24,7 @@ export default function GlobalError({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#111110",
+          background: "var(--background, #0A0A0B)",
           fontFamily: "ui-sans-serif, system-ui, sans-serif",
         }}
       >
@@ -32,7 +32,7 @@ export default function GlobalError({
           style={{
             maxWidth: 480,
             padding: "36px 28px",
-            background: "#1A1A18",
+            background: "var(--surface, #131316)",
             border: "1px solid rgba(245,240,232,0.08)",
             borderRadius: 16,
             display: "flex",
@@ -62,7 +62,7 @@ export default function GlobalError({
                 fontWeight: 700,
                 letterSpacing: 1.2,
                 textTransform: "uppercase",
-                color: "#A09890",
+                color: "var(--text-3, #71717A)",
               }}
             >
               Maza
@@ -72,7 +72,7 @@ export default function GlobalError({
                 fontSize: 20,
                 fontWeight: 700,
                 margin: "6px 0 0",
-                color: "#F5F0E8",
+                color: "var(--text, #E5E5E7)",
                 letterSpacing: -0.3,
               }}
             >
@@ -82,7 +82,7 @@ export default function GlobalError({
           <p
             style={{
               fontSize: 12,
-              color: "#C4BDB4",
+              color: "var(--text-2, #A1A1AA)",
               lineHeight: 1.6,
               margin: 0,
             }}
@@ -93,7 +93,7 @@ export default function GlobalError({
                 style={{
                   display: "block",
                   marginTop: 6,
-                  color: "#A09890",
+                  color: "var(--text-3, #71717A)",
                   fontFamily: "monospace",
                   fontSize: 10,
                 }}
@@ -128,8 +128,8 @@ export default function GlobalError({
                 display: "inline-flex",
                 alignItems: "center",
                 padding: "8px 14px",
-                background: "#222220",
-                color: "#C4BDB4",
+                background: "var(--surface-2, #1A1A1E)",
+                color: "var(--text-2, #A1A1AA)",
                 border: "1px solid rgba(245,240,232,0.08)",
                 borderRadius: 8,
                 fontSize: 12,

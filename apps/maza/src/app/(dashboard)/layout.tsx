@@ -34,7 +34,7 @@ export default async function DashboardLayout({
         <Sidebar />
         <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
           <TopBar />
-          <main className="shell-main" style={{ flex: 1, overflowY: "auto", padding: "32px 28px" }}>{children}</main>
+          <main className="shell-main maza-page-main" style={{ flex: 1, overflowY: "auto", padding: "32px 28px" }}>{children}</main>
         </div>
       </div>
     </AuthProvider>

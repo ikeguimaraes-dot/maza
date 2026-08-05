@@ -51,7 +51,7 @@ export function InsightPanel({ module, context, title = "Insight IA" }: Props) {
       style={{
         background: "var(--surface)",
         border: "1px solid var(--border)",
-        borderLeft: "3px solid #B8975A",
+        borderLeft: "3px solid var(--brand-secondary)",
         borderRadius: 10,
         padding: "20px 24px",
         marginTop: 28,
@@ -65,9 +65,9 @@ export function InsightPanel({ module, context, title = "Insight IA" }: Props) {
             fontWeight: 700,
             letterSpacing: 1.2,
             textTransform: "uppercase",
-            background: "#B8975A22",
-            color: "#B8975A",
-            border: "1px solid #B8975A44",
+            background: "var(--brand-secondary-soft)",
+            color: "var(--brand-secondary)",
+            border: "1px solid color-mix(in srgb, var(--brand-secondary) 27%, transparent)",
             borderRadius: 4,
             padding: "2px 8px",
           }}
@@ -158,7 +158,7 @@ export function InsightPanel({ module, context, title = "Insight IA" }: Props) {
                     width: 5,
                     height: 5,
                     borderRadius: 99,
-                    background: "#B8975A",
+                    background: "var(--brand-secondary)",
                     flexShrink: 0,
                     marginTop: 6,
                   }}
@@ -183,7 +183,7 @@ export function InsightPanel({ module, context, title = "Insight IA" }: Props) {
                 fontWeight: 700,
                 letterSpacing: 0.8,
                 textTransform: "uppercase",
-                color: "#B8975A",
+                color: "var(--brand-secondary)",
                 flexShrink: 0,
                 marginTop: 1,
               }}

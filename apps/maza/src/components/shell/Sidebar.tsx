@@ -53,7 +53,7 @@ function resolveIcon(name: string | null): LucideIcon | null {
 }
 
 // ── Tipos internos (ícones resolvidos) ───────────────────────
-type NavItem = { href?: string; label: string; icon: LucideIcon; defaultOpen?: boolean; children?: NavItem[] };
+type NavItem = { href?: string; label: string; icon: LucideIcon; roles?: string[]; defaultOpen?: boolean; children?: NavItem[] };
 type NavGroup = {
   id: string;
   title: string | null;
@@ -67,6 +67,7 @@ function resolveNavItem(it: NavItemConfig): NavItem {
     href: it.href,
     label: it.label,
     icon: resolveIcon(it.icon) ?? LayoutDashboard,
+    roles: it.roles,
     defaultOpen: it.defaultOpen,
     children: it.children ? it.children.map(resolveNavItem) : undefined,
   };
@@ -161,6 +162,18 @@ export function Sidebar() {
       : showName
     : "—";
   const role = user?.roles[0]?.role ?? "—";
+  const effectiveGroups = useMemo(() => {
+    const roles = new Set<string>((user?.roles ?? []).map((entry) => entry.role));
+    const filterItem = (item: NavItem): NavItem | null => {
+      if (item.roles?.length && !item.roles.some((allowed) => roles.has(allowed))) return null;
+      const children = item.children?.map(filterItem).filter((child): child is NavItem => child !== null);
+      if (item.children && !children?.length) return null;
+      return { ...item, children };
+    };
+    return NAV_GROUPS
+      .map((group) => ({ ...group, items: group.items.map(filterItem).filter((item): item is NavItem => item !== null) }))
+      .filter((group) => group.items.length > 0);
+  }, [user?.roles]);
 
   return (
     <>
@@ -282,7 +295,7 @@ export function Sidebar() {
           </div>
         </div>
 
-        <SidebarNav pathname={pathname} groups={NAV_GROUPS} />
+        <SidebarNav pathname={pathname} groups={effectiveGroups} />
 
         <div
           style={{
