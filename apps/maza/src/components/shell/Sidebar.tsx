@@ -164,8 +164,9 @@ export function Sidebar() {
   const role = user?.roles[0]?.role ?? "—";
   const effectiveGroups = useMemo(() => {
     const roles = new Set<string>((user?.roles ?? []).map((entry) => entry.role));
+    const hasFullAccess = roles.has("founder");
     const filterItem = (item: NavItem): NavItem | null => {
-      if (item.roles?.length && !item.roles.some((allowed) => roles.has(allowed))) return null;
+      if (!hasFullAccess && item.roles?.length && !item.roles.some((allowed) => roles.has(allowed))) return null;
       const children = item.children?.map(filterItem).filter((child): child is NavItem => child !== null);
       if (item.children && !children?.length) return null;
       return { ...item, children };
