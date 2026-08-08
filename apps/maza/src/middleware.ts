@@ -72,6 +72,6 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     // Tudo, EXCETO: assets do Next, arquivos estáticos, imagens e fontes.
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|otf)$).*)",
+    "/((?!_next/|(?:financeiro|pessoas|operacao|compras|comercial|marca|inteligencia|orquestrador)/_next/|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|otf)$).*)",
   ],
 };

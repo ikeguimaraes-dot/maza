@@ -33,9 +33,9 @@ const nextConfig = {
       // can load JS chunks from the correct zone app.
       {
         source: `${prefix}/_next/:path*`,
-        // assetPrefix altera a URL pedida pelo browser, não o caminho em que
-        // o sub-app publica os chunks. Remova o prefixo ao encaminhar.
-        destination: `${origin}/_next/:path*`,
+        // O sub-app publica os chunks no namespace do assetPrefix; preserve
+        // esse prefixo também no destino para o runtime correto hidratar.
+        destination: `${origin}${prefix}/_next/:path*`,
       },
       // Mantém as chamadas de API sob o domínio do shell, onde está a sessão,
       // e remove o prefixo antes de encaminhar ao Route Handler do sub-app.
