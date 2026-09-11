@@ -27,7 +27,9 @@ import {
   // marca
   Bookmark, Info, Globe, Award,
   // inteligencia
-  Brain, Target, LineChart, Layers, Bug, Map, BarChart3, Workflow
+  Brain, Target, LineChart, Layers, Bug, Map, BarChart3, Workflow,
+  // mise
+  ChefHat,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useAuth, useUnit } from "@maza/auth/context";
@@ -45,6 +47,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Handshake, MessageSquare, CalendarCheck, Bot, Megaphone, Filter,
   Bookmark, Info, Globe, Award,
   Brain, Target, LineChart, Layers, Bug, Map, BarChart3, Workflow,
+  ChefHat,
 };
 
 function resolveIcon(name: string | null): LucideIcon | null {
@@ -60,6 +63,7 @@ type NavGroup = {
   icon: LucideIcon | null;
   items: NavItem[];
   defaultOpen: boolean;
+  habilitado: boolean;
 };
 
 function resolveNavItem(it: NavItemConfig): NavItem {
@@ -79,6 +83,7 @@ function resolveGroups(raw: NavGroupConfig[]): NavGroup[] {
     title: g.label,
     icon: resolveIcon(g.icon),
     defaultOpen: g.defaultOpen,
+    habilitado: g.habilitado ?? true,
     items: g.items.map(resolveNavItem),
   }));
 }
@@ -573,6 +578,33 @@ function SidebarNav({ pathname, groups }: { pathname: string; groups: NavGroup[]
       }}
     >
       {groups.map((g) => {
+        if (!g.habilitado) {
+          return (
+            <div
+              key={g.id}
+              aria-disabled="true"
+              title="Módulo não habilitado"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                width: "100%",
+                padding: "10px 8px 4px",
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: 1.2,
+                textTransform: "uppercase",
+                color: "var(--text-3)",
+                opacity: 0.45,
+                cursor: "not-allowed",
+                userSelect: "none",
+              }}
+            >
+              {g.icon && <g.icon size={11} style={{ color: "var(--text-3)" }} />}
+              <span style={{ flex: 1 }}>{g.title}</span>
+            </div>
+          );
+        }
         const isOpen = openMap[g.id] ?? g.defaultOpen;
         return (
           <details

@@ -13,6 +13,7 @@ function zoneUrl(envName: string, localPort: number, productionHost: string) {
 
 const zones = [
   { prefix: "/financeiro",   origin: zoneUrl("FINANCEIRO_APP_URL", 3001, "maza-financeiro.vercel.app") },
+  { prefix: "/mise",         origin: zoneUrl("MISE_APP_URL", 3008, "maza-mise-liard.vercel.app") },
   { prefix: "/pessoas",      origin: zoneUrl("PESSOAS_APP_URL", 3002, "localhost:3002") },
   { prefix: "/operacao",     origin: zoneUrl("OPERACAO_APP_URL", 3003, "maza-operacao.vercel.app") },
   { prefix: "/compras",      origin: zoneUrl("COMPRAS_APP_URL", 3004, "maza-compras.vercel.app") },

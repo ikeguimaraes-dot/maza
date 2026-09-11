@@ -12,6 +12,8 @@ export type NavGroupConfig = {
   label: string | null;
   icon: string | null;
   defaultOpen: boolean;
+  /** false esconde o submenu e desabilita o grupo inteiro. Ausente = habilitado. */
+  habilitado?: boolean;
   items: NavItemConfig[];
 };
 
@@ -21,43 +23,9 @@ export const NAV_CONFIG: NavGroupConfig[] = [
     label: null,
     icon: null,
     defaultOpen: true,
+    habilitado: true,
     items: [
       { label: "Dashboard", href: "/dashboard", icon: "LayoutDashboard" },
-    ],
-  },
-  {
-    id: "operacao",
-    label: "Operação",
-    icon: "TrendingUp",
-    defaultOpen: false,
-    items: [
-      { label: "Visão Geral",   href: "/operacao",             icon: "LayoutDashboard" },
-      { label: "Mapa da Casa",  href: "/operacao/mapa",        icon: "MapPin" },
-      { label: "Performance",   href: "/operacao/performance",  icon: "Activity" },
-      { label: "Vendedores",    href: "/operacao/vendedores",   icon: "UserCheck" },
-      { label: "Auditorias",    href: "/operacao/auditorias",   icon: "ClipboardList" },
-      { label: "Pedidos",       href: "/operacao/pedidos",      icon: "ShoppingCart" },
-      { label: "Manutenção",    href: "/operacao/manutencao",   icon: "Wrench" },
-      { label: "Eventos",                   href: "/operacao/eventos",                         icon: "CalendarDays",  roles: ["gm", "founder", "comercial"] },
-      { label: "Formulário de Recrutamento", href: "/operacao/pessoas/formulario-recrutamento", icon: "ClipboardList", roles: ["pessoas", "gm", "founder"] },
-    ],
-  },
-  {
-    id: "compras",
-    label: "Compras",
-    icon: "ShoppingCart",
-    defaultOpen: false,
-    items: [
-      { label: "Cardápio",          href: "/cardapio",             icon: "BookOpen" },
-      { label: "Ingredientes",      href: "/compras/ingredientes", icon: "Carrot" },
-      { label: "Pedidos",           href: "/compras",              icon: "ShoppingCart" },
-      { label: "Estoque",           href: "/compras/estoque",      icon: "Package" },
-      { label: "Logística",         href: "/compras/logistica",    icon: "Truck" },
-      { label: "Fornecedores",      href: "/compras/fornecedores", icon: "Building2" },
-      { label: "Cotações",          href: "/compras/cotacoes",     icon: "FileText" },
-      { label: "Recebimento",       href: "/compras/recebimento",  icon: "PackageCheck" },
-      { label: "Análise CMV",       href: "/compras/analise",      icon: "PieChart" },
-      { label: "Feedback Produto",  href: "/compras/feedback",     icon: "Star" },
     ],
   },
   {
@@ -65,10 +33,11 @@ export const NAV_CONFIG: NavGroupConfig[] = [
     label: "Financeiro",
     icon: "Wallet",
     defaultOpen: false,
+    habilitado: true,
     items: [
       { label: "Cockpit",           href: "/financeiro",             icon: "Gauge" },
       { label: "Fluxo de Caixa",    href: "/financeiro/fluxo",       icon: "ArrowLeftRight" },
-      { label: "DRE", icon: "Sheet", defaultOpen: true, children: [
+      { label: "DRE", icon: "Sheet", children: [
         { label: "DRE Gerencial",     icon: "LayoutGrid",      href: "/financeiro/dre" },
         { label: "Gerencial",         icon: "LayoutDashboard", href: "/financeiro/dre/gerencial" },
         { label: "Receita",           icon: "TrendingUp",      href: "/financeiro/dre/receita" },
@@ -98,21 +67,69 @@ export const NAV_CONFIG: NavGroupConfig[] = [
     ],
   },
   {
+    id: "mise",
+    label: "MISE",
+    icon: "ChefHat",
+    defaultOpen: false,
+    habilitado: true,
+    items: [
+      { label: "Visão Geral", href: "/mise", icon: "ChefHat" },
+    ],
+  },
+  {
+    id: "operacao",
+    label: "Operação",
+    icon: "TrendingUp",
+    defaultOpen: false,
+    habilitado: false,
+    items: [
+      { label: "Visão Geral",   href: "/operacao",             icon: "LayoutDashboard" },
+      { label: "Mapa da Casa",  href: "/operacao/mapa",        icon: "MapPin" },
+      { label: "Performance",   href: "/operacao/performance",  icon: "Activity" },
+      { label: "Vendedores",    href: "/operacao/vendedores",   icon: "UserCheck" },
+      { label: "Auditorias",    href: "/operacao/auditorias",   icon: "ClipboardList" },
+      { label: "Pedidos",       href: "/operacao/pedidos",      icon: "ShoppingCart" },
+      { label: "Manutenção",    href: "/operacao/manutencao",   icon: "Wrench" },
+      { label: "Eventos",                   href: "/operacao/eventos",                         icon: "CalendarDays",  roles: ["gm", "founder", "comercial"] },
+      { label: "Formulário de Recrutamento", href: "/operacao/pessoas/formulario-recrutamento", icon: "ClipboardList", roles: ["pessoas", "gm", "founder"] },
+    ],
+  },
+  {
+    id: "compras",
+    label: "Compras",
+    icon: "ShoppingCart",
+    defaultOpen: false,
+    habilitado: false,
+    items: [
+      { label: "Cardápio",          href: "/cardapio",             icon: "BookOpen" },
+      { label: "Ingredientes",      href: "/compras/ingredientes", icon: "Carrot" },
+      { label: "Pedidos",           href: "/compras",              icon: "ShoppingCart" },
+      { label: "Estoque",           href: "/compras/estoque",      icon: "Package" },
+      { label: "Logística",         href: "/compras/logistica",    icon: "Truck" },
+      { label: "Fornecedores",      href: "/compras/fornecedores", icon: "Building2" },
+      { label: "Cotações",          href: "/compras/cotacoes",     icon: "FileText" },
+      { label: "Recebimento",       href: "/compras/recebimento",  icon: "PackageCheck" },
+      { label: "Análise CMV",       href: "/compras/analise",      icon: "PieChart" },
+      { label: "Feedback Produto",  href: "/compras/feedback",     icon: "Star" },
+    ],
+  },
+  {
     id: "pessoas",
     label: "Pessoas",
     icon: "Users",
-    defaultOpen: true,
+    defaultOpen: false,
+    habilitado: false,
     items: [
       { label: "Visão Geral", href: "/pessoas", icon: "LayoutDashboard" },
       { label: "Aprovações", href: "/pessoas/aprovacoes", icon: "ShieldAlert" },
-      { label: "Recrutamento", icon: "Briefcase", defaultOpen: true, children: [
+      { label: "Recrutamento", icon: "Briefcase", children: [
         { label: "Vagas", href: "/pessoas/vagas", icon: "Briefcase" },
         { label: "Pipeline", href: "/pessoas/recrutamento", icon: "Users" },
         { label: "Banco de Talentos", href: "/pessoas/recrutamento/banco-talentos", icon: "UserPlus" },
         { label: "Quadro Ideal", href: "/pessoas/recrutamento/quadro-ideal", icon: "LayoutGrid" },
         { label: "Importar CVs", href: "/pessoas/recrutamento/importar-cvs", icon: "Upload" },
       ] },
-      { label: "DP", icon: "User", defaultOpen: true, children: [
+      { label: "DP", icon: "User", children: [
         { label: "Colaboradores", href: "/pessoas/colaboradores", icon: "User" },
         { label: "Ponto", href: "/pessoas/ponto", icon: "Clock" },
         { label: "Espelho de Ponto", href: "/pessoas/ponto/espelho", icon: "FileBarChart2" },
@@ -157,6 +174,7 @@ export const NAV_CONFIG: NavGroupConfig[] = [
     label: "Comercial",
     icon: "Handshake",
     defaultOpen: false,
+    habilitado: false,
     items: [
       { label: "CRM Clientes", href: "/cliente",            icon: "MessageSquare" },
       { label: "Reservas",     href: "/comercial/reservas", icon: "CalendarCheck" },
@@ -171,6 +189,7 @@ export const NAV_CONFIG: NavGroupConfig[] = [
     label: "Marca",
     icon: "Bookmark",
     defaultOpen: false,
+    habilitado: false,
     items: [
       { label: "Diretório",     href: "/marcas",           icon: "Building2" },
       { label: "BrandBook",     href: "/marca/brandbook",  icon: "BookOpen" },
@@ -184,6 +203,7 @@ export const NAV_CONFIG: NavGroupConfig[] = [
     label: "Inteligência",
     icon: "Brain",
     defaultOpen: false,
+    habilitado: false,
     items: [
       { label: "Metas",           href: "/inteligencia/metas",    icon: "Target" },
       { label: "WBR",             href: "/inteligencia/wbr",      icon: "LineChart" },
