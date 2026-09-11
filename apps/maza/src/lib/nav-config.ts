@@ -215,3 +215,20 @@ export const NAV_CONFIG: NavGroupConfig[] = [
     ],
   },
 ];
+
+/**
+ * Hash determinístico e isomórfico (roda em server e client, sem
+ * node:crypto) do conteúdo de NAV_CONFIG. Usado por /api/nav (campo
+ * "versao", pras zonas) e pela Sidebar (invalidar localStorage quando o
+ * menu muda) — as duas fontes precisam concordar no mesmo valor.
+ */
+function hashNavConfig(config: NavGroupConfig[]): string {
+  const json = JSON.stringify(config);
+  let hash = 0;
+  for (let i = 0; i < json.length; i++) {
+    hash = (hash * 31 + json.charCodeAt(i)) | 0;
+  }
+  return (hash >>> 0).toString(16).padStart(8, "0");
+}
+
+export const NAV_VERSAO = hashNavConfig(NAV_CONFIG);

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ZoneLink } from "./ZoneLink";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { NAV_CONFIG, type NavGroupConfig, type NavItemConfig } from "@/lib/nav-config";
+import { NAV_CONFIG, NAV_VERSAO, type NavGroupConfig, type NavItemConfig } from "@/lib/nav-config";
 import {
   // shell
   ChevronDown, ChevronRight, Check, LogOut,
@@ -91,6 +91,7 @@ function resolveGroups(raw: NavGroupConfig[]): NavGroup[] {
 const NAV_GROUPS: NavGroup[] = resolveGroups(NAV_CONFIG);
 
 const STORAGE_KEY = "maza_sidebar_groups";
+const VERSAO_STORAGE_KEY = "maza_sidebar_versao";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -536,10 +537,19 @@ function SidebarNav({ pathname, groups }: { pathname: string; groups: NavGroup[]
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as Record<string, boolean>;
-        setOpenMap((prev) => ({ ...prev, ...parsed }));
+      const savedVersao = window.localStorage.getItem(VERSAO_STORAGE_KEY);
+      if (savedVersao !== NAV_VERSAO) {
+        // Menu mudou desde a última visita (grupo novo/removido/renomeado) —
+        // descarta o estado de expansão salvo em vez de arriscar ficar
+        // inconsistente, e volta pro padrão recolhido.
+        window.localStorage.removeItem(STORAGE_KEY);
+        window.localStorage.setItem(VERSAO_STORAGE_KEY, NAV_VERSAO);
+      } else {
+        const raw = window.localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw) as Record<string, boolean>;
+          setOpenMap((prev) => ({ ...prev, ...parsed }));
+        }
       }
     } catch {
       // ignora corrupção
