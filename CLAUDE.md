@@ -96,3 +96,10 @@ mesmo prefixo. Colisões conhecidas:
 
 Antes de criar página local sob um prefixo de zona, verifique se já existe
 zona configurada pra ele em `apps/maza/next.config.ts`.
+
+## Menu entre zonas
+
+O menu é servido pelo shell em `/api/nav`. Zonas NÃO devem manter config de
+navegação própria — consomem essa rota. Formato: `{ versao, shellUrl,
+groups }`, onde `groups` é `NavGroupConfig[]` com `icon` como string (nome
+do ícone Lucide), `habilitado` (boolean) e `items` recursivos.
