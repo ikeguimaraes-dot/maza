@@ -61,7 +61,7 @@ export const NAV_CONFIG: NavGroupConfig[] = [
       { label: "Contratos",          href: "/financeiro/contratos",  icon: "FileText" },
       { label: "Contas a Pagar",    href: "/financeiro/pagar",       icon: "CreditCard" },
       { label: "Contas a Receber",  href: "/financeiro/receber",     icon: "Banknote" },
-      { label: "Aprovações",        href: "/financeiro/aprovacoes",  icon: "CheckSquare" },
+      { label: "Conferência",       href: "/financeiro/aprovacoes",  icon: "CheckSquare" },
       { label: "Conciliação",       href: "/financeiro/conciliacao", icon: "RefreshCw" },
       { label: "Orçamento",         href: "/financeiro/orcamento",   icon: "PiggyBank" },
     ],
