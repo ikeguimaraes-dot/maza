@@ -34,7 +34,8 @@ export function CommandPalette({ open, onOpenChange }: Props) {
   const navigate = useCallback(
     (path: string) => {
       onOpenChange(false);
-      router.push(path);
+      if (path === "/dashboard") window.location.assign(path);
+      else router.push(path);
     },
     [router, onOpenChange],
   );

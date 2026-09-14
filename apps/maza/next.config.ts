@@ -11,8 +11,10 @@ function zoneUrl(envName: string, localPort: number, productionHost: string) {
     : `https://${productionHost}`;
 }
 
+const financeiroOrigin = zoneUrl("FINANCEIRO_APP_URL", 3001, "maza-financeiro.vercel.app");
+
 const zones = [
-  { prefix: "/financeiro",   origin: zoneUrl("FINANCEIRO_APP_URL", 3001, "maza-financeiro.vercel.app") },
+  { prefix: "/financeiro",   origin: financeiroOrigin },
   { prefix: "/mise",         origin: zoneUrl("MISE_APP_URL", 3008, "maza-mise-visao.vercel.app") },
   { prefix: "/pessoas",      origin: zoneUrl("PESSOAS_APP_URL", 3002, "localhost:3002") },
   { prefix: "/operacao",     origin: zoneUrl("OPERACAO_APP_URL", 3003, "maza-operacao.vercel.app") },
@@ -54,7 +56,9 @@ const nextConfig = {
         destination: `${origin}${prefix}/:path*`,
       },
     ]);
-    return { afterFiles };
+    // Dashboard belongs to the financial zone and uses the same cockpit.
+    // Its assets are already handled by the /financeiro/_next rewrite.
+    return { afterFiles: [{ source: "/dashboard", destination: `${financeiroOrigin}/dashboard` }, ...afterFiles] };
   },
 };
 

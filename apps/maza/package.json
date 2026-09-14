@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "type-check": "tsc --noEmit",
+    "test:dashboard": "node --test tests/dashboard-routing.test.mjs",
     "etl:hos": "tsx --env-file=.env.local scripts/etl-hos-to-maza.ts"
   },
   "dependencies": {
