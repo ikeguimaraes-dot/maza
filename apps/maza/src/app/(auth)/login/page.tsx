@@ -50,7 +50,7 @@ export default async function LoginPage({
             className="size-12 rounded-xl flex items-center justify-center font-heading text-2xl"
             style={{
               background: "var(--brand, #C4622D)",
-              color: "var(--maza-creme, #F5F0E8)",
+              color: "var(--primary-foreground)",
               fontWeight: 600,
             }}
           >

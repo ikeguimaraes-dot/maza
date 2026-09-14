@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useMobileNavigation } from "@/components/ui/useMobileNavigation";
 import { usePathname } from "next/navigation";
 import { ZoneLink } from "./ZoneLink";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NAV_CONFIG, NAV_VERSAO, type NavGroupConfig, type NavItemConfig } from "@/lib/nav-config";
 import {
   // shell
-  ChevronDown, ChevronRight, Check, LogOut,
+  ChevronDown, ChevronRight, Check, LogOut, X,
   // dashboard
   LayoutDashboard,
   // operacao
@@ -101,6 +102,10 @@ export function Sidebar() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const sidebarRef = useRef<HTMLElement>(null);
+  const closeMobile = useCallback(() => setMobileOpen(false), []);
+  useMobileNavigation(sidebarRef, mobileOpen, closeMobile);
+  useEffect(() => { window.dispatchEvent(new CustomEvent("maza:sidebarState", { detail: mobileOpen })); }, [mobileOpen]);
   // Confirmação de logout — modal simples evita clicar o botão Sair
   // sem querer ao navegar em sidebar estreita (1920×1080).
   const [signOutConfirm, setSignOutConfirm] = useState(false);
@@ -189,6 +194,9 @@ export function Sidebar() {
         onClick={() => setMobileOpen(false)}
       />
       <aside
+        id="maza-sidebar"
+        aria-label="Navegação principal"
+        ref={sidebarRef}
         className={`shell-sidebar ${mobileOpen ? "open" : ""}`}
         style={{
           width: 240, flexShrink: 0,
@@ -196,38 +204,18 @@ export function Sidebar() {
           display: "flex", flexDirection: "column",
         }}
       >
-        <div style={{ padding: "20px 16px 16px", borderBottom: "1px solid var(--sidebar-border)" }}>
-          <div
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "1.25rem",
-              fontWeight: 400,
-              color: "var(--text)",
-              letterSpacing: "-0.02em",
-              lineHeight: 1,
-            }}
-          >
-            Maza
-          </div>
-          <div
-            style={{
-              fontSize: "0.625rem",
-              color: "var(--text-3)",
-              marginTop: 4,
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
-              fontWeight: 600,
-              fontFamily: "var(--font-ui)",
-            }}
-          >
-            Operações
-          </div>
+        <div className="maza-brand">
+          <span className="maza-brand-symbol" aria-hidden="true">m</span>
+          <div><div className="maza-brand-word">maza.</div><div className="maza-brand-caption">Gestão com propósito</div></div>
+          <button type="button" className="maza-icon-button maza-sidebar-close" aria-label="Fechar menu" onClick={closeMobile}><X size={18} /></button>
         </div>
 
         <div style={{ padding: "12px 16px" }}>
           <div ref={ref} style={{ position: "relative" }}>
             <button
               onClick={() => setOpen((v) => !v)}
+              aria-expanded={open}
+              aria-label="Selecionar unidade"
               disabled={units.length === 0}
               style={{
                 width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -742,6 +730,7 @@ function SidebarNav({ pathname, groups }: { pathname: string; groups: NavGroup[]
                             <ChildNavEl
                               key={child.href}
                               href={child.href}
+                              current={childIsActive}
                               style={{
                                 position: "relative",
                                 display: "flex",
@@ -789,6 +778,7 @@ function SidebarNav({ pathname, groups }: { pathname: string; groups: NavGroup[]
                   <NavEl
                     key={it.href}
                     href={it.href!}
+                    current={active}
                     style={{
                       position: "relative",
                       display: "flex",

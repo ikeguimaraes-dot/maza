@@ -91,7 +91,7 @@ export function RecoveryForm() {
         )}
         style={{
           background: "var(--brand, #C4622D)",
-          color: "var(--maza-creme, #F5F0E8)",
+          color: "var(--primary-foreground)",
         }}
         onMouseEnter={(e) => {
           if (!pending) e.currentTarget.style.background = "var(--brand-strong, #A84E22)";
