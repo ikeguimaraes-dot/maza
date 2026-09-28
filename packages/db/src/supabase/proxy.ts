@@ -77,7 +77,7 @@ export async function updateSession(request: NextRequest) {
         const renewed = safeCookies.find(({ name }) => name === authCookieName);
         if (renewed) {
           response.cookies.set(backupCookieName, renewed.value, {
-            path: "/", httpOnly: true, sameSite: "lax", secure: false,
+            path: "/", httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production",
             maxAge: 60 * 60 * 24 * 30,
           });
         }
@@ -85,15 +85,13 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  // getClaims() valida a assinatura do JWT e usa o JWKS em cache quando
-  // disponível. Isso evita uma chamada remota ao Auth a cada troca de zona,
-  // que fazia falhas transitórias serem interpretadas como logout.
-  const { data, error } = await supabase.auth.getClaims();
-  const subject = data?.claims?.sub;
+  // Validação remota: cookies presentes ou JWT decodificável não provam que a
+  // sessão continua válida (ela pode ter sido revogada no provedor).
+  const { data, error } = await supabase.auth.getUser();
 
   return {
     response,
-    user: subject ? { id: subject } : null,
+    user: data.user,
     authError: error,
   };
 }

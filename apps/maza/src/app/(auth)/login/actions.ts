@@ -3,6 +3,11 @@
 import { redirect } from "next/navigation";
 import { cookies, headers } from "next/headers";
 import { createSupabaseServerClient } from "@maza/db/supabase/server";
+import {
+  assertLoginAllowed,
+  clearLoginFailures,
+  recordLoginFailure,
+} from "@/lib/auth/rate-limit";
 
 /**
  * Server Action de login.
@@ -47,6 +52,16 @@ export async function signIn(input: SignInInput): Promise<SignInResult> {
     return { ok: false, error: "Senha deve ter pelo menos 6 caracteres." };
   }
 
+  try {
+    if (!(await assertLoginAllowed(input.email))) {
+      return { ok: false, error: "Muitas tentativas. Aguarde 15 minutos e tente novamente." };
+    }
+  } catch {
+    if (process.env.NODE_ENV === "production") {
+      return { ok: false, error: "Serviço de autenticação temporariamente indisponível." };
+    }
+  }
+
   // ── Origem (pra montar redirect pós-login de forma segura) ──
   const headerStore = await headers();
   const origin = headerStore.get("origin") ?? headerStore.get("referer") ?? "";
@@ -68,6 +83,12 @@ export async function signIn(input: SignInInput): Promise<SignInResult> {
   });
 
   if (error) {
+    try {
+      await recordLoginFailure(input.email);
+    } catch {
+      // Em desenvolvimento sem banco/migration, a autenticação continua sem
+      // converter falha de infraestrutura em autorização implícita.
+    }
     // Mensagens amigáveis. NÃO vaza se é "e-mail não existe" vs
     // "senha errada" — isso é enumeração de usuários (security anti-pattern).
     if (error.message.toLowerCase().includes("invalid login credentials")) {
@@ -82,6 +103,12 @@ export async function signIn(input: SignInInput): Promise<SignInResult> {
     return { ok: false, error: "Não foi possível autenticar. Tente novamente." };
   }
 
+  try {
+    await clearLoginFailures(input.email);
+  } catch {
+    // A sessão já foi validada pelo provedor; limpeza será tentada no próximo login.
+  }
+
   // Sucesso. redirect() lança NEXT_REDIRECT — não precisa retornar nada.
   // Validação do `next` para evitar open redirect: precisa ser path relativo.
   const cookieStore = await cookies();
@@ -92,8 +119,8 @@ export async function signIn(input: SignInInput): Promise<SignInResult> {
     const encodedSession = `base64-${Buffer.from(JSON.stringify(data.session)).toString("base64url")}`;
     const secure = process.env.NODE_ENV === "production";
     const options = {
-      path: "/", httpOnly: true, sameSite: "lax", secure: false,
-      maxAge: 60 * 60 * 24 * 30,
+      path: "/", httpOnly: true, sameSite: "lax", secure,
+      maxAge: input.remember ? 60 * 60 * 24 * 30 : undefined,
     } as const;
     if (authCookieName) {
       // Grava explicitamente a sessão canônica; não depende da mutação interna

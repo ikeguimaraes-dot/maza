@@ -2,6 +2,14 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+### Recuperação de senha
+
+A recuperação fica desativada por padrão enquanto o SMTP do Supabase não está
+configurado. Depois de configurar e testar o provedor de e-mail, defina
+`PASSWORD_RECOVERY_ENABLED=true` no ambiente do servidor. Sem essa variável, o
+link não aparece no login, a página redireciona para `/login` e a Server Action
+rejeita chamadas diretas.
+
 First, run the development server:
 
 ```bash

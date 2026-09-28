@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { RecoveryForm } from "./RecoveryForm";
+import { redirect } from "next/navigation";
+import { isPasswordRecoveryEnabled } from "@/lib/auth/password-recovery";
 
 export const metadata: Metadata = {
   title: "Recuperar senha · Maza",
@@ -16,6 +18,8 @@ export const metadata: Metadata = {
  * Layout: mesmo padrão visual do /login (card centralizado, Brasa, Fraunces).
  */
 export default function RecoverPasswordPage() {
+  if (!isPasswordRecoveryEnabled()) redirect("/login");
+
   return (
     <main
       className="min-h-screen flex items-center justify-center px-4"

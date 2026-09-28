@@ -1234,34 +1234,6 @@ export async function approveAllPendingPunches(
   }
 }
 
-/**
- * Tokens de sessão pra seed do browser client em PWA standalone.
- *
- * Em iOS Safari PWA standalone, o storage é isolado e document.cookie
- * pode não expor as cookies de auth ao JavaScript do client. O server
- * lê o cookie via SSR (funciona), mas o browser client retorna null
- * em getSession(). Solução: server passa os tokens via prop, client
- * faz setSession() explícito pra seed o storage local do PWA.
- */
-export async function getSessionTokens(): Promise<{
-  accessToken: string;
-  refreshToken: string;
-} | null> {
-  try {
-    const supabase = await createSupabaseServerClient();
-    if (!supabase) return null;
-    const { data } = await supabase.auth.getSession();
-    if (!data.session?.access_token || !data.session.refresh_token) return null;
-    return {
-      accessToken: data.session.access_token,
-      refreshToken: data.session.refresh_token,
-    };
-  } catch (e) {
-    console.error("[getSessionTokens] exceção:", e);
-    return null;
-  }
-}
-
 /** Lookup employee pelo user_id da sessão (rota /ponto). */
 export async function getMyEmployee(userId?: string): Promise<Employee | null> {
   try {

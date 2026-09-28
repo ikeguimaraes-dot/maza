@@ -3,6 +3,7 @@ import Link from "next/link";
 import { LoginForm } from "./LoginForm";
 import { getCurrentUser } from "@maza/auth/server";
 import { redirect } from "next/navigation";
+import { isPasswordRecoveryEnabled } from "@/lib/auth/password-recovery";
 
 export const metadata: Metadata = {
   title: "Entrar · Maza",
@@ -36,6 +37,7 @@ export default async function LoginPage({
 
   const params = await searchParams;
   const initialError = params.error;
+  const passwordRecoveryEnabled = isPasswordRecoveryEnabled();
 
   return (
     <main
@@ -121,15 +123,17 @@ export default async function LoginPage({
           )}
 
           {/* ── Link para recuperar senha ── */}
-          <div className="text-center">
-            <Link
-              href="/recuperar-senha"
-              className="text-xs transition-colors"
-              style={{ color: "var(--text-3, #A09890)" }}
-            >
-              Esqueceu sua senha?
-            </Link>
-          </div>
+          {passwordRecoveryEnabled && (
+            <div className="text-center">
+              <Link
+                href="/recuperar-senha"
+                className="text-xs transition-colors"
+                style={{ color: "var(--text-3, #A09890)" }}
+              >
+                Esqueceu sua senha?
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* ── Footer institucional ── */}

@@ -2,6 +2,11 @@
 
 import { headers } from "next/headers";
 import { createSupabaseServerClient } from "@maza/db/supabase/server";
+import {
+  assertPasswordResetAllowed,
+  recordPasswordResetAttempt,
+} from "@/lib/auth/rate-limit";
+import { isPasswordRecoveryEnabled } from "@/lib/auth/password-recovery";
 
 /**
  * Server Action para reset de senha.
@@ -29,6 +34,10 @@ export async function requestPasswordReset(
   _prev: ResetPasswordResult | null,
   formData: FormData,
 ): Promise<ResetPasswordResult> {
+  if (!isPasswordRecoveryEnabled()) {
+    return { ok: false, error: "Recuperação de senha temporariamente indisponível." };
+  }
+
   const email = String(formData.get("email") ?? "").trim();
 
   if (!email) {
@@ -36,6 +45,17 @@ export async function requestPasswordReset(
   }
   if (!EMAIL_RE.test(email)) {
     return { ok: false, error: "E-mail inválido." };
+  }
+
+  try {
+    if (!(await assertPasswordResetAllowed(email))) {
+      return { ok: false, error: "Muitas tentativas de envio. Aguarde 15 minutos." };
+    }
+    await recordPasswordResetAttempt(email);
+  } catch {
+    if (process.env.NODE_ENV === "production") {
+      return { ok: false, error: "Serviço de recuperação temporariamente indisponível." };
+    }
   }
 
   const supabase = await createSupabaseServerClient();
