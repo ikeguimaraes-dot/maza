@@ -13,7 +13,10 @@ function getSecret(): string | null {
 
 async function identifierHash(email: string): Promise<string> {
   const secret = getSecret();
-  if (!secret) throw new Error("AUTH_RATE_LIMIT_SECRET não configurado");
+  if (!secret) {
+    console.error("[auth-rate-limit] missing_secret");
+    throw new Error("AUTH_RATE_LIMIT_SECRET não configurado");
+  }
   const headerStore = await headers();
   const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   return createHmac("sha256", secret)
@@ -23,19 +26,29 @@ async function identifierHash(email: string): Promise<string> {
 
 async function assertAllowed(email: string, action: string): Promise<boolean> {
   const admin = createServiceClient();
-  if (!admin) throw new Error("Rate limiting indisponível");
+  if (!admin) {
+    console.error("[auth-rate-limit] missing_service_configuration");
+    throw new Error("Rate limiting indisponível");
+  }
   const key = await identifierHash(email);
-  const { data, error } = await admin.rpc("auth_rate_limit_check" as never, {
+  const { data, error, status } = await admin.rpc("auth_rate_limit_check" as never, {
     p_identifier_hash: key,
     p_action: action,
   } as never);
-  if (error) throw new Error("Rate limiting indisponível");
+  if (error) {
+    // Log only protocol metadata: never email, IP, tokens or provider messages.
+    console.error("[auth-rate-limit] check_failed", { status, code: error.code });
+    throw new Error("Rate limiting indisponível");
+  }
   return data === true;
 }
 
 export async function recordLoginFailure(email: string): Promise<void> {
   const admin = createServiceClient();
-  if (!admin) throw new Error("Rate limiting indisponível");
+  if (!admin) {
+    console.error("[auth-rate-limit] missing_service_configuration");
+    throw new Error("Rate limiting indisponível");
+  }
   const key = await identifierHash(email);
   const { error } = await admin.rpc("auth_rate_limit_fail" as never, {
     p_identifier_hash: key,
@@ -64,7 +77,10 @@ export function assertPasswordResetAllowed(email: string): Promise<boolean> {
 
 export async function recordPasswordResetAttempt(email: string): Promise<void> {
   const admin = createServiceClient();
-  if (!admin) throw new Error("Rate limiting indisponível");
+  if (!admin) {
+    console.error("[auth-rate-limit] missing_service_configuration");
+    throw new Error("Rate limiting indisponível");
+  }
   const key = await identifierHash(email);
   const { error } = await admin.rpc("auth_rate_limit_fail" as never, {
     p_identifier_hash: key,
